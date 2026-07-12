@@ -112,7 +112,7 @@ export function ExcelImport() {
         const rawStatus = cleanStr(r["Status"]) ?? "Active";
         const status = STUDENT_STATUS_VALUES.includes(rawStatus as never) ? rawStatus : "Active";
 
-        if (errors.length > 0 || !session || !cls || !sec) {
+        if (errors.length > 0 || !session || !cls || !sec || !scholar || !name || !doa) {
           inv.push({ rowNumber, scholarNumber: scholar ?? "", name: name ?? "", errors });
           return;
         }
@@ -161,7 +161,7 @@ export function ExcelImport() {
             house_id: house?.id ?? null,
             roll_number: cleanStr(r["Roll Number"]),
             joined_on: joinedOn,
-            status,
+            status: status as StudentStatus,
           },
         });
       });
@@ -179,7 +179,8 @@ export function ExcelImport() {
     mutationFn: async () => {
       let ok = 0;
       for (const row of valid) {
-        const { data, error } = await supabase.from("students").insert(row.student).select("id").single();
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const { data, error } = await supabase.from("students").insert(row.student as any).select("id").single();
         if (error) throw error;
         const { error: arErr } = await supabase.from("student_academic_records").insert({
           student_id: data.id,
