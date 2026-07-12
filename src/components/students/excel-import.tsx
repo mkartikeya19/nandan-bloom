@@ -18,10 +18,6 @@ import {
   type RawRow,
 } from "@/lib/students-helpers";
 
-type StudentInsert = Parameters<typeof supabase.from<"students">>[0] extends never
-  ? Record<string, unknown>
-  : Record<string, unknown>;
-
 type ValidRow = {
   rowNumber: number;
   student: Record<string, unknown> & { scholar_number: string; full_name: string };
@@ -37,8 +33,6 @@ type ValidRow = {
 };
 
 type InvalidRow = { rowNumber: number; scholarNumber: string; name: string; errors: string[] };
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-type _StudentInsertMarker = StudentInsert;
 
 export function ExcelImport() {
   const qc = useQueryClient();
