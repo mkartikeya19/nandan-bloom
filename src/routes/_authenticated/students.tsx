@@ -71,10 +71,10 @@ function StudentsPage() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Admission No.</TableHead>
+                  <TableHead>Scholar No.</TableHead>
                   <TableHead>Name</TableHead>
                   <TableHead>Gender</TableHead>
                   <TableHead>Guardian phone</TableHead>
-                  <TableHead>Year</TableHead>
                   <TableHead>Status</TableHead>
                 </TableRow>
               </TableHeader>
@@ -82,10 +82,10 @@ function StudentsPage() {
                 {data.map((s) => (
                   <TableRow key={s.id}>
                     <TableCell className="font-mono text-xs">{s.admission_number}</TableCell>
+                    <TableCell className="font-mono text-xs">{s.scholar_number}</TableCell>
                     <TableCell className="font-medium">{s.full_name}</TableCell>
                     <TableCell className="capitalize">{s.gender ?? "—"}</TableCell>
                     <TableCell>{s.guardian_phone ?? "—"}</TableCell>
-                    <TableCell>{s.academic_year ?? "—"}</TableCell>
                     <TableCell>
                       <Badge variant={s.status === "active" ? "default" : "secondary"}>{s.status}</Badge>
                     </TableCell>
