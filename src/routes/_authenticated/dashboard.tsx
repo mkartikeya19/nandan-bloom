@@ -135,6 +135,7 @@ function Dashboard() {
         title="Dashboard"
         description="Overview of the school's key metrics for the current academic session."
       />
+      <ClaimAdminBanner />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         <StatCard label="Active Students" value={students.data ?? "—"} icon={Users} />
