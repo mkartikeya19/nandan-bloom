@@ -1,14 +1,62 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/page-header";
-import { Users, UserPlus, GraduationCap, Wallet, CalendarCheck, ClipboardList, TrendingUp } from "lucide-react";
+import { Users, UserPlus, GraduationCap, Wallet, CalendarCheck, ClipboardList, TrendingUp, ShieldCheck } from "lucide-react";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   component: Dashboard,
   head: () => ({ meta: [{ title: "Dashboard — School ERP" }] }),
 });
+
+function ClaimAdminBanner() {
+  const qc = useQueryClient();
+  const { data: user } = useQuery({
+    queryKey: ["auth-user"],
+    queryFn: async () => (await supabase.auth.getUser()).data.user,
+  });
+  const { data: myRoles } = useQuery({
+    enabled: !!user,
+    queryKey: ["my-roles", user?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("user_roles").select("role").eq("user_id", user!.id);
+      if (error) throw error;
+      return data;
+    },
+  });
+  if (!user || (myRoles && myRoles.length > 0)) return null;
+
+  const claim = async () => {
+    const { data, error } = await supabase.rpc("claim_first_admin");
+    if (error) return toast.error(error.message);
+    if (data === true) {
+      toast.success("You are now the school administrator.");
+      qc.invalidateQueries();
+    } else {
+      toast.error("An administrator already exists. Ask them to grant you a role.");
+    }
+  };
+
+  return (
+    <Card className="mb-6 border-primary/40 bg-primary/5">
+      <CardContent className="p-5 flex flex-col sm:flex-row sm:items-center gap-4 justify-between">
+        <div className="flex gap-3">
+          <ShieldCheck className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+          <div>
+            <p className="font-medium">Finish setting up your school</p>
+            <p className="text-sm text-muted-foreground">
+              You don't have a role yet. If you are the first user, claim the administrator role now.
+            </p>
+          </div>
+        </div>
+        <Button onClick={claim}>Claim admin role</Button>
+      </CardContent>
+    </Card>
+  );
+}
 
 interface StatCardProps {
   label: string;
@@ -87,6 +135,7 @@ function Dashboard() {
         title="Dashboard"
         description="Overview of the school's key metrics for the current academic session."
       />
+      <ClaimAdminBanner />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         <StatCard label="Active Students" value={students.data ?? "—"} icon={Users} />
