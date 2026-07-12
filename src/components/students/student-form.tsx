@@ -277,7 +277,12 @@ export function StudentForm({ mode, student, currentRecord, onSaved }: Props) {
       }
 
       // Upload documents
-      const updates: Record<string, string> = {};
+      const updates: {
+        photo_url?: string;
+        birth_certificate_url?: string;
+        aadhaar_copy_url?: string;
+        transfer_certificate_url?: string;
+      } = {};
       if (photoFile) updates.photo_url = await uploadStudentFile(form.scholar_number, "photos", photoFile);
       if (birthCertFile)
         updates.birth_certificate_url = await uploadStudentFile(form.scholar_number, "documents", birthCertFile);
