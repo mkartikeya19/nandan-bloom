@@ -547,6 +547,7 @@ export type Database = {
           class_id: string
           created_at: string
           fee_structure_id: string | null
+          house_id: string | null
           id: string
           joined_on: string
           opening_balance: number | null
@@ -562,6 +563,7 @@ export type Database = {
           class_id: string
           created_at?: string
           fee_structure_id?: string | null
+          house_id?: string | null
           id?: string
           joined_on?: string
           opening_balance?: number | null
@@ -577,6 +579,7 @@ export type Database = {
           class_id?: string
           created_at?: string
           fee_structure_id?: string | null
+          house_id?: string | null
           id?: string
           joined_on?: string
           opening_balance?: number | null
@@ -600,6 +603,13 @@ export type Database = {
             columns: ["class_id"]
             isOneToOne: false
             referencedRelation: "school_classes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_academic_records_house_id_fkey"
+            columns: ["house_id"]
+            isOneToOne: false
+            referencedRelation: "houses"
             referencedColumns: ["id"]
           },
           {
@@ -627,81 +637,144 @@ export type Database = {
       }
       students: {
         Row: {
+          aadhaar_copy_url: string | null
           aadhaar_number: string | null
           address: string | null
           admission_number: string
+          admission_type:
+            | Database["public"]["Enums"]["student_admission_type"]
+            | null
+          apaar_id: string | null
+          birth_certificate_url: string | null
           blood_group: string | null
+          caste: string | null
           category: string | null
           city: string | null
           created_at: string
+          date_of_admission: string | null
           date_of_birth: string | null
+          emergency_contact_name: string | null
+          emergency_contact_number: string | null
+          father_email: string | null
+          father_mobile: string | null
           father_name: string | null
+          father_occupation: string | null
           full_name: string
           gender: string | null
           guardian_email: string | null
           guardian_phone: string | null
           id: string
+          mother_email: string | null
+          mother_mobile: string | null
           mother_name: string | null
+          mother_occupation: string | null
+          mother_tongue: string | null
           nationality: string | null
+          other_documents: Json | null
+          pen_id: string | null
           photo_url: string | null
           pincode: string | null
           religion: string | null
           roll_number: string | null
+          samagra_id: string | null
           scholar_number: string
           state: string | null
           status: string
+          transfer_certificate_url: string | null
           updated_at: string
         }
         Insert: {
+          aadhaar_copy_url?: string | null
           aadhaar_number?: string | null
           address?: string | null
           admission_number: string
+          admission_type?:
+            | Database["public"]["Enums"]["student_admission_type"]
+            | null
+          apaar_id?: string | null
+          birth_certificate_url?: string | null
           blood_group?: string | null
+          caste?: string | null
           category?: string | null
           city?: string | null
           created_at?: string
+          date_of_admission?: string | null
           date_of_birth?: string | null
+          emergency_contact_name?: string | null
+          emergency_contact_number?: string | null
+          father_email?: string | null
+          father_mobile?: string | null
           father_name?: string | null
+          father_occupation?: string | null
           full_name: string
           gender?: string | null
           guardian_email?: string | null
           guardian_phone?: string | null
           id?: string
+          mother_email?: string | null
+          mother_mobile?: string | null
           mother_name?: string | null
+          mother_occupation?: string | null
+          mother_tongue?: string | null
           nationality?: string | null
+          other_documents?: Json | null
+          pen_id?: string | null
           photo_url?: string | null
           pincode?: string | null
           religion?: string | null
           roll_number?: string | null
+          samagra_id?: string | null
           scholar_number: string
           state?: string | null
           status?: string
+          transfer_certificate_url?: string | null
           updated_at?: string
         }
         Update: {
+          aadhaar_copy_url?: string | null
           aadhaar_number?: string | null
           address?: string | null
           admission_number?: string
+          admission_type?:
+            | Database["public"]["Enums"]["student_admission_type"]
+            | null
+          apaar_id?: string | null
+          birth_certificate_url?: string | null
           blood_group?: string | null
+          caste?: string | null
           category?: string | null
           city?: string | null
           created_at?: string
+          date_of_admission?: string | null
           date_of_birth?: string | null
+          emergency_contact_name?: string | null
+          emergency_contact_number?: string | null
+          father_email?: string | null
+          father_mobile?: string | null
           father_name?: string | null
+          father_occupation?: string | null
           full_name?: string
           gender?: string | null
           guardian_email?: string | null
           guardian_phone?: string | null
           id?: string
+          mother_email?: string | null
+          mother_mobile?: string | null
           mother_name?: string | null
+          mother_occupation?: string | null
+          mother_tongue?: string | null
           nationality?: string | null
+          other_documents?: Json | null
+          pen_id?: string | null
           photo_url?: string | null
           pincode?: string | null
           religion?: string | null
           roll_number?: string | null
+          samagra_id?: string | null
           scholar_number?: string
           state?: string | null
           status?: string
+          transfer_certificate_url?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -803,9 +876,16 @@ export type Database = {
         }
         Returns: boolean
       }
+      next_scholar_number: { Args: never; Returns: string }
     }
     Enums: {
-      app_role: "admin" | "teacher" | "staff" | "super_admin"
+      app_role:
+        | "admin"
+        | "teacher"
+        | "staff"
+        | "super_admin"
+        | "reception"
+        | "principal"
       student_academic_status:
         | "Active"
         | "Promoted"
@@ -813,6 +893,10 @@ export type Database = {
         | "Passed Out"
         | "Transferred"
         | "Inactive"
+      student_admission_type:
+        | "New Admission"
+        | "Existing Student Migration"
+        | "Re-admission"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -940,7 +1024,14 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "teacher", "staff", "super_admin"],
+      app_role: [
+        "admin",
+        "teacher",
+        "staff",
+        "super_admin",
+        "reception",
+        "principal",
+      ],
       student_academic_status: [
         "Active",
         "Promoted",
@@ -948,6 +1039,11 @@ export const Constants = {
         "Passed Out",
         "Transferred",
         "Inactive",
+      ],
+      student_admission_type: [
+        "New Admission",
+        "Existing Student Migration",
+        "Re-admission",
       ],
     },
   },
