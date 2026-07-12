@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      academic_sessions: {
+        Row: {
+          created_at: string
+          end_date: string
+          id: string
+          is_active: boolean
+          name: string
+          start_date: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          end_date: string
+          id?: string
+          is_active?: boolean
+          name: string
+          start_date: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          end_date?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          start_date?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       admissions: {
         Row: {
           academic_year: string
@@ -247,6 +277,36 @@ export type Database = {
         }
         Relationships: []
       }
+      fee_heads: {
+        Row: {
+          created_at: string
+          default_amount: number
+          description: string | null
+          id: string
+          is_mandatory: boolean
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          default_amount?: number
+          description?: string | null
+          id?: string
+          is_mandatory?: boolean
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          default_amount?: number
+          description?: string | null
+          id?: string
+          is_mandatory?: boolean
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       fee_payments: {
         Row: {
           academic_year: string
@@ -339,6 +399,33 @@ export type Database = {
         }
         Relationships: []
       }
+      houses: {
+        Row: {
+          color: string | null
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -368,6 +455,133 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      school_classes: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          order_index: number
+          session_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          order_index?: number
+          session_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          order_index?: number
+          session_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "school_classes_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "academic_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      school_profile: {
+        Row: {
+          address: string | null
+          affiliation_board: string | null
+          affiliation_number: string | null
+          city: string | null
+          created_at: string
+          email: string | null
+          established_year: number | null
+          id: string
+          logo_url: string | null
+          name: string
+          phone: string | null
+          pincode: string | null
+          principal_name: string | null
+          state: string | null
+          udise_code: string | null
+          updated_at: string
+          website: string | null
+        }
+        Insert: {
+          address?: string | null
+          affiliation_board?: string | null
+          affiliation_number?: string | null
+          city?: string | null
+          created_at?: string
+          email?: string | null
+          established_year?: number | null
+          id?: string
+          logo_url?: string | null
+          name: string
+          phone?: string | null
+          pincode?: string | null
+          principal_name?: string | null
+          state?: string | null
+          udise_code?: string | null
+          updated_at?: string
+          website?: string | null
+        }
+        Update: {
+          address?: string | null
+          affiliation_board?: string | null
+          affiliation_number?: string | null
+          city?: string | null
+          created_at?: string
+          email?: string | null
+          established_year?: number | null
+          id?: string
+          logo_url?: string | null
+          name?: string
+          phone?: string | null
+          pincode?: string | null
+          principal_name?: string | null
+          state?: string | null
+          udise_code?: string | null
+          updated_at?: string
+          website?: string | null
+        }
+        Relationships: []
+      }
+      school_sections: {
+        Row: {
+          class_id: string
+          created_at: string
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          class_id: string
+          created_at?: string
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          class_id?: string
+          created_at?: string
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "school_sections_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "school_classes"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       students: {
         Row: {
@@ -560,7 +774,7 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "admin" | "teacher" | "staff"
+      app_role: "admin" | "teacher" | "staff" | "super_admin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -688,7 +902,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "teacher", "staff"],
+      app_role: ["admin", "teacher", "staff", "super_admin"],
     },
   },
 } as const
