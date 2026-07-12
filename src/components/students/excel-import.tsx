@@ -14,6 +14,7 @@ import {
   parseWorkbook,
   cleanStr,
   STUDENT_STATUS_VALUES,
+  type StudentStatus,
   type RawRow,
 } from "@/lib/students-helpers";
 
