@@ -140,52 +140,10 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "attendance_class_id_fkey"
-            columns: ["class_id"]
-            isOneToOne: false
-            referencedRelation: "classes"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "attendance_student_id_fkey"
             columns: ["student_id"]
             isOneToOne: false
             referencedRelation: "students"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      classes: {
-        Row: {
-          academic_year: string
-          class_teacher_id: string | null
-          created_at: string
-          id: string
-          name: string
-          section: string | null
-        }
-        Insert: {
-          academic_year: string
-          class_teacher_id?: string | null
-          created_at?: string
-          id?: string
-          name: string
-          section?: string | null
-        }
-        Update: {
-          academic_year?: string
-          class_teacher_id?: string | null
-          created_at?: string
-          id?: string
-          name?: string
-          section?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "classes_class_teacher_id_fkey"
-            columns: ["class_teacher_id"]
-            isOneToOne: false
-            referencedRelation: "teachers"
             referencedColumns: ["id"]
           },
         ]
@@ -583,16 +541,98 @@ export type Database = {
           },
         ]
       }
+      student_academic_records: {
+        Row: {
+          academic_session_id: string
+          class_id: string
+          created_at: string
+          fee_structure_id: string | null
+          id: string
+          joined_on: string
+          opening_balance: number | null
+          promoted_from_record_id: string | null
+          roll_number: string | null
+          section_id: string
+          status: Database["public"]["Enums"]["student_academic_status"]
+          student_id: string
+          updated_at: string
+        }
+        Insert: {
+          academic_session_id: string
+          class_id: string
+          created_at?: string
+          fee_structure_id?: string | null
+          id?: string
+          joined_on?: string
+          opening_balance?: number | null
+          promoted_from_record_id?: string | null
+          roll_number?: string | null
+          section_id: string
+          status?: Database["public"]["Enums"]["student_academic_status"]
+          student_id: string
+          updated_at?: string
+        }
+        Update: {
+          academic_session_id?: string
+          class_id?: string
+          created_at?: string
+          fee_structure_id?: string | null
+          id?: string
+          joined_on?: string
+          opening_balance?: number | null
+          promoted_from_record_id?: string | null
+          roll_number?: string | null
+          section_id?: string
+          status?: Database["public"]["Enums"]["student_academic_status"]
+          student_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_academic_records_academic_session_id_fkey"
+            columns: ["academic_session_id"]
+            isOneToOne: false
+            referencedRelation: "academic_sessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_academic_records_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "school_classes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_academic_records_promoted_from_record_id_fkey"
+            columns: ["promoted_from_record_id"]
+            isOneToOne: false
+            referencedRelation: "student_academic_records"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_academic_records_section_id_fkey"
+            columns: ["section_id"]
+            isOneToOne: false
+            referencedRelation: "school_sections"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_academic_records_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       students: {
         Row: {
           aadhaar_number: string | null
-          academic_year: string | null
           address: string | null
           admission_number: string
           blood_group: string | null
           category: string | null
           city: string | null
-          class_id: string | null
           created_at: string
           date_of_birth: string | null
           father_name: string | null
@@ -607,19 +647,18 @@ export type Database = {
           pincode: string | null
           religion: string | null
           roll_number: string | null
+          scholar_number: string
           state: string | null
           status: string
           updated_at: string
         }
         Insert: {
           aadhaar_number?: string | null
-          academic_year?: string | null
           address?: string | null
           admission_number: string
           blood_group?: string | null
           category?: string | null
           city?: string | null
-          class_id?: string | null
           created_at?: string
           date_of_birth?: string | null
           father_name?: string | null
@@ -634,19 +673,18 @@ export type Database = {
           pincode?: string | null
           religion?: string | null
           roll_number?: string | null
+          scholar_number: string
           state?: string | null
           status?: string
           updated_at?: string
         }
         Update: {
           aadhaar_number?: string | null
-          academic_year?: string | null
           address?: string | null
           admission_number?: string
           blood_group?: string | null
           category?: string | null
           city?: string | null
-          class_id?: string | null
           created_at?: string
           date_of_birth?: string | null
           father_name?: string | null
@@ -661,19 +699,12 @@ export type Database = {
           pincode?: string | null
           religion?: string | null
           roll_number?: string | null
+          scholar_number?: string
           state?: string | null
           status?: string
           updated_at?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "students_class_id_fkey"
-            columns: ["class_id"]
-            isOneToOne: false
-            referencedRelation: "classes"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       teachers: {
         Row: {
@@ -775,6 +806,13 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "teacher" | "staff" | "super_admin"
+      student_academic_status:
+        | "Active"
+        | "Promoted"
+        | "Left"
+        | "Passed Out"
+        | "Transferred"
+        | "Inactive"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -903,6 +941,14 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "teacher", "staff", "super_admin"],
+      student_academic_status: [
+        "Active",
+        "Promoted",
+        "Left",
+        "Passed Out",
+        "Transferred",
+        "Inactive",
+      ],
     },
   },
 } as const
