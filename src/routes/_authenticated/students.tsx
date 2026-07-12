@@ -24,7 +24,7 @@ function StudentsPage() {
     queryFn: async () => {
       let query = supabase
         .from("students")
-        .select("id, admission_number, full_name, gender, guardian_phone, status, academic_year")
+        .select("id, admission_number, scholar_number, full_name, gender, guardian_phone, status")
         .order("created_at", { ascending: false })
         .limit(100);
       if (q) query = query.or(`full_name.ilike.%${q}%,admission_number.ilike.%${q}%`);
