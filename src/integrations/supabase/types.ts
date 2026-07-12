@@ -640,7 +640,7 @@ export type Database = {
           aadhaar_copy_url: string | null
           aadhaar_number: string | null
           address: string | null
-          admission_number: string
+          admission_number: string | null
           admission_type:
             | Database["public"]["Enums"]["student_admission_type"]
             | null
@@ -662,6 +662,7 @@ export type Database = {
           full_name: string
           gender: string | null
           guardian_email: string | null
+          guardian_name: string | null
           guardian_phone: string | null
           id: string
           mother_email: string | null
@@ -687,7 +688,7 @@ export type Database = {
           aadhaar_copy_url?: string | null
           aadhaar_number?: string | null
           address?: string | null
-          admission_number: string
+          admission_number?: string | null
           admission_type?:
             | Database["public"]["Enums"]["student_admission_type"]
             | null
@@ -709,6 +710,7 @@ export type Database = {
           full_name: string
           gender?: string | null
           guardian_email?: string | null
+          guardian_name?: string | null
           guardian_phone?: string | null
           id?: string
           mother_email?: string | null
@@ -734,7 +736,7 @@ export type Database = {
           aadhaar_copy_url?: string | null
           aadhaar_number?: string | null
           address?: string | null
-          admission_number?: string
+          admission_number?: string | null
           admission_type?:
             | Database["public"]["Enums"]["student_admission_type"]
             | null
@@ -756,6 +758,7 @@ export type Database = {
           full_name?: string
           gender?: string | null
           guardian_email?: string | null
+          guardian_name?: string | null
           guardian_phone?: string | null
           id?: string
           mother_email?: string | null

@@ -1,7 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
-export type AppRole = "super_admin" | "admin" | "teacher" | "staff";
+export type AppRole =
+  | "super_admin"
+  | "admin"
+  | "teacher"
+  | "staff"
+  | "reception"
+  | "principal";
 
 export function useUserRoles() {
   const query = useQuery({
@@ -18,11 +24,26 @@ export function useUserRoles() {
   });
 
   const roles = query.data?.roles ?? [];
+  const isSuperAdmin = roles.includes("super_admin");
+  const isAdmin = roles.includes("admin") || isSuperAdmin;
+  const isReception = roles.includes("reception");
+  const isPrincipal = roles.includes("principal");
+  const isTeacher = roles.includes("teacher");
+
   return {
     ...query,
     userId: query.data?.userId ?? null,
     roles,
-    isSuperAdmin: roles.includes("super_admin"),
-    isAdmin: roles.includes("admin") || roles.includes("super_admin"),
+    isSuperAdmin,
+    isAdmin,
+    isReception,
+    isPrincipal,
+    isTeacher,
+    // Student module permissions
+    canCreateStudent: isAdmin || isReception,
+    canEditStudent: isAdmin || isReception,
+    canPromoteStudent: isAdmin || isPrincipal,
+    canArchiveStudent: isAdmin,
+    canViewStudent: roles.length > 0,
   };
 }
