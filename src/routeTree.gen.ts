@@ -15,12 +15,12 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedTeachersRouteImport } from './routes/_authenticated/teachers'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedReportsRouteImport } from './routes/_authenticated/reports'
-import { Route as AuthenticatedFeesRouteImport } from './routes/_authenticated/fees'
 import { Route as AuthenticatedExaminationsRouteImport } from './routes/_authenticated/examinations'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedAttendanceRouteImport } from './routes/_authenticated/attendance'
 import { Route as AuthenticatedAdmissionsRouteImport } from './routes/_authenticated/admissions'
 import { Route as AuthenticatedStudentsIndexRouteImport } from './routes/_authenticated/students.index'
+import { Route as AuthenticatedFeesIndexRouteImport } from './routes/_authenticated/fees.index'
 import { Route as AuthenticatedStudentsNewRouteImport } from './routes/_authenticated/students.new'
 import { Route as AuthenticatedStudentsImportRouteImport } from './routes/_authenticated/students.import'
 import { Route as AuthenticatedStudentsStudentIdRouteImport } from './routes/_authenticated/students.$studentId'
@@ -63,11 +63,6 @@ const AuthenticatedReportsRoute = AuthenticatedReportsRouteImport.update({
   path: '/reports',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedFeesRoute = AuthenticatedFeesRouteImport.update({
-  id: '/fees',
-  path: '/fees',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
 const AuthenticatedExaminationsRoute =
   AuthenticatedExaminationsRouteImport.update({
     id: '/examinations',
@@ -95,6 +90,11 @@ const AuthenticatedStudentsIndexRoute =
     path: '/students/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedFeesIndexRoute = AuthenticatedFeesIndexRouteImport.update({
+  id: '/fees/',
+  path: '/fees/',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedStudentsNewRoute =
   AuthenticatedStudentsNewRouteImport.update({
     id: '/students/new',
@@ -115,32 +115,32 @@ const AuthenticatedStudentsStudentIdRoute =
   } as any)
 const AuthenticatedFeesStructuresRoute =
   AuthenticatedFeesStructuresRouteImport.update({
-    id: '/structures',
-    path: '/structures',
-    getParentRoute: () => AuthenticatedFeesRoute,
+    id: '/fees/structures',
+    path: '/fees/structures',
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedFeesSettingsRoute =
   AuthenticatedFeesSettingsRouteImport.update({
-    id: '/settings',
-    path: '/settings',
-    getParentRoute: () => AuthenticatedFeesRoute,
+    id: '/fees/settings',
+    path: '/fees/settings',
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedFeesImportRoute = AuthenticatedFeesImportRouteImport.update({
-  id: '/import',
-  path: '/import',
-  getParentRoute: () => AuthenticatedFeesRoute,
+  id: '/fees/import',
+  path: '/fees/import',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedFeesConcessionsRoute =
   AuthenticatedFeesConcessionsRouteImport.update({
-    id: '/concessions',
-    path: '/concessions',
-    getParentRoute: () => AuthenticatedFeesRoute,
+    id: '/fees/concessions',
+    path: '/fees/concessions',
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedFeesCollectRoute =
   AuthenticatedFeesCollectRouteImport.update({
-    id: '/collect',
-    path: '/collect',
-    getParentRoute: () => AuthenticatedFeesRoute,
+    id: '/fees/collect',
+    path: '/fees/collect',
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedStudentsStudentIdEditRoute =
   AuthenticatedStudentsStudentIdEditRouteImport.update({
@@ -156,9 +156,9 @@ const AuthenticatedFeesStructuresStructureIdRoute =
   } as any)
 const AuthenticatedFeesReceiptsPaymentIdRoute =
   AuthenticatedFeesReceiptsPaymentIdRouteImport.update({
-    id: '/receipts/$paymentId',
-    path: '/receipts/$paymentId',
-    getParentRoute: () => AuthenticatedFeesRoute,
+    id: '/fees/receipts/$paymentId',
+    path: '/fees/receipts/$paymentId',
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedFeesCollectStudentIdRoute =
   AuthenticatedFeesCollectStudentIdRouteImport.update({
@@ -174,7 +174,6 @@ export interface FileRoutesByFullPath {
   '/attendance': typeof AuthenticatedAttendanceRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/examinations': typeof AuthenticatedExaminationsRoute
-  '/fees': typeof AuthenticatedFeesRouteWithChildren
   '/reports': typeof AuthenticatedReportsRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/teachers': typeof AuthenticatedTeachersRoute
@@ -186,6 +185,7 @@ export interface FileRoutesByFullPath {
   '/students/$studentId': typeof AuthenticatedStudentsStudentIdRouteWithChildren
   '/students/import': typeof AuthenticatedStudentsImportRoute
   '/students/new': typeof AuthenticatedStudentsNewRoute
+  '/fees/': typeof AuthenticatedFeesIndexRoute
   '/students/': typeof AuthenticatedStudentsIndexRoute
   '/fees/collect/$studentId': typeof AuthenticatedFeesCollectStudentIdRoute
   '/fees/receipts/$paymentId': typeof AuthenticatedFeesReceiptsPaymentIdRoute
@@ -199,7 +199,6 @@ export interface FileRoutesByTo {
   '/attendance': typeof AuthenticatedAttendanceRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/examinations': typeof AuthenticatedExaminationsRoute
-  '/fees': typeof AuthenticatedFeesRouteWithChildren
   '/reports': typeof AuthenticatedReportsRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/teachers': typeof AuthenticatedTeachersRoute
@@ -211,6 +210,7 @@ export interface FileRoutesByTo {
   '/students/$studentId': typeof AuthenticatedStudentsStudentIdRouteWithChildren
   '/students/import': typeof AuthenticatedStudentsImportRoute
   '/students/new': typeof AuthenticatedStudentsNewRoute
+  '/fees': typeof AuthenticatedFeesIndexRoute
   '/students': typeof AuthenticatedStudentsIndexRoute
   '/fees/collect/$studentId': typeof AuthenticatedFeesCollectStudentIdRoute
   '/fees/receipts/$paymentId': typeof AuthenticatedFeesReceiptsPaymentIdRoute
@@ -226,7 +226,6 @@ export interface FileRoutesById {
   '/_authenticated/attendance': typeof AuthenticatedAttendanceRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/examinations': typeof AuthenticatedExaminationsRoute
-  '/_authenticated/fees': typeof AuthenticatedFeesRouteWithChildren
   '/_authenticated/reports': typeof AuthenticatedReportsRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/teachers': typeof AuthenticatedTeachersRoute
@@ -238,6 +237,7 @@ export interface FileRoutesById {
   '/_authenticated/students/$studentId': typeof AuthenticatedStudentsStudentIdRouteWithChildren
   '/_authenticated/students/import': typeof AuthenticatedStudentsImportRoute
   '/_authenticated/students/new': typeof AuthenticatedStudentsNewRoute
+  '/_authenticated/fees/': typeof AuthenticatedFeesIndexRoute
   '/_authenticated/students/': typeof AuthenticatedStudentsIndexRoute
   '/_authenticated/fees/collect/$studentId': typeof AuthenticatedFeesCollectStudentIdRoute
   '/_authenticated/fees/receipts/$paymentId': typeof AuthenticatedFeesReceiptsPaymentIdRoute
@@ -253,7 +253,6 @@ export interface FileRouteTypes {
     | '/attendance'
     | '/dashboard'
     | '/examinations'
-    | '/fees'
     | '/reports'
     | '/settings'
     | '/teachers'
@@ -265,6 +264,7 @@ export interface FileRouteTypes {
     | '/students/$studentId'
     | '/students/import'
     | '/students/new'
+    | '/fees/'
     | '/students/'
     | '/fees/collect/$studentId'
     | '/fees/receipts/$paymentId'
@@ -278,7 +278,6 @@ export interface FileRouteTypes {
     | '/attendance'
     | '/dashboard'
     | '/examinations'
-    | '/fees'
     | '/reports'
     | '/settings'
     | '/teachers'
@@ -290,6 +289,7 @@ export interface FileRouteTypes {
     | '/students/$studentId'
     | '/students/import'
     | '/students/new'
+    | '/fees'
     | '/students'
     | '/fees/collect/$studentId'
     | '/fees/receipts/$paymentId'
@@ -304,7 +304,6 @@ export interface FileRouteTypes {
     | '/_authenticated/attendance'
     | '/_authenticated/dashboard'
     | '/_authenticated/examinations'
-    | '/_authenticated/fees'
     | '/_authenticated/reports'
     | '/_authenticated/settings'
     | '/_authenticated/teachers'
@@ -316,6 +315,7 @@ export interface FileRouteTypes {
     | '/_authenticated/students/$studentId'
     | '/_authenticated/students/import'
     | '/_authenticated/students/new'
+    | '/_authenticated/fees/'
     | '/_authenticated/students/'
     | '/_authenticated/fees/collect/$studentId'
     | '/_authenticated/fees/receipts/$paymentId'
@@ -373,13 +373,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedReportsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/fees': {
-      id: '/_authenticated/fees'
-      path: '/fees'
-      fullPath: '/fees'
-      preLoaderRoute: typeof AuthenticatedFeesRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
     '/_authenticated/examinations': {
       id: '/_authenticated/examinations'
       path: '/examinations'
@@ -415,6 +408,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStudentsIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/fees/': {
+      id: '/_authenticated/fees/'
+      path: '/fees'
+      fullPath: '/fees/'
+      preLoaderRoute: typeof AuthenticatedFeesIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/students/new': {
       id: '/_authenticated/students/new'
       path: '/students/new'
@@ -438,38 +438,38 @@ declare module '@tanstack/react-router' {
     }
     '/_authenticated/fees/structures': {
       id: '/_authenticated/fees/structures'
-      path: '/structures'
+      path: '/fees/structures'
       fullPath: '/fees/structures'
       preLoaderRoute: typeof AuthenticatedFeesStructuresRouteImport
-      parentRoute: typeof AuthenticatedFeesRoute
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/fees/settings': {
       id: '/_authenticated/fees/settings'
-      path: '/settings'
+      path: '/fees/settings'
       fullPath: '/fees/settings'
       preLoaderRoute: typeof AuthenticatedFeesSettingsRouteImport
-      parentRoute: typeof AuthenticatedFeesRoute
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/fees/import': {
       id: '/_authenticated/fees/import'
-      path: '/import'
+      path: '/fees/import'
       fullPath: '/fees/import'
       preLoaderRoute: typeof AuthenticatedFeesImportRouteImport
-      parentRoute: typeof AuthenticatedFeesRoute
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/fees/concessions': {
       id: '/_authenticated/fees/concessions'
-      path: '/concessions'
+      path: '/fees/concessions'
       fullPath: '/fees/concessions'
       preLoaderRoute: typeof AuthenticatedFeesConcessionsRouteImport
-      parentRoute: typeof AuthenticatedFeesRoute
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/fees/collect': {
       id: '/_authenticated/fees/collect'
-      path: '/collect'
+      path: '/fees/collect'
       fullPath: '/fees/collect'
       preLoaderRoute: typeof AuthenticatedFeesCollectRouteImport
-      parentRoute: typeof AuthenticatedFeesRoute
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/students/$studentId/edit': {
       id: '/_authenticated/students/$studentId/edit'
@@ -487,10 +487,10 @@ declare module '@tanstack/react-router' {
     }
     '/_authenticated/fees/receipts/$paymentId': {
       id: '/_authenticated/fees/receipts/$paymentId'
-      path: '/receipts/$paymentId'
+      path: '/fees/receipts/$paymentId'
       fullPath: '/fees/receipts/$paymentId'
       preLoaderRoute: typeof AuthenticatedFeesReceiptsPaymentIdRouteImport
-      parentRoute: typeof AuthenticatedFeesRoute
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/fees/collect/$studentId': {
       id: '/_authenticated/fees/collect/$studentId'
@@ -532,29 +532,6 @@ const AuthenticatedFeesStructuresRouteWithChildren =
     AuthenticatedFeesStructuresRouteChildren,
   )
 
-interface AuthenticatedFeesRouteChildren {
-  AuthenticatedFeesCollectRoute: typeof AuthenticatedFeesCollectRouteWithChildren
-  AuthenticatedFeesConcessionsRoute: typeof AuthenticatedFeesConcessionsRoute
-  AuthenticatedFeesImportRoute: typeof AuthenticatedFeesImportRoute
-  AuthenticatedFeesSettingsRoute: typeof AuthenticatedFeesSettingsRoute
-  AuthenticatedFeesStructuresRoute: typeof AuthenticatedFeesStructuresRouteWithChildren
-  AuthenticatedFeesReceiptsPaymentIdRoute: typeof AuthenticatedFeesReceiptsPaymentIdRoute
-}
-
-const AuthenticatedFeesRouteChildren: AuthenticatedFeesRouteChildren = {
-  AuthenticatedFeesCollectRoute: AuthenticatedFeesCollectRouteWithChildren,
-  AuthenticatedFeesConcessionsRoute: AuthenticatedFeesConcessionsRoute,
-  AuthenticatedFeesImportRoute: AuthenticatedFeesImportRoute,
-  AuthenticatedFeesSettingsRoute: AuthenticatedFeesSettingsRoute,
-  AuthenticatedFeesStructuresRoute:
-    AuthenticatedFeesStructuresRouteWithChildren,
-  AuthenticatedFeesReceiptsPaymentIdRoute:
-    AuthenticatedFeesReceiptsPaymentIdRoute,
-}
-
-const AuthenticatedFeesRouteWithChildren =
-  AuthenticatedFeesRoute._addFileChildren(AuthenticatedFeesRouteChildren)
-
 interface AuthenticatedStudentsStudentIdRouteChildren {
   AuthenticatedStudentsStudentIdEditRoute: typeof AuthenticatedStudentsStudentIdEditRoute
 }
@@ -575,14 +552,20 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAttendanceRoute: typeof AuthenticatedAttendanceRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedExaminationsRoute: typeof AuthenticatedExaminationsRoute
-  AuthenticatedFeesRoute: typeof AuthenticatedFeesRouteWithChildren
   AuthenticatedReportsRoute: typeof AuthenticatedReportsRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedTeachersRoute: typeof AuthenticatedTeachersRoute
+  AuthenticatedFeesCollectRoute: typeof AuthenticatedFeesCollectRouteWithChildren
+  AuthenticatedFeesConcessionsRoute: typeof AuthenticatedFeesConcessionsRoute
+  AuthenticatedFeesImportRoute: typeof AuthenticatedFeesImportRoute
+  AuthenticatedFeesSettingsRoute: typeof AuthenticatedFeesSettingsRoute
+  AuthenticatedFeesStructuresRoute: typeof AuthenticatedFeesStructuresRouteWithChildren
   AuthenticatedStudentsStudentIdRoute: typeof AuthenticatedStudentsStudentIdRouteWithChildren
   AuthenticatedStudentsImportRoute: typeof AuthenticatedStudentsImportRoute
   AuthenticatedStudentsNewRoute: typeof AuthenticatedStudentsNewRoute
+  AuthenticatedFeesIndexRoute: typeof AuthenticatedFeesIndexRoute
   AuthenticatedStudentsIndexRoute: typeof AuthenticatedStudentsIndexRoute
+  AuthenticatedFeesReceiptsPaymentIdRoute: typeof AuthenticatedFeesReceiptsPaymentIdRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -590,15 +573,23 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAttendanceRoute: AuthenticatedAttendanceRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedExaminationsRoute: AuthenticatedExaminationsRoute,
-  AuthenticatedFeesRoute: AuthenticatedFeesRouteWithChildren,
   AuthenticatedReportsRoute: AuthenticatedReportsRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedTeachersRoute: AuthenticatedTeachersRoute,
+  AuthenticatedFeesCollectRoute: AuthenticatedFeesCollectRouteWithChildren,
+  AuthenticatedFeesConcessionsRoute: AuthenticatedFeesConcessionsRoute,
+  AuthenticatedFeesImportRoute: AuthenticatedFeesImportRoute,
+  AuthenticatedFeesSettingsRoute: AuthenticatedFeesSettingsRoute,
+  AuthenticatedFeesStructuresRoute:
+    AuthenticatedFeesStructuresRouteWithChildren,
   AuthenticatedStudentsStudentIdRoute:
     AuthenticatedStudentsStudentIdRouteWithChildren,
   AuthenticatedStudentsImportRoute: AuthenticatedStudentsImportRoute,
   AuthenticatedStudentsNewRoute: AuthenticatedStudentsNewRoute,
+  AuthenticatedFeesIndexRoute: AuthenticatedFeesIndexRoute,
   AuthenticatedStudentsIndexRoute: AuthenticatedStudentsIndexRoute,
+  AuthenticatedFeesReceiptsPaymentIdRoute:
+    AuthenticatedFeesReceiptsPaymentIdRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
@@ -612,13 +603,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

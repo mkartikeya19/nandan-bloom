@@ -10,7 +10,7 @@ import { FeesTabs } from "@/components/fees/fees-tabs";
 import { formatINR } from "@/lib/fees-helpers";
 import { Wallet, Calendar, AlertCircle, Users, Receipt } from "lucide-react";
 
-export const Route = createFileRoute("/_authenticated/fees")({
+export const Route = createFileRoute("/_authenticated/fees/")({
   component: FeesDashboard,
   head: () => ({ meta: [{ title: "Fee Management — School ERP" }] }),
 });
