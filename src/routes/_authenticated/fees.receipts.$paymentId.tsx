@@ -63,7 +63,7 @@ function ReceiptView() {
       <Card className="print:shadow-none print:border-0">
         <CardContent className="p-8 print:p-4">
           <div className="text-center border-b pb-4 mb-4">
-            <h1 className="text-2xl font-bold">{school.data?.school_name ?? "Nandan Kids Higher Secondary School"}</h1>
+            <h1 className="text-2xl font-bold">{school.data?.name ?? "Nandan Kids Higher Secondary School"}</h1>
             {school.data?.address && <p className="text-sm text-muted-foreground">{school.data.address}</p>}
             <p className="mt-2 font-semibold uppercase tracking-wide">Fee Receipt</p>
             {p.is_void && <p className="text-destructive font-bold text-lg">** VOID **</p>}
