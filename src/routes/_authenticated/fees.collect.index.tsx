@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Search } from "lucide-react";
 
-export const Route = createFileRoute("/_authenticated/fees/collect")({
+export const Route = createFileRoute("/_authenticated/fees/collect/")({
   component: CollectSearch,
 });
 

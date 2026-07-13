@@ -15,7 +15,7 @@ import { toast } from "sonner";
 import { Plus, Pencil, Loader2 } from "lucide-react";
 import { useUserRoles } from "@/hooks/use-user-role";
 
-export const Route = createFileRoute("/_authenticated/fees/structures")({
+export const Route = createFileRoute("/_authenticated/fees/structures/")({
   component: FeeStructuresList,
 });
 
