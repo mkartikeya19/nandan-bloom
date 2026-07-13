@@ -1,0 +1,119 @@
+import { supabase } from "@/integrations/supabase/client";
+
+export const FEE_FREQUENCIES = ["Monthly", "Quarterly", "Annual", "One Time", "Optional"] as const;
+export type FeeFrequency = (typeof FEE_FREQUENCIES)[number];
+
+export const PAYMENT_MODES = [
+  "Cash", "Cheque", "UPI", "NEFT", "RTGS", "IMPS", "Bank Transfer",
+  "Debit Card", "Credit Card", "QR Code",
+] as const;
+export type PaymentMode = (typeof PAYMENT_MODES)[number];
+
+export const SCHEDULE_STATUSES = ["Pending", "Partial", "Paid", "Waived"] as const;
+export type ScheduleStatus = (typeof SCHEDULE_STATUSES)[number];
+
+export const MONTH_NAMES = [
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December",
+];
+
+export const DEFAULT_TUITION_MONTHS = [4, 7, 8, 9, 10, 11, 12, 1, 2, 3]; // no May/June
+
+export function formatINR(n: number | string | null | undefined): string {
+  const v = Number(n ?? 0);
+  return `₹${v.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}
+
+// Number to Indian rupees in words
+export function amountInWords(num: number): string {
+  const n = Math.round(num);
+  if (n === 0) return "Zero Rupees Only";
+  const a = [
+    "", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine",
+    "Ten", "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen",
+    "Seventeen", "Eighteen", "Nineteen",
+  ];
+  const b = ["", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"];
+  const inWords = (x: number): string => {
+    if (x < 20) return a[x];
+    if (x < 100) return b[Math.floor(x / 10)] + (x % 10 ? " " + a[x % 10] : "");
+    if (x < 1000) return a[Math.floor(x / 100)] + " Hundred" + (x % 100 ? " " + inWords(x % 100) : "");
+    return "";
+  };
+  const parts: string[] = [];
+  const crore = Math.floor(n / 10000000);
+  const lakh = Math.floor((n % 10000000) / 100000);
+  const thousand = Math.floor((n % 100000) / 1000);
+  const rest = n % 1000;
+  if (crore) parts.push(inWords(crore) + " Crore");
+  if (lakh) parts.push(inWords(lakh) + " Lakh");
+  if (thousand) parts.push(inWords(thousand) + " Thousand");
+  if (rest) parts.push(inWords(rest));
+  return parts.join(" ") + " Rupees Only";
+}
+
+export interface ScheduleRow {
+  id: string;
+  fee_head_id: string;
+  period_label: string;
+  period_month: number | null;
+  period_year: number | null;
+  due_amount: number;
+  concession_amount: number;
+  paid_amount: number;
+  status: ScheduleStatus;
+  is_opening_balance: boolean;
+  display_order: number;
+  sort_key: string | null;
+}
+
+export interface AllocationDraft {
+  scheduleId: string;
+  amount: number;
+}
+
+/**
+ * Default payment allocator.
+ * Order:
+ *  1. Opening balance / previous session dues (is_opening_balance)
+ *  2. Oldest outstanding month (sort_key ascending, e.g. 2025-04)
+ *  3. Remaining tuition months (covered by sort_key ordering)
+ *  4. Annual charges (display_order 9000-9499)
+ *  5. Other / Optional heads (display_order 9500+)
+ */
+export function allocatePayment(amount: number, rows: ScheduleRow[]): AllocationDraft[] {
+  const sorted = [...rows].sort((a, b) => {
+    if (a.is_opening_balance !== b.is_opening_balance) return a.is_opening_balance ? -1 : 1;
+    if (a.display_order !== b.display_order) return a.display_order - b.display_order;
+    return (a.sort_key ?? "").localeCompare(b.sort_key ?? "");
+  });
+  let remaining = Math.max(0, Math.round(amount * 100) / 100);
+  const result: AllocationDraft[] = [];
+  for (const r of sorted) {
+    if (remaining <= 0) break;
+    const outstanding = Math.max(0, Number(r.due_amount) - Number(r.concession_amount) - Number(r.paid_amount));
+    if (outstanding <= 0) continue;
+    const alloc = Math.min(outstanding, remaining);
+    result.push({ scheduleId: r.id, amount: Math.round(alloc * 100) / 100 });
+    remaining = Math.round((remaining - alloc) * 100) / 100;
+  }
+  return result;
+}
+
+export function outstandingOf(r: Pick<ScheduleRow, "due_amount" | "concession_amount" | "paid_amount">) {
+  return Math.max(0, Number(r.due_amount) - Number(r.concession_amount) - Number(r.paid_amount));
+}
+
+export async function generateStudentSchedule(recordId: string): Promise<number> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (supabase as any).rpc("generate_student_fee_schedule", { _record_id: recordId });
+  if (error) throw error;
+  return Number(data ?? 0);
+}
+
+export async function nextReceiptNumber(): Promise<string> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (supabase as any).rpc("next_receipt_number");
+  if (error) throw error;
+  return String(data);
+}

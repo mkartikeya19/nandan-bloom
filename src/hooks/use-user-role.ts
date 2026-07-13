@@ -45,5 +45,11 @@ export function useUserRoles() {
     canPromoteStudent: isAdmin || isPrincipal,
     canArchiveStudent: isAdmin,
     canViewStudent: roles.length > 0,
+    // Fee module permissions
+    canManageFeeStructures: isAdmin,
+    canCollectFee: isAdmin || isReception,
+    canVoidReceipt: isAdmin,
+    canApproveConcession: isAdmin || isPrincipal,
+    canViewFees: roles.length > 0,
   };
 }
