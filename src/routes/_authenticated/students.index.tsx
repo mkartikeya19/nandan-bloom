@@ -21,7 +21,7 @@ import { STUDENT_STATUS_VALUES, type StudentStatus } from "@/lib/students-helper
 import { PromoteDialog } from "@/components/students/promote-dialog";
 import { ArchiveDialog } from "@/components/students/archive-dialog";
 
-export const Route = createFileRoute("/_authenticated/students")({
+export const Route = createFileRoute("/_authenticated/students/")({
   component: StudentsPage,
   head: () => ({ meta: [{ title: "Students — School ERP" }] }),
 });
