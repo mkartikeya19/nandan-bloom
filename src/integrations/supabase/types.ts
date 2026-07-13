@@ -235,77 +235,251 @@ export type Database = {
         }
         Relationships: []
       }
+      fee_concessions: {
+        Row: {
+          academic_session_id: string
+          amount: number | null
+          approved_by: string | null
+          approved_on: string
+          concession_type: string
+          created_at: string
+          fee_head_id: string | null
+          id: string
+          percentage: number | null
+          reason: string | null
+          student_id: string
+        }
+        Insert: {
+          academic_session_id: string
+          amount?: number | null
+          approved_by?: string | null
+          approved_on?: string
+          concession_type: string
+          created_at?: string
+          fee_head_id?: string | null
+          id?: string
+          percentage?: number | null
+          reason?: string | null
+          student_id: string
+        }
+        Update: {
+          academic_session_id?: string
+          amount?: number | null
+          approved_by?: string | null
+          approved_on?: string
+          concession_type?: string
+          created_at?: string
+          fee_head_id?: string | null
+          id?: string
+          percentage?: number | null
+          reason?: string | null
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fee_concessions_academic_session_id_fkey"
+            columns: ["academic_session_id"]
+            isOneToOne: false
+            referencedRelation: "academic_sessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fee_concessions_fee_head_id_fkey"
+            columns: ["fee_head_id"]
+            isOneToOne: false
+            referencedRelation: "fee_heads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fee_concessions_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       fee_heads: {
         Row: {
+          code: string | null
           created_at: string
           default_amount: number
+          default_applicable_months: number[] | null
+          default_frequency: Database["public"]["Enums"]["fee_frequency"]
           description: string | null
           id: string
+          is_active: boolean
           is_mandatory: boolean
           name: string
+          sort_order: number
           updated_at: string
         }
         Insert: {
+          code?: string | null
           created_at?: string
           default_amount?: number
+          default_applicable_months?: number[] | null
+          default_frequency?: Database["public"]["Enums"]["fee_frequency"]
           description?: string | null
           id?: string
+          is_active?: boolean
           is_mandatory?: boolean
           name: string
+          sort_order?: number
           updated_at?: string
         }
         Update: {
+          code?: string | null
           created_at?: string
           default_amount?: number
+          default_applicable_months?: number[] | null
+          default_frequency?: Database["public"]["Enums"]["fee_frequency"]
           description?: string | null
           id?: string
+          is_active?: boolean
           is_mandatory?: boolean
           name?: string
+          sort_order?: number
           updated_at?: string
         }
         Relationships: []
       }
-      fee_payments: {
+      fee_payment_allocations: {
         Row: {
-          academic_year: string
           amount: number
           created_at: string
+          fee_payment_id: string
           id: string
+          student_fee_schedule_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          fee_payment_id: string
+          id?: string
+          student_fee_schedule_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          fee_payment_id?: string
+          id?: string
+          student_fee_schedule_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fee_payment_allocations_fee_payment_id_fkey"
+            columns: ["fee_payment_id"]
+            isOneToOne: false
+            referencedRelation: "fee_payments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fee_payment_allocations_student_fee_schedule_id_fkey"
+            columns: ["student_fee_schedule_id"]
+            isOneToOne: false
+            referencedRelation: "student_fee_schedule"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fee_payments: {
+        Row: {
+          academic_record_id: string | null
+          academic_session_id: string | null
+          academic_year: string
+          amount: number
+          collected_by: string | null
+          concession_total: number
+          created_at: string
+          id: string
+          is_void: boolean
+          last_printed_at: string | null
+          notes: string | null
           payment_date: string
-          payment_mode: string
+          payment_mode: Database["public"]["Enums"]["fee_payment_mode"]
           receipt_number: string
+          receipt_print_count: number
           remarks: string | null
           status: string
           student_id: string
+          sub_total: number | null
           term: string | null
+          transaction_reference: string | null
+          updated_at: string
+          void_reason: string | null
+          voided_at: string | null
+          voided_by: string | null
         }
         Insert: {
+          academic_record_id?: string | null
+          academic_session_id?: string | null
           academic_year: string
           amount: number
+          collected_by?: string | null
+          concession_total?: number
           created_at?: string
           id?: string
+          is_void?: boolean
+          last_printed_at?: string | null
+          notes?: string | null
           payment_date?: string
-          payment_mode: string
+          payment_mode: Database["public"]["Enums"]["fee_payment_mode"]
           receipt_number: string
+          receipt_print_count?: number
           remarks?: string | null
           status?: string
           student_id: string
+          sub_total?: number | null
           term?: string | null
+          transaction_reference?: string | null
+          updated_at?: string
+          void_reason?: string | null
+          voided_at?: string | null
+          voided_by?: string | null
         }
         Update: {
+          academic_record_id?: string | null
+          academic_session_id?: string | null
           academic_year?: string
           amount?: number
+          collected_by?: string | null
+          concession_total?: number
           created_at?: string
           id?: string
+          is_void?: boolean
+          last_printed_at?: string | null
+          notes?: string | null
           payment_date?: string
-          payment_mode?: string
+          payment_mode?: Database["public"]["Enums"]["fee_payment_mode"]
           receipt_number?: string
+          receipt_print_count?: number
           remarks?: string | null
           status?: string
           student_id?: string
+          sub_total?: number | null
           term?: string | null
+          transaction_reference?: string | null
+          updated_at?: string
+          void_reason?: string | null
+          voided_at?: string | null
+          voided_by?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "fee_payments_academic_record_id_fkey"
+            columns: ["academic_record_id"]
+            isOneToOne: false
+            referencedRelation: "student_academic_records"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fee_payments_academic_session_id_fkey"
+            columns: ["academic_session_id"]
+            isOneToOne: false
+            referencedRelation: "academic_sessions"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "fee_payments_student_id_fkey"
             columns: ["student_id"]
@@ -315,47 +489,152 @@ export type Database = {
           },
         ]
       }
+      fee_settings: {
+        Row: {
+          id: string
+          late_fee_amount: number
+          late_fee_enabled: boolean
+          late_fee_grace_days: number
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          late_fee_amount?: number
+          late_fee_enabled?: boolean
+          late_fee_grace_days?: number
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          late_fee_amount?: number
+          late_fee_enabled?: boolean
+          late_fee_grace_days?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      fee_structure_items: {
+        Row: {
+          amount: number
+          applicable_months: number[] | null
+          created_at: string
+          fee_head_id: string
+          fee_structure_id: string
+          frequency: Database["public"]["Enums"]["fee_frequency"]
+          id: string
+          is_optional: boolean
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          amount?: number
+          applicable_months?: number[] | null
+          created_at?: string
+          fee_head_id: string
+          fee_structure_id: string
+          frequency?: Database["public"]["Enums"]["fee_frequency"]
+          id?: string
+          is_optional?: boolean
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          applicable_months?: number[] | null
+          created_at?: string
+          fee_head_id?: string
+          fee_structure_id?: string
+          frequency?: Database["public"]["Enums"]["fee_frequency"]
+          id?: string
+          is_optional?: boolean
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fee_structure_items_fee_head_id_fkey"
+            columns: ["fee_head_id"]
+            isOneToOne: false
+            referencedRelation: "fee_heads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fee_structure_items_fee_structure_id_fkey"
+            columns: ["fee_structure_id"]
+            isOneToOne: false
+            referencedRelation: "fee_structures"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       fee_structures: {
         Row: {
-          academic_year: string
+          academic_session_id: string | null
+          academic_year: string | null
           admission_fee: number
-          class_name: string
+          class_id: string | null
+          class_name: string | null
           created_at: string
           exam_fee: number
           id: string
+          is_active: boolean
           name: string
           other_fee: number
           total_fee: number
           transport_fee: number
           tuition_fee: number
+          updated_at: string
         }
         Insert: {
-          academic_year: string
+          academic_session_id?: string | null
+          academic_year?: string | null
           admission_fee?: number
-          class_name: string
+          class_id?: string | null
+          class_name?: string | null
           created_at?: string
           exam_fee?: number
           id?: string
+          is_active?: boolean
           name: string
           other_fee?: number
           total_fee?: number
           transport_fee?: number
           tuition_fee?: number
+          updated_at?: string
         }
         Update: {
-          academic_year?: string
+          academic_session_id?: string | null
+          academic_year?: string | null
           admission_fee?: number
-          class_name?: string
+          class_id?: string | null
+          class_name?: string | null
           created_at?: string
           exam_fee?: number
           id?: string
+          is_active?: boolean
           name?: string
           other_fee?: number
           total_fee?: number
           transport_fee?: number
           tuition_fee?: number
+          updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "fee_structures_academic_session_id_fkey"
+            columns: ["academic_session_id"]
+            isOneToOne: false
+            referencedRelation: "academic_sessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fee_structures_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "school_classes"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       houses: {
         Row: {
@@ -635,6 +914,108 @@ export type Database = {
           },
         ]
       }
+      student_fee_schedule: {
+        Row: {
+          academic_record_id: string
+          academic_session_id: string
+          concession_amount: number
+          created_at: string
+          display_order: number
+          due_amount: number
+          due_date: string | null
+          fee_head_id: string
+          fee_structure_item_id: string | null
+          id: string
+          is_opening_balance: boolean
+          paid_amount: number
+          period_label: string
+          period_month: number | null
+          period_year: number | null
+          sort_key: string | null
+          status: Database["public"]["Enums"]["fee_schedule_status"]
+          student_id: string
+          updated_at: string
+        }
+        Insert: {
+          academic_record_id: string
+          academic_session_id: string
+          concession_amount?: number
+          created_at?: string
+          display_order?: number
+          due_amount?: number
+          due_date?: string | null
+          fee_head_id: string
+          fee_structure_item_id?: string | null
+          id?: string
+          is_opening_balance?: boolean
+          paid_amount?: number
+          period_label: string
+          period_month?: number | null
+          period_year?: number | null
+          sort_key?: string | null
+          status?: Database["public"]["Enums"]["fee_schedule_status"]
+          student_id: string
+          updated_at?: string
+        }
+        Update: {
+          academic_record_id?: string
+          academic_session_id?: string
+          concession_amount?: number
+          created_at?: string
+          display_order?: number
+          due_amount?: number
+          due_date?: string | null
+          fee_head_id?: string
+          fee_structure_item_id?: string | null
+          id?: string
+          is_opening_balance?: boolean
+          paid_amount?: number
+          period_label?: string
+          period_month?: number | null
+          period_year?: number | null
+          sort_key?: string | null
+          status?: Database["public"]["Enums"]["fee_schedule_status"]
+          student_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_fee_schedule_academic_record_id_fkey"
+            columns: ["academic_record_id"]
+            isOneToOne: false
+            referencedRelation: "student_academic_records"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_fee_schedule_academic_session_id_fkey"
+            columns: ["academic_session_id"]
+            isOneToOne: false
+            referencedRelation: "academic_sessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_fee_schedule_fee_head_id_fkey"
+            columns: ["fee_head_id"]
+            isOneToOne: false
+            referencedRelation: "fee_heads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_fee_schedule_fee_structure_item_id_fkey"
+            columns: ["fee_structure_item_id"]
+            isOneToOne: false
+            referencedRelation: "fee_structure_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_fee_schedule_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       students: {
         Row: {
           aadhaar_copy_url: string | null
@@ -872,6 +1253,10 @@ export type Database = {
     }
     Functions: {
       claim_first_admin: { Args: never; Returns: boolean }
+      generate_student_fee_schedule: {
+        Args: { _record_id: string }
+        Returns: number
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -879,6 +1264,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      next_receipt_number: { Args: never; Returns: string }
       next_scholar_number: { Args: never; Returns: string }
     }
     Enums: {
@@ -889,6 +1275,24 @@ export type Database = {
         | "super_admin"
         | "reception"
         | "principal"
+      fee_frequency:
+        | "Monthly"
+        | "Quarterly"
+        | "Annual"
+        | "One Time"
+        | "Optional"
+      fee_payment_mode:
+        | "Cash"
+        | "Cheque"
+        | "UPI"
+        | "NEFT"
+        | "RTGS"
+        | "IMPS"
+        | "Bank Transfer"
+        | "Debit Card"
+        | "Credit Card"
+        | "QR Code"
+      fee_schedule_status: "Pending" | "Partial" | "Paid" | "Waived"
       student_academic_status:
         | "Active"
         | "Promoted"
@@ -1035,6 +1439,20 @@ export const Constants = {
         "reception",
         "principal",
       ],
+      fee_frequency: ["Monthly", "Quarterly", "Annual", "One Time", "Optional"],
+      fee_payment_mode: [
+        "Cash",
+        "Cheque",
+        "UPI",
+        "NEFT",
+        "RTGS",
+        "IMPS",
+        "Bank Transfer",
+        "Debit Card",
+        "Credit Card",
+        "QR Code",
+      ],
+      fee_schedule_status: ["Pending", "Partial", "Paid", "Waived"],
       student_academic_status: [
         "Active",
         "Promoted",
