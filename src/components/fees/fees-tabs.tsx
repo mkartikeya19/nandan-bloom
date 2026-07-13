@@ -3,14 +3,14 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { LayoutDashboard, Layers, Wallet, Gift, Settings2, Upload } from "lucide-react";
 
-const tabs = [
+const tabs: Array<{ to: string; label: string; icon: typeof LayoutDashboard; exact?: boolean }> = [
   { to: "/fees", label: "Dashboard", icon: LayoutDashboard, exact: true },
   { to: "/fees/structures", label: "Fee Structures", icon: Layers },
   { to: "/fees/collect", label: "Collect Fee", icon: Wallet },
   { to: "/fees/concessions", label: "Concessions", icon: Gift },
   { to: "/fees/import", label: "Opening Balance", icon: Upload },
   { to: "/fees/settings", label: "Settings", icon: Settings2 },
-] as const;
+];
 
 export function FeesTabs() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
