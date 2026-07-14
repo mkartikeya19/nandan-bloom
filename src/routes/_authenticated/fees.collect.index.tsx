@@ -25,6 +25,7 @@ function CollectSearch() {
         .from("students")
         .select("id, scholar_number, full_name, father_name, student_academic_records(academic_session_id, class_id, section_id, school_classes(name), school_sections(name), academic_sessions(name), status)")
         .or(`scholar_number.ilike.%${term}%,full_name.ilike.%${term}%`)
+        .neq("status", "Left")
         .limit(30);
       if (error) throw error;
       return data;

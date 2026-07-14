@@ -41,6 +41,7 @@ export function ExcelImport() {
   const [invalid, setInvalid] = useState<InvalidRow[]>([]);
   const [validating, setValidating] = useState(false);
   const [imported, setImported] = useState<number | null>(null);
+  const [summary, setSummary] = useState<{ imported: number; highest: string; next: string; duplicates: number; skipped: number } | null>(null);
 
   const { data: refs } = useQuery({
     queryKey: ["import-refs"],
@@ -191,10 +192,23 @@ export function ExcelImport() {
       }
       return ok;
     },
-    onSuccess: (count) => {
+    onSuccess: async (count) => {
       toast.success(`Imported ${count} student(s)`);
       setImported(count);
       qc.invalidateQueries({ queryKey: ["students"] });
+      // Fetch highest & next scholar
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data: nextData } = await (supabase as any).rpc("next_scholar_number");
+      const next = String(nextData ?? "");
+      const highest = next ? String(Number(next) - 1) : "—";
+      const duplicates = invalid.filter((r) => r.errors.some((e) => e.toLowerCase().includes("scholar number"))).length;
+      setSummary({
+        imported: count,
+        highest,
+        next,
+        duplicates,
+        skipped: invalid.length,
+      });
     },
     onError: (e: Error) => toast.error(e.message),
   });
