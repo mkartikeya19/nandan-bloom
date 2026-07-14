@@ -109,7 +109,9 @@ export function FeeHeadsTab({ canEdit }: { canEdit: boolean }) {
         default_applicable_months: isMonthlyLike ? form.default_applicable_months : null,
         auto_generate: form.auto_generate,
         charge_trigger: form.charge_trigger,
+        default_applicability: form.default_applicability,
       };
+
       if (editing) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const { error } = await supabase.from("fee_heads").update(payload as any).eq("id", editing.id);
