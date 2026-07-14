@@ -181,13 +181,11 @@ export function ExcelImport() {
       let ok = 0;
       for (const row of valid) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const { data, error } = await supabase.from("students").insert(row.student as any).select("id").single();
-        if (error) throw error;
-        const { error: arErr } = await supabase.from("student_academic_records").insert({
-          student_id: data.id,
-          ...row.academicRecord,
+        const { data, error } = await (supabase as any).rpc("admit_student_with_fee_structure", {
+          _student_payload: row.student,
+          _academic_payload: row.academicRecord,
         });
-        if (arErr) throw arErr;
+        if (error) throw error;
         ok += 1;
       }
       return ok;

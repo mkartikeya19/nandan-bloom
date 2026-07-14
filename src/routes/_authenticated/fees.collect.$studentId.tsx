@@ -124,7 +124,7 @@ function StudentFeePage() {
             <Button variant="outline" size="sm" onClick={() => generate.mutate()} disabled={generate.isPending || !activeRecord?.fee_structure_id}>
               {generate.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />} Refresh Schedule
             </Button>
-            {canCollectFee && <Button onClick={() => setPayOpen(true)} disabled={!activeRecord}><Wallet className="h-4 w-4" /> Collect Payment</Button>}
+            {canCollectFee && <Button onClick={() => setPayOpen(true)} disabled={!activeRecord || !activeRecord.fee_structure_id}><Wallet className="h-4 w-4" /> Collect Payment</Button>}
           </div>
         }
       />
@@ -138,7 +138,7 @@ function StudentFeePage() {
 
       {!activeRecord?.fee_structure_id && (
         <Card className="mb-4 border-amber-500/40 bg-amber-500/5">
-          <CardContent className="p-4 text-sm">This student's academic record has no fee structure linked. Ask an admin to set <code>fee_structure_id</code> on the record.</CardContent>
+          <CardContent className="p-4 text-sm">This student's academic record has no Fee Structure linked. Admin/Super Admin can link it from the Student Profile Fees tab.</CardContent>
         </Card>
       )}
 

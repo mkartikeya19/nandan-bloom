@@ -70,6 +70,23 @@ export function PromoteDialog({ open, onOpenChange, studentId, studentName, curr
   const promote = useMutation({
     mutationFn: async () => {
       if (!sessionId || !classId || !sectionId) throw new Error("Session, class, and section are required");
+      let feeStructureId: string | null = null;
+      if (status === "Active") {
+        const { data: matches, error: matchErr } = await supabase
+          .from("fee_structures")
+          .select("id, fee_structure_items!inner(id)")
+          .eq("academic_session_id", sessionId)
+          .eq("class_id", classId)
+          .eq("is_active", true);
+        if (matchErr) throw matchErr;
+        if (!matches?.length) {
+          throw new Error("No Complete Fee Structure exists for this class and session. Please complete a Fee Structure before admitting the student.");
+        }
+        if (matches.length > 1) {
+          throw new Error("Multiple active Fee Structures found. Please resolve the duplicate before admitting students.");
+        }
+        feeStructureId = matches[0].id;
+      }
       const { error } = await supabase.from("student_academic_records").insert({
         student_id: studentId,
         academic_session_id: sessionId,
@@ -79,6 +96,7 @@ export function PromoteDialog({ open, onOpenChange, studentId, studentName, curr
         roll_number: rollNumber || null,
         joined_on: joinedOn,
         status,
+        fee_structure_id: feeStructureId,
         promoted_from_record_id: currentRecordId ?? null,
       });
       if (error) throw error;
