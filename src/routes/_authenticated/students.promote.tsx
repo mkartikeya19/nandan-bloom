@@ -389,11 +389,12 @@ function PromotionWizardPage() {
                           <SelectTrigger className="h-8 w-[160px]"><SelectValue placeholder="—" /></SelectTrigger>
                           <SelectContent>
                             <SelectItem value="none">—</SelectItem>
-                            {feeStructures?.map((f) => <SelectItem key={f.id} value={f.id}>{f.name}</SelectItem>)}
+                            {feeStructures?.filter((f) => f.class_id === r.new_class_id).map((f) => <SelectItem key={f.id} value={f.id}>{f.name}</SelectItem>)}
                           </SelectContent>
                         </Select>
                       </TableCell>
                     </TableRow>
+
                   ))}
                 </TableBody>
               </Table>
