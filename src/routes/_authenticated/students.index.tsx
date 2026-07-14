@@ -15,11 +15,12 @@ import {
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Users, Plus, Search, Upload, MoreHorizontal, Eye, Pencil, ArrowUp, Archive } from "lucide-react";
+import { Users, Plus, Search, Upload, MoreHorizontal, Eye, Pencil, ArrowUp, Archive, UserX } from "lucide-react";
 import { useUserRoles } from "@/hooks/use-user-role";
 import { STUDENT_STATUS_VALUES, type StudentStatus } from "@/lib/students-helpers";
 import { PromoteDialog } from "@/components/students/promote-dialog";
 import { ArchiveDialog } from "@/components/students/archive-dialog";
+import { MarkLeftDialog } from "@/components/students/mark-left-dialog";
 
 export const Route = createFileRoute("/_authenticated/students/")({
   component: StudentsPage,
@@ -39,6 +40,7 @@ function StudentsPage() {
   const [page, setPage] = useState(0);
   const [promote, setPromote] = useState<{ id: string; name: string; recordId: string | null } | null>(null);
   const [archive, setArchive] = useState<{ id: string; name: string; recordId: string | null } | null>(null);
+  const [markLeft, setMarkLeft] = useState<{ id: string; name: string; recordId: string | null } | null>(null);
 
   const { data: sessions } = useQuery({
     queryKey: ["ref-sessions"],
