@@ -101,6 +101,7 @@ function FeeStructureBuilder() {
       frequency: h.default_frequency as FeeFrequency,
       applicable_months: h.default_applicable_months ?? [],
       is_optional: false,
+      applicability: "All",
       sort_order: h.sort_order ?? drafts.length * 10 + 10,
     }]);
   };
