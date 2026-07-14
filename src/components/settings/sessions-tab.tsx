@@ -15,10 +15,12 @@ import { toast } from "sonner";
 import { Plus, Pencil, Trash2, Search, Loader2 } from "lucide-react";
 import { ReadOnlyNotice } from "./read-only-notice";
 
-type Session = { id: string; name: string; start_date: string; end_date: string; is_active: boolean };
+import { useUserRoles } from "@/hooks/use-user-role";
+type Session = { id: string; name: string; start_date: string; end_date: string; is_active: boolean; status: "Draft" | "Active" | "Closed"; closed_at: string | null };
 
 export function SessionsTab({ canEdit }: { canEdit: boolean }) {
   const qc = useQueryClient();
+  const perms = useUserRoles();
   const [search, setSearch] = useState("");
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Session | null>(null);
