@@ -149,7 +149,7 @@ function StudentProfile() {
         </TabsContent>
 
         <TabsContent value="fees">
-          <StudentFeesTab studentId={studentId} activeRecordId={current?.id ?? null} />
+          <StudentFeesTab studentId={studentId} activeRecordId={current?.id ?? null} hasFeeStructure={!!current?.fee_structure_id} />
         </TabsContent>
 
         <TabsContent value="attendance">
