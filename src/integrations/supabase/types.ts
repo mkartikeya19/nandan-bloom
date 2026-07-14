@@ -343,6 +343,8 @@ export type Database = {
       }
       fee_heads: {
         Row: {
+          auto_generate: boolean
+          charge_trigger: string
           code: string | null
           created_at: string
           default_amount: number
@@ -357,6 +359,8 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          auto_generate?: boolean
+          charge_trigger?: string
           code?: string | null
           created_at?: string
           default_amount?: number
@@ -371,6 +375,8 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          auto_generate?: boolean
+          charge_trigger?: string
           code?: string | null
           created_at?: string
           default_amount?: number
