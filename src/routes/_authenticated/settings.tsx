@@ -11,6 +11,7 @@ import { SectionsTab } from "@/components/settings/sections-tab";
 import { HousesTab } from "@/components/settings/houses-tab";
 import { FeeHeadsTab } from "@/components/settings/fee-heads-tab";
 import { UsersTab } from "@/components/settings/users-tab";
+import { SystemHealthTab } from "@/components/settings/system-health-tab";
 
 export const Route = createFileRoute("/_authenticated/settings")({
   component: SettingsPage,
@@ -45,6 +46,7 @@ function SettingsPage() {
           <TabsTrigger value="houses">Houses</TabsTrigger>
           <TabsTrigger value="fee-heads">Fee Heads</TabsTrigger>
           <TabsTrigger value="users">Users</TabsTrigger>
+          <TabsTrigger value="health">System Health</TabsTrigger>
         </TabsList>
 
         <div className="mt-6">
@@ -55,6 +57,7 @@ function SettingsPage() {
           <TabsContent value="houses"><HousesTab canEdit={isSuperAdmin} /></TabsContent>
           <TabsContent value="fee-heads"><FeeHeadsTab canEdit={isSuperAdmin} /></TabsContent>
           <TabsContent value="users"><UsersTab canEdit={isSuperAdmin} /></TabsContent>
+          <TabsContent value="health"><SystemHealthTab /></TabsContent>
         </div>
       </Tabs>
     </div>
