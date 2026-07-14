@@ -406,6 +406,20 @@ function CollectPaymentDialog({ open, onOpenChange, rows, scheduleRaw, studentId
           {mode !== "Cash" && <div className="space-y-1.5"><Label>Transaction Reference</Label><Input value={reference} onChange={(e) => setReference(e.target.value)} placeholder="Cheque #, UPI ref, etc." /></div>}
           <div className="space-y-1.5"><Label>Notes</Label><Textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} /></div>
 
+          {suggested > 0 && (
+            <div className="flex items-center justify-between rounded-md border bg-primary/5 p-3 text-sm">
+              <div>
+                <p className="font-medium">Suggested collection</p>
+                <p className="text-xs text-muted-foreground">Opening balance + annual dues + current/past-due months</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="font-semibold">{formatINR(suggested)}</span>
+                <Button size="sm" variant="outline" onClick={() => setAmount(suggested)}>Use</Button>
+              </div>
+            </div>
+          )}
+
+
           <div>
             <div className="flex items-center justify-between mb-2">
               <Label>Allocation ({formatINR(allocatedTotal)} / {formatINR(amount)})</Label>
