@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/page-header";
-import { Users, UserPlus, GraduationCap, Wallet, CalendarCheck, ClipboardList, TrendingUp, ShieldCheck } from "lucide-react";
+import { Users, GraduationCap, Wallet, CalendarCheck, ClipboardList, TrendingUp, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
@@ -98,10 +98,19 @@ function useCount(table: "students" | "teachers" | "admissions" | "fee_payments"
 }
 
 function Dashboard() {
-  const students = useCount("students", { column: "status", value: "active" });
   const teachers = useCount("teachers", { column: "status", value: "active" });
-  const admissions = useCount("admissions", { column: "status", value: "pending" });
   const exams = useCount("exams");
+  const activeStudents = useQuery({
+    queryKey: ["students-active"],
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from("students")
+        .select("*", { count: "exact", head: true })
+        .neq("status", "Left");
+      if (error) throw error;
+      return count ?? 0;
+    },
+  });
   const today = new Date().toISOString().slice(0, 10);
   const presentToday = useQuery({
     queryKey: ["attendance-today", today],
@@ -138,9 +147,8 @@ function Dashboard() {
       <ClaimAdminBanner />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        <StatCard label="Active Students" value={students.data ?? "—"} icon={Users} />
+        <StatCard label="Active Students" value={activeStudents.data ?? "—"} icon={Users} />
         <StatCard label="Teachers on staff" value={teachers.data ?? "—"} icon={GraduationCap} />
-        <StatCard label="Pending admissions" value={admissions.data ?? "—"} icon={UserPlus} />
         <StatCard label="Present today" value={presentToday.data ?? "—"} icon={CalendarCheck} hint={today} />
         <StatCard label="Scheduled exams" value={exams.data ?? "—"} icon={ClipboardList} />
         <StatCard

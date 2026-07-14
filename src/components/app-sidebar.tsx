@@ -1,7 +1,7 @@
 import { Link, useRouter, useRouterState } from "@tanstack/react-router";
 import {
   LayoutDashboard, Users, UserPlus, Wallet, CalendarCheck,
-  ClipboardList, GraduationCap, BarChart3, Settings, LogOut,
+  ClipboardList, GraduationCap, BarChart3, Settings, LogOut, Activity, ArrowUpCircle,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import {
@@ -16,11 +16,13 @@ import { toast } from "sonner";
 const items = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
   { title: "Students", url: "/students", icon: Users },
-  { title: "Admissions", url: "/admissions", icon: UserPlus },
+  { title: "Admission Register", url: "/admissions", icon: UserPlus },
+  { title: "Promotion", url: "/students/promote", icon: ArrowUpCircle },
   { title: "Fee Management", url: "/fees", icon: Wallet },
   { title: "Attendance", url: "/attendance", icon: CalendarCheck },
   { title: "Examinations", url: "/examinations", icon: ClipboardList },
   { title: "Teachers", url: "/teachers", icon: GraduationCap },
+  { title: "Activity Center", url: "/activity", icon: Activity },
   { title: "Reports", url: "/reports", icon: BarChart3 },
   { title: "Settings", url: "/settings", icon: Settings },
 ] as const;
