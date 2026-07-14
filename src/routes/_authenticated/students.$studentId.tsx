@@ -47,7 +47,7 @@ function StudentProfile() {
   const s = data.student;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const records = data.records as any[];
-  const current = records[0] ?? null;
+  const current = records.find((r) => r.status === "Active") ?? records[0] ?? null;
 
   return (
     <div>
