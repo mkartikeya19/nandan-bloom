@@ -215,6 +215,18 @@ export function ExcelImport() {
 
   return (
     <div className="space-y-4">
+      {summary && (
+        <Card className="border-primary/40 bg-primary/5">
+          <CardHeader><CardTitle className="text-base">Import Summary</CardTitle></CardHeader>
+          <CardContent className="grid grid-cols-2 md:grid-cols-5 gap-3 text-sm">
+            <SummaryStat label="Students Imported" value={summary.imported} />
+            <SummaryStat label="Highest Scholar No." value={summary.highest} />
+            <SummaryStat label="Next Scholar No." value={summary.next} />
+            <SummaryStat label="Duplicates" value={summary.duplicates} />
+            <SummaryStat label="Skipped Rows" value={summary.skipped} />
+          </CardContent>
+        </Card>
+      )}
       <Card>
         <CardHeader>
           <CardTitle className="text-base">Step 1 — Download the template</CardTitle>
