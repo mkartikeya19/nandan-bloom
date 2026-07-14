@@ -1,22 +1,26 @@
 import { Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Wallet } from "lucide-react";
+import { Loader2, LinkIcon, Wallet } from "lucide-react";
 import { formatINR, outstandingOf, ScheduleRow } from "@/lib/fees-helpers";
 import { useUserRoles } from "@/hooks/use-user-role";
+import { toast } from "sonner";
 
 interface Props {
   studentId: string;
   activeRecordId: string | null;
+  hasFeeStructure?: boolean;
 }
 
-export function StudentFeesTab({ studentId, activeRecordId }: Props) {
-  const { canCollectFee } = useUserRoles();
+export function StudentFeesTab({ studentId, activeRecordId, hasFeeStructure = true }: Props) {
+  const qc = useQueryClient();
+  const { canCollectFee, isAdmin, isSuperAdmin } = useUserRoles();
+  const canRepairFeeStructure = !!activeRecordId && !hasFeeStructure && (isAdmin || isSuperAdmin);
 
   const schedule = useQuery({
     queryKey: ["student-schedule", studentId, activeRecordId],
@@ -56,6 +60,22 @@ export function StudentFeesTab({ studentId, activeRecordId }: Props) {
   const outstanding = rows.reduce((s, r) => s + outstandingOf(r), 0);
   const opening = rows.filter((r) => r.is_opening_balance).reduce((s, r) => s + outstandingOf(r), 0);
 
+  const linkFeeStructure = useMutation({
+    mutationFn: async () => {
+      if (!activeRecordId) throw new Error("No active academic record found");
+      const { data, error } = await (supabase as any).rpc("link_academic_record_fee_structure", { _record_id: activeRecordId });
+      if (error) throw error;
+      return Number(data?.generated_count ?? 0);
+    },
+    onSuccess: (count) => {
+      toast.success(`Fee Structure linked. ${count} schedule row${count === 1 ? "" : "s"} generated.`);
+      qc.invalidateQueries({ queryKey: ["student", studentId] });
+      qc.invalidateQueries({ queryKey: ["student-schedule", studentId, activeRecordId] });
+      qc.invalidateQueries({ queryKey: ["student-payments", studentId] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   return (
     <div className="space-y-4">
       <div className="grid gap-3 sm:grid-cols-4">
@@ -65,7 +85,21 @@ export function StudentFeesTab({ studentId, activeRecordId }: Props) {
         <Stat label="Outstanding" value={formatINR(outstanding)} tone={outstanding > 0 ? "danger" : "default"} />
       </div>
 
-      {canCollectFee && (
+      {!hasFeeStructure && activeRecordId && (
+        <Card className="border-destructive/40 bg-destructive/5">
+          <CardContent className="p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-sm text-destructive">This active academic record has no Fee Structure linked.</p>
+            {canRepairFeeStructure && (
+              <Button size="sm" onClick={() => linkFeeStructure.mutate()} disabled={linkFeeStructure.isPending}>
+                {linkFeeStructure.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <LinkIcon className="h-4 w-4" />}
+                Link Fee Structure
+              </Button>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {canCollectFee && hasFeeStructure && (
         <div className="flex justify-end">
           <Button asChild size="sm">
             <Link to="/fees/collect/$studentId" params={{ studentId }}>

@@ -248,25 +248,20 @@ export function StudentForm({ mode, student, currentRecord, onSaved }: Props) {
 
       let studentId: string;
       if (mode === "new") {
-        const { data, error } = await supabase
-          .from("students")
-          .insert(payload)
-          .select("id")
-          .single();
-        if (error) throw error;
-        studentId = data.id;
-
-        const { error: arErr } = await supabase.from("student_academic_records").insert({
-          student_id: studentId,
-          academic_session_id: acad.academic_session_id,
-          class_id: acad.class_id,
-          section_id: acad.section_id,
-          roll_number: acad.roll_number || null,
-          house_id: acad.house_id || null,
-          joined_on: acad.joined_on,
-          status: acad.status,
+        const { data, error } = await (supabase as any).rpc("admit_student_with_fee_structure", {
+          _student_payload: payload,
+          _academic_payload: {
+            academic_session_id: acad.academic_session_id,
+            class_id: acad.class_id,
+            section_id: acad.section_id,
+            roll_number: acad.roll_number || null,
+            house_id: acad.house_id || null,
+            joined_on: acad.joined_on,
+            status: acad.status,
+          },
         });
-        if (arErr) throw arErr;
+        if (error) throw error;
+        studentId = String(data?.student_id);
       } else {
         studentId = student.id;
         const { error } = await supabase.from("students").update(payload).eq("id", studentId);

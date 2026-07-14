@@ -939,6 +939,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "student_academic_records_fee_structure_fk"
+            columns: ["fee_structure_id"]
+            isOneToOne: false
+            referencedRelation: "fee_structures"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "student_academic_records_house_id_fkey"
             columns: ["house_id"]
             isOneToOne: false
@@ -1312,8 +1319,19 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admit_student_with_fee_structure: {
+        Args: { _academic_payload: Json; _student_payload: Json }
+        Returns: Json
+      }
       bulk_promote_students: { Args: { _payload: Json }; Returns: Json }
       claim_first_admin: { Args: never; Returns: boolean }
+      find_complete_fee_structure: {
+        Args: { _academic_session_id: string; _class_id: string }
+        Returns: {
+          match_count: number
+          structure_id: string
+        }[]
+      }
       generate_student_fee_schedule: {
         Args: { _record_id: string }
         Returns: number
@@ -1324,6 +1342,14 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      is_fee_structure_complete: {
+        Args: { _structure_id: string }
+        Returns: boolean
+      }
+      link_academic_record_fee_structure: {
+        Args: { _record_id: string }
+        Returns: Json
       }
       next_receipt_number: { Args: never; Returns: string }
       next_scholar_number: { Args: never; Returns: string }
