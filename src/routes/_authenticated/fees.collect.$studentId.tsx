@@ -19,6 +19,7 @@ import { toast } from "sonner";
 import { ArrowLeft, Wallet, Loader2, RefreshCw, Ban } from "lucide-react";
 import { allocatePayment, formatINR, generateStudentSchedule, nextReceiptNumber, outstandingOf, PAYMENT_MODES, PaymentMode, ScheduleRow } from "@/lib/fees-helpers";
 import { useUserRoles } from "@/hooks/use-user-role";
+import { logActivity } from "@/lib/activity";
 
 export const Route = createFileRoute("/_authenticated/fees/collect/$studentId")({
   component: StudentFeePage,
@@ -354,11 +355,14 @@ function CollectPaymentDialog({ open, onOpenChange, rows, scheduleRaw, studentId
 
 
   const submit = async () => {
-    if (amount <= 0) return toast.error("Enter an amount");
-    if (Math.abs(allocatedTotal - amount) > 0.01) return toast.error("Allocated total must equal amount");
+    if (submitting) return;
+    if (amount <= 0) return toast.error("Enter an amount greater than 0");
+    if (effective.length === 0) return toast.error("No allocations — cannot post a payment with nothing to allocate to");
+    if (allocatedTotal - amount > 0.01) return toast.error("Allocated total exceeds amount");
     setSubmitting(true);
     try {
       const receipt = await nextReceiptNumber();
+      const today = new Date().toISOString().slice(0, 10);
       const { data: payment, error: pErr } = await supabase.from("fee_payments").insert({
         student_id: studentId,
         academic_record_id: recordId,
@@ -367,7 +371,7 @@ function CollectPaymentDialog({ open, onOpenChange, rows, scheduleRaw, studentId
         amount,
         sub_total: amount,
         payment_mode: mode,
-        payment_date: new Date().toISOString().slice(0, 10),
+        payment_date: today,
         academic_year: "",
         transaction_reference: reference || null,
         notes: notes || null,
@@ -376,18 +380,25 @@ function CollectPaymentDialog({ open, onOpenChange, rows, scheduleRaw, studentId
       }).select("id").single();
       if (pErr) throw pErr;
       const allocs = effective.map((a) => ({ fee_payment_id: payment.id, student_fee_schedule_id: a.scheduleId, amount: a.amount }));
-      if (allocs.length) {
-        const { error: aErr } = await supabase.from("fee_payment_allocations").insert(allocs);
-        if (aErr) throw aErr;
-      }
+      const { error: aErr } = await supabase.from("fee_payment_allocations").insert(allocs);
+      if (aErr) throw aErr;
+      await logActivity({
+        module: "Fees",
+        action: "Payment collected",
+        entityType: "fee_payment",
+        entityId: payment.id,
+        details: { receipt, amount, mode, student_id: studentId },
+      });
       toast.success(`Receipt ${receipt} generated`);
       onDone(payment.id);
     } catch (e) {
-      toast.error((e as Error).message);
+      console.error("Post payment failed", e);
+      toast.error((e as Error).message || "Failed to post payment");
     } finally {
       setSubmitting(false);
     }
   };
+
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -453,22 +464,16 @@ function CollectPaymentDialog({ open, onOpenChange, rows, scheduleRaw, studentId
           </div>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-          <AlertDialog>
-            <AlertDialogTrigger asChild><Button disabled={submitting || amount <= 0 || Math.abs(allocatedTotal - amount) > 0.01}>{submitting && <Loader2 className="h-4 w-4 animate-spin" />} Post Payment</Button></AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Confirm payment of {formatINR(amount)}?</AlertDialogTitle>
-                <AlertDialogDescription>A permanent receipt number will be generated. Receipts cannot be deleted, only voided.</AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={submit}>Confirm</AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={submitting}>Cancel</Button>
+          <Button
+            onClick={submit}
+            disabled={submitting || amount <= 0 || effective.length === 0}
+          >
+            {submitting && <Loader2 className="h-4 w-4 animate-spin" />} Post Payment
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
   );
 }
+

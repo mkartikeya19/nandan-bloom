@@ -12,6 +12,8 @@ import { ArrowLeft, Pencil, ArrowUp, Archive } from "lucide-react";
 import { useUserRoles } from "@/hooks/use-user-role";
 import { PromoteDialog } from "@/components/students/promote-dialog";
 import { ArchiveDialog } from "@/components/students/archive-dialog";
+import { StudentFeesTab } from "@/components/students/student-fees-tab";
+
 
 export const Route = createFileRoute("/_authenticated/students/$studentId")({
   component: StudentProfile,
@@ -147,8 +149,9 @@ function StudentProfile() {
         </TabsContent>
 
         <TabsContent value="fees">
-          <Card><CardContent className="p-6 text-sm text-muted-foreground">Fee summary will appear here once Fee Management is integrated.</CardContent></Card>
+          <StudentFeesTab studentId={studentId} activeRecordId={current?.id ?? null} />
         </TabsContent>
+
         <TabsContent value="attendance">
           <Card><CardContent className="p-6 text-sm text-muted-foreground">Attendance summary will appear here once linked to this student.</CardContent></Card>
         </TabsContent>
