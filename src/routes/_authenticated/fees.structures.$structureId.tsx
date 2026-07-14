@@ -82,6 +82,7 @@ function FeeStructureBuilder() {
         frequency: i.frequency as FeeFrequency,
         applicable_months: i.applicable_months ?? [],
         is_optional: i.is_optional,
+        applicability: ((i as unknown as { applicability?: FeeApplicability }).applicability ?? "All") as FeeApplicability,
         sort_order: i.sort_order || (idx + 1) * 10,
       })));
     }
