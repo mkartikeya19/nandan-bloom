@@ -24,6 +24,7 @@ import {
   type StudentStatus,
   type AdmissionType,
 } from "@/lib/students-helpers";
+import { logActivity } from "@/lib/activity";
 
 type Mode = "new" | "edit";
 
