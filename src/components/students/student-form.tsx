@@ -482,8 +482,16 @@ export function StudentForm({ mode, student, currentRecord, onSaved }: Props) {
           </TabsContent>
         </Tabs>
 
+        {mode === "new" && Object.keys(mandatoryErrors).length > 0 && (
+          <div className="mt-6 rounded-md border border-destructive/40 bg-destructive/5 p-3 text-sm">
+            <p className="font-medium text-destructive mb-1">Complete the required fields:</p>
+            <ul className="list-disc pl-5 text-destructive/90 space-y-0.5">
+              {Object.entries(mandatoryErrors).map(([k, v]) => <li key={k}>{v}</li>)}
+            </ul>
+          </div>
+        )}
         <div className="flex justify-end gap-2 mt-6 pt-4 border-t">
-          <Button onClick={() => save.mutate()} disabled={save.isPending}>
+          <Button onClick={() => save.mutate()} disabled={save.isPending || !canSubmit}>
             {save.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
             {mode === "new" ? "Admit Student" : "Save Changes"}
           </Button>
