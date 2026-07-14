@@ -15,7 +15,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import { Plus, Trash2, ArrowLeft, Save, Loader2 } from "lucide-react";
-import { FEE_FREQUENCIES, FeeFrequency, MONTH_NAMES, formatINR } from "@/lib/fees-helpers";
+import { FEE_FREQUENCIES, FeeFrequency, FEE_APPLICABILITIES, FEE_APPLICABILITY_LABELS, FeeApplicability, MONTH_NAMES, formatINR } from "@/lib/fees-helpers";
 import { useUserRoles } from "@/hooks/use-user-role";
 
 export const Route = createFileRoute("/_authenticated/fees/structures/$structureId")({
