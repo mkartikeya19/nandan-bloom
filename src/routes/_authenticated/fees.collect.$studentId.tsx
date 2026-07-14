@@ -464,22 +464,16 @@ function CollectPaymentDialog({ open, onOpenChange, rows, scheduleRaw, studentId
           </div>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-          <AlertDialog>
-            <AlertDialogTrigger asChild><Button disabled={submitting || amount <= 0 || Math.abs(allocatedTotal - amount) > 0.01}>{submitting && <Loader2 className="h-4 w-4 animate-spin" />} Post Payment</Button></AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Confirm payment of {formatINR(amount)}?</AlertDialogTitle>
-                <AlertDialogDescription>A permanent receipt number will be generated. Receipts cannot be deleted, only voided.</AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={submit}>Confirm</AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={submitting}>Cancel</Button>
+          <Button
+            onClick={submit}
+            disabled={submitting || amount <= 0 || effective.length === 0}
+          >
+            {submitting && <Loader2 className="h-4 w-4 animate-spin" />} Post Payment
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
   );
 }
+
