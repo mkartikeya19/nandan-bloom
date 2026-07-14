@@ -24,6 +24,7 @@ import {
   type StudentStatus,
   type AdmissionType,
 } from "@/lib/students-helpers";
+import { logActivity } from "@/lib/activity";
 
 type Mode = "new" | "edit";
 
@@ -214,16 +215,28 @@ export function StudentForm({ mode, student, currentRecord, onSaved }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mode, student, currentRecord, sessions?.length]);
 
+  const mandatoryErrors: Record<string, string> = {};
+  if (mode === "new") {
+    if (!form.full_name.trim()) mandatoryErrors.full_name = "Student name is required";
+    if (!form.scholar_number.trim()) mandatoryErrors.scholar_number = "Scholar number missing";
+    if (!form.gender) mandatoryErrors.gender = "Gender is required";
+    if (!form.date_of_birth) mandatoryErrors.date_of_birth = "Date of birth is required";
+    if (!form.date_of_admission) mandatoryErrors.date_of_admission = "Date of admission is required";
+    if (!form.father_name.trim()) mandatoryErrors.father_name = "Father name is required";
+    if (!form.father_mobile.trim()) mandatoryErrors.father_mobile = "Father mobile is required";
+    if (!form.mother_name.trim()) mandatoryErrors.mother_name = "Mother name is required";
+    if (!form.mother_mobile.trim()) mandatoryErrors.mother_mobile = "Mother mobile is required";
+    if (!acad.academic_session_id) mandatoryErrors.academic_session_id = "Academic session is required";
+    if (!acad.class_id) mandatoryErrors.class_id = "Class is required";
+    if (!acad.section_id) mandatoryErrors.section_id = "Section is required";
+    if (!acad.roll_number.trim()) mandatoryErrors.roll_number = "Roll number is required";
+  }
+  const canSubmit = mode === "edit" || Object.keys(mandatoryErrors).length === 0;
+
   const save = useMutation({
     mutationFn: async () => {
-      // Validation
-      if (!form.scholar_number) throw new Error("Scholar Number is required");
-      if (!form.full_name) throw new Error("Student Name is required");
-      if (!form.date_of_admission) throw new Error("Date of Admission is required");
-      if (mode === "new") {
-        if (!acad.academic_session_id) throw new Error("Academic Session is required");
-        if (!acad.class_id) throw new Error("Class is required");
-        if (!acad.section_id) throw new Error("Section is required");
+      if (mode === "new" && Object.keys(mandatoryErrors).length > 0) {
+        throw new Error("Please complete all required fields");
       }
 
       const payload = {
@@ -294,6 +307,15 @@ export function StudentForm({ mode, student, currentRecord, onSaved }: Props) {
         const { error } = await supabase.from("students").update(updates).eq("id", studentId);
         if (error) throw error;
       }
+      try {
+        await logActivity({
+          module: "Students",
+          action: mode === "new" ? "Student Admitted" : "Student Updated",
+          entityType: "student",
+          entityId: studentId,
+          details: { scholar_number: form.scholar_number, name: form.full_name },
+        });
+      } catch { /* ignore */ }
       return studentId;
     },
     onSuccess: (id) => {
@@ -460,8 +482,16 @@ export function StudentForm({ mode, student, currentRecord, onSaved }: Props) {
           </TabsContent>
         </Tabs>
 
+        {mode === "new" && Object.keys(mandatoryErrors).length > 0 && (
+          <div className="mt-6 rounded-md border border-destructive/40 bg-destructive/5 p-3 text-sm">
+            <p className="font-medium text-destructive mb-1">Complete the required fields:</p>
+            <ul className="list-disc pl-5 text-destructive/90 space-y-0.5">
+              {Object.entries(mandatoryErrors).map(([k, v]) => <li key={k}>{v}</li>)}
+            </ul>
+          </div>
+        )}
         <div className="flex justify-end gap-2 mt-6 pt-4 border-t">
-          <Button onClick={() => save.mutate()} disabled={save.isPending}>
+          <Button onClick={() => save.mutate()} disabled={save.isPending || !canSubmit}>
             {save.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
             {mode === "new" ? "Admit Student" : "Save Changes"}
           </Button>

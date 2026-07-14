@@ -3,10 +3,8 @@ import * as XLSX from "xlsx";
 
 export const STUDENT_STATUS_VALUES = [
   "Active",
-  "Promoted",
   "Left",
   "Passed Out",
-  "Transferred",
   "Inactive",
 ] as const;
 export type StudentStatus = (typeof STUDENT_STATUS_VALUES)[number];

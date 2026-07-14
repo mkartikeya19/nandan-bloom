@@ -16,31 +16,73 @@ export type Database = {
     Tables: {
       academic_sessions: {
         Row: {
+          closed_at: string | null
+          closed_by: string | null
           created_at: string
           end_date: string
           id: string
           is_active: boolean
           name: string
           start_date: string
+          status: string
           updated_at: string
         }
         Insert: {
+          closed_at?: string | null
+          closed_by?: string | null
           created_at?: string
           end_date: string
           id?: string
           is_active?: boolean
           name: string
           start_date: string
+          status?: string
           updated_at?: string
         }
         Update: {
+          closed_at?: string | null
+          closed_by?: string | null
           created_at?: string
           end_date?: string
           id?: string
           is_active?: boolean
           name?: string
           start_date?: string
+          status?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      activity_log: {
+        Row: {
+          action: string
+          created_at: string
+          details: Json
+          entity_id: string | null
+          entity_type: string | null
+          id: string
+          module: string
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          details?: Json
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          module: string
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          details?: Json
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          module?: string
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -1034,6 +1076,7 @@ export type Database = {
           created_at: string
           date_of_admission: string | null
           date_of_birth: string | null
+          date_of_leaving: string | null
           emergency_contact_name: string | null
           emergency_contact_number: string | null
           father_email: string | null
@@ -1056,6 +1099,7 @@ export type Database = {
           pen_id: string | null
           photo_url: string | null
           pincode: string | null
+          reason_for_leaving: string | null
           religion: string | null
           roll_number: string | null
           samagra_id: string | null
@@ -1082,6 +1126,7 @@ export type Database = {
           created_at?: string
           date_of_admission?: string | null
           date_of_birth?: string | null
+          date_of_leaving?: string | null
           emergency_contact_name?: string | null
           emergency_contact_number?: string | null
           father_email?: string | null
@@ -1104,6 +1149,7 @@ export type Database = {
           pen_id?: string | null
           photo_url?: string | null
           pincode?: string | null
+          reason_for_leaving?: string | null
           religion?: string | null
           roll_number?: string | null
           samagra_id?: string | null
@@ -1130,6 +1176,7 @@ export type Database = {
           created_at?: string
           date_of_admission?: string | null
           date_of_birth?: string | null
+          date_of_leaving?: string | null
           emergency_contact_name?: string | null
           emergency_contact_number?: string | null
           father_email?: string | null
@@ -1152,6 +1199,7 @@ export type Database = {
           pen_id?: string | null
           photo_url?: string | null
           pincode?: string | null
+          reason_for_leaving?: string | null
           religion?: string | null
           roll_number?: string | null
           samagra_id?: string | null
@@ -1252,6 +1300,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      bulk_promote_students: { Args: { _payload: Json }; Returns: Json }
       claim_first_admin: { Args: never; Returns: boolean }
       generate_student_fee_schedule: {
         Args: { _record_id: string }

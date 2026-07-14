@@ -41,6 +41,7 @@ export function ExcelImport() {
   const [invalid, setInvalid] = useState<InvalidRow[]>([]);
   const [validating, setValidating] = useState(false);
   const [imported, setImported] = useState<number | null>(null);
+  const [summary, setSummary] = useState<{ imported: number; highest: string; next: string; duplicates: number; skipped: number } | null>(null);
 
   const { data: refs } = useQuery({
     queryKey: ["import-refs"],
@@ -191,16 +192,41 @@ export function ExcelImport() {
       }
       return ok;
     },
-    onSuccess: (count) => {
+    onSuccess: async (count) => {
       toast.success(`Imported ${count} student(s)`);
       setImported(count);
       qc.invalidateQueries({ queryKey: ["students"] });
+      // Fetch highest & next scholar
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data: nextData } = await (supabase as any).rpc("next_scholar_number");
+      const next = String(nextData ?? "");
+      const highest = next ? String(Number(next) - 1) : "—";
+      const duplicates = invalid.filter((r) => r.errors.some((e) => e.toLowerCase().includes("scholar number"))).length;
+      setSummary({
+        imported: count,
+        highest,
+        next,
+        duplicates,
+        skipped: invalid.length,
+      });
     },
     onError: (e: Error) => toast.error(e.message),
   });
 
   return (
     <div className="space-y-4">
+      {summary && (
+        <Card className="border-primary/40 bg-primary/5">
+          <CardHeader><CardTitle className="text-base">Import Summary</CardTitle></CardHeader>
+          <CardContent className="grid grid-cols-2 md:grid-cols-5 gap-3 text-sm">
+            <SummaryStat label="Students Imported" value={summary.imported} />
+            <SummaryStat label="Highest Scholar No." value={summary.highest} />
+            <SummaryStat label="Next Scholar No." value={summary.next} />
+            <SummaryStat label="Duplicates" value={summary.duplicates} />
+            <SummaryStat label="Skipped Rows" value={summary.skipped} />
+          </CardContent>
+        </Card>
+      )}
       <Card>
         <CardHeader>
           <CardTitle className="text-base">Step 1 — Download the template</CardTitle>
@@ -301,6 +327,15 @@ export function ExcelImport() {
           </CardContent>
         </Card>
       )}
+    </div>
+  );
+}
+
+function SummaryStat({ label, value }: { label: string; value: number | string }) {
+  return (
+    <div>
+      <p className="text-xs text-muted-foreground">{label}</p>
+      <p className="text-lg font-semibold">{value}</p>
     </div>
   );
 }

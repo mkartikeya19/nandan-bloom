@@ -15,10 +15,12 @@ import { toast } from "sonner";
 import { Plus, Pencil, Trash2, Search, Loader2 } from "lucide-react";
 import { ReadOnlyNotice } from "./read-only-notice";
 
-type Session = { id: string; name: string; start_date: string; end_date: string; is_active: boolean };
+import { useUserRoles } from "@/hooks/use-user-role";
+type Session = { id: string; name: string; start_date: string; end_date: string; is_active: boolean; status: "Draft" | "Active" | "Closed"; closed_at: string | null };
 
 export function SessionsTab({ canEdit }: { canEdit: boolean }) {
   const qc = useQueryClient();
+  const perms = useUserRoles();
   const [search, setSearch] = useState("");
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Session | null>(null);
@@ -70,6 +72,28 @@ export function SessionsTab({ canEdit }: { canEdit: boolean }) {
       if (error) throw error;
     },
     onSuccess: () => { toast.success("Session deleted"); qc.invalidateQueries({ queryKey: ["academic_sessions"] }); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const setStatus = useMutation({
+    mutationFn: async ({ id, status }: { id: string; status: "Draft" | "Active" | "Closed" }) => {
+      if (status === "Active") {
+        // Deactivate other active
+        await supabase.from("academic_sessions").update({ is_active: false, status: "Draft" }).eq("is_active", true).neq("id", id);
+        const { error } = await supabase.from("academic_sessions").update({ status: "Active", is_active: true }).eq("id", id);
+        if (error) throw error;
+      } else if (status === "Closed") {
+        const { data: user } = await supabase.auth.getUser();
+        const { error } = await supabase.from("academic_sessions").update({ status: "Closed", is_active: false, closed_at: new Date().toISOString(), closed_by: user.user?.id ?? null }).eq("id", id);
+        if (error) throw error;
+      } else {
+        // Reopen to Draft — only super_admin allowed
+        if (!perms.isSuperAdmin) throw new Error("Only Super Admin can reopen a closed session");
+        const { error } = await supabase.from("academic_sessions").update({ status: "Draft", is_active: false, closed_at: null, closed_by: null }).eq("id", id);
+        if (error) throw error;
+      }
+    },
+    onSuccess: () => { toast.success("Session status updated"); qc.invalidateQueries({ queryKey: ["academic_sessions"] }); },
     onError: (e: Error) => toast.error(e.message),
   });
 
@@ -138,9 +162,20 @@ export function SessionsTab({ canEdit }: { canEdit: boolean }) {
                     <TableCell className="font-medium">{s.name}</TableCell>
                     <TableCell>{s.start_date}</TableCell>
                     <TableCell>{s.end_date}</TableCell>
-                    <TableCell>{s.is_active ? <Badge>Active</Badge> : <Badge variant="secondary">Inactive</Badge>}</TableCell>
+                    <TableCell>
+                      <Badge variant={s.status === "Active" ? "default" : s.status === "Closed" ? "destructive" : "secondary"}>{s.status ?? (s.is_active ? "Active" : "Draft")}</Badge>
+                    </TableCell>
                     {canEdit && (
-                      <TableCell className="text-right">
+                      <TableCell className="text-right space-x-1">
+                        {s.status !== "Active" && s.status !== "Closed" && (
+                          <Button size="sm" variant="outline" onClick={() => setStatus.mutate({ id: s.id, status: "Active" })}>Activate</Button>
+                        )}
+                        {s.status === "Active" && (
+                          <Button size="sm" variant="outline" onClick={() => setStatus.mutate({ id: s.id, status: "Closed" })}>Close</Button>
+                        )}
+                        {s.status === "Closed" && perms.isSuperAdmin && (
+                          <Button size="sm" variant="outline" onClick={() => setStatus.mutate({ id: s.id, status: "Draft" })}>Reopen</Button>
+                        )}
                         <Button size="icon" variant="ghost" onClick={() => openEdit(s)}><Pencil className="h-4 w-4" /></Button>
                         <AlertDialog>
                           <AlertDialogTrigger asChild><Button size="icon" variant="ghost"><Trash2 className="h-4 w-4" /></Button></AlertDialogTrigger>

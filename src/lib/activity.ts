@@ -1,0 +1,42 @@
+import { supabase } from "@/integrations/supabase/client";
+
+export type ActivityModule =
+  | "Students"
+  | "Admissions"
+  | "Fees"
+  | "Attendance"
+  | "Examinations"
+  | "Users"
+  | "Sessions"
+  | "Settings"
+  | "Promotion";
+
+export interface LogArgs {
+  module: ActivityModule;
+  action: string;
+  entityType?: string;
+  entityId?: string | null;
+  details?: Record<string, unknown>;
+}
+
+/**
+ * Fire-and-forget activity log. Never throws — failures are swallowed so a
+ * logging outage never blocks the primary operation.
+ */
+export async function logActivity({ module, action, entityType, entityId, details }: LogArgs): Promise<void> {
+  try {
+    const { data: userData } = await supabase.auth.getUser();
+    const userId = userData.user?.id ?? null;
+    await supabase.from("activity_log").insert({
+      user_id: userId,
+      module,
+      action,
+      entity_type: entityType ?? null,
+      entity_id: entityId ?? null,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      details: (details ?? {}) as any,
+    });
+  } catch {
+    // swallow
+  }
+}

@@ -15,11 +15,12 @@ import {
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Users, Plus, Search, Upload, MoreHorizontal, Eye, Pencil, ArrowUp, Archive } from "lucide-react";
+import { Users, Plus, Search, Upload, MoreHorizontal, Eye, Pencil, ArrowUp, Archive, UserX } from "lucide-react";
 import { useUserRoles } from "@/hooks/use-user-role";
-import { STUDENT_STATUS_VALUES, type StudentStatus } from "@/lib/students-helpers";
+import { STUDENT_STATUS_VALUES } from "@/lib/students-helpers";
 import { PromoteDialog } from "@/components/students/promote-dialog";
 import { ArchiveDialog } from "@/components/students/archive-dialog";
+import { MarkLeftDialog } from "@/components/students/mark-left-dialog";
 
 export const Route = createFileRoute("/_authenticated/students/")({
   component: StudentsPage,
@@ -39,6 +40,7 @@ function StudentsPage() {
   const [page, setPage] = useState(0);
   const [promote, setPromote] = useState<{ id: string; name: string; recordId: string | null } | null>(null);
   const [archive, setArchive] = useState<{ id: string; name: string; recordId: string | null } | null>(null);
+  const [markLeft, setMarkLeft] = useState<{ id: string; name: string; recordId: string | null } | null>(null);
 
   const { data: sessions } = useQuery({
     queryKey: ["ref-sessions"],
@@ -244,6 +246,11 @@ function StudentsPage() {
                               <ArrowUp className="h-4 w-4" /> Promote
                             </DropdownMenuItem>
                           )}
+                          {perms.canEditStudent && (
+                            <DropdownMenuItem onClick={() => setMarkLeft({ id: s.id, name: s.full_name, recordId: s.current?.id ?? null })}>
+                              <UserX className="h-4 w-4" /> Mark as Left
+                            </DropdownMenuItem>
+                          )}
                           {perms.canArchiveStudent && (
                             <DropdownMenuItem onClick={() => setArchive({ id: s.id, name: s.full_name, recordId: s.current?.id ?? null })}>
                               <Archive className="h-4 w-4" /> Archive
@@ -288,9 +295,15 @@ function StudentsPage() {
           currentRecordId={archive.recordId}
         />
       )}
+      {markLeft && (
+        <MarkLeftDialog
+          open
+          onOpenChange={(o) => !o && setMarkLeft(null)}
+          studentId={markLeft.id}
+          studentName={markLeft.name}
+          currentRecordId={markLeft.recordId}
+        />
+      )}
     </div>
   );
 }
-
-// silence unused warning if any status enum reference optimized away
-void ({} as StudentStatus);
