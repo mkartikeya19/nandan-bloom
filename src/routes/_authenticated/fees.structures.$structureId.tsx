@@ -215,6 +215,7 @@ function FeeStructureBuilder() {
                 <TableHead className="w-32">Amount (₹)</TableHead>
                 <TableHead className="w-36">Frequency</TableHead>
                 <TableHead>Applicable Months</TableHead>
+                <TableHead className="w-44">Applicability</TableHead>
                 <TableHead className="w-20">Optional</TableHead>
                 <TableHead className="w-16"></TableHead>
               </TableRow>
