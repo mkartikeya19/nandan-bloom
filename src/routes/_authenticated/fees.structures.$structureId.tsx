@@ -131,7 +131,7 @@ function FeeStructureBuilder() {
           is_optional: d.is_optional,
           applicability: d.applicability,
           sort_order: d.sort_order,
-        } as unknown as Record<string, unknown>;
+        };
         if (d.id) {
           const { error } = await supabase.from("fee_structure_items").update(payload).eq("id", d.id);
           if (error) throw error;
