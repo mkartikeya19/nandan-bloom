@@ -27,7 +27,10 @@ export const MONTH_NAMES = [
   "July", "August", "September", "October", "November", "December",
 ];
 
-export const DEFAULT_TUITION_MONTHS = [4, 7, 8, 9, 10, 11, 12, 1, 2, 3]; // no May/June
+// Tuition is generated July-April (never May/June)
+export const DEFAULT_TUITION_MONTHS = [7, 8, 9, 10, 11, 12, 1, 2, 3, 4];
+export const BLOCKED_TUITION_MONTHS = [5, 6];
+
 
 export function formatINR(n: number | string | null | undefined): string {
   const v = Number(n ?? 0);
