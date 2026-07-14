@@ -89,7 +89,9 @@ export function FeeHeadsTab({ canEdit }: { canEdit: boolean }) {
       default_applicable_months: f.default_applicable_months ?? [],
       auto_generate: f.auto_generate ?? true,
       charge_trigger: f.charge_trigger ?? "Automatic",
+      default_applicability: f.default_applicability ?? "All",
     });
+
     setOpen(true);
   };
 
