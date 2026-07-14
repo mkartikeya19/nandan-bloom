@@ -17,7 +17,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { Plus, Pencil, Trash2, Search, Loader2 } from "lucide-react";
 import { ReadOnlyNotice } from "./read-only-notice";
-import { FEE_FREQUENCIES, MONTH_NAMES, DEFAULT_TUITION_MONTHS, type FeeFrequency } from "@/lib/fees-helpers";
+import { FEE_FREQUENCIES, FEE_APPLICABILITIES, FEE_APPLICABILITY_LABELS, MONTH_NAMES, DEFAULT_TUITION_MONTHS, type FeeFrequency, type FeeApplicability } from "@/lib/fees-helpers";
 
 type FeeHead = {
   id: string;
@@ -29,6 +29,7 @@ type FeeHead = {
   default_applicable_months: number[] | null;
   auto_generate: boolean;
   charge_trigger: "Automatic" | "Manual";
+  default_applicability: FeeApplicability;
 };
 
 type FormState = {
@@ -40,6 +41,7 @@ type FormState = {
   default_applicable_months: number[];
   auto_generate: boolean;
   charge_trigger: "Automatic" | "Manual";
+  default_applicability: FeeApplicability;
 };
 
 const EMPTY_FORM: FormState = {
@@ -51,7 +53,9 @@ const EMPTY_FORM: FormState = {
   default_applicable_months: DEFAULT_TUITION_MONTHS,
   auto_generate: true,
   charge_trigger: "Automatic",
+  default_applicability: "All",
 };
+
 
 export function FeeHeadsTab({ canEdit }: { canEdit: boolean }) {
   const qc = useQueryClient();
