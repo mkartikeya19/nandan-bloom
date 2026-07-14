@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Users, Plus, Search, Upload, MoreHorizontal, Eye, Pencil, ArrowUp, Archive, UserX } from "lucide-react";
 import { useUserRoles } from "@/hooks/use-user-role";
-import { STUDENT_STATUS_VALUES, type StudentStatus } from "@/lib/students-helpers";
+import { STUDENT_STATUS_VALUES } from "@/lib/students-helpers";
 import { PromoteDialog } from "@/components/students/promote-dialog";
 import { ArchiveDialog } from "@/components/students/archive-dialog";
 import { MarkLeftDialog } from "@/components/students/mark-left-dialog";
