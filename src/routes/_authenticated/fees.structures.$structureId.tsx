@@ -29,6 +29,7 @@ interface DraftItem {
   frequency: FeeFrequency;
   applicable_months: number[];
   is_optional: boolean;
+  applicability: FeeApplicability;
   sort_order: number;
 }
 
