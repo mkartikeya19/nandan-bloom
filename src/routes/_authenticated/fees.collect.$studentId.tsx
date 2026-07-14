@@ -355,11 +355,14 @@ function CollectPaymentDialog({ open, onOpenChange, rows, scheduleRaw, studentId
 
 
   const submit = async () => {
-    if (amount <= 0) return toast.error("Enter an amount");
-    if (Math.abs(allocatedTotal - amount) > 0.01) return toast.error("Allocated total must equal amount");
+    if (submitting) return;
+    if (amount <= 0) return toast.error("Enter an amount greater than 0");
+    if (effective.length === 0) return toast.error("No allocations — cannot post a payment with nothing to allocate to");
+    if (allocatedTotal - amount > 0.01) return toast.error("Allocated total exceeds amount");
     setSubmitting(true);
     try {
       const receipt = await nextReceiptNumber();
+      const today = new Date().toISOString().slice(0, 10);
       const { data: payment, error: pErr } = await supabase.from("fee_payments").insert({
         student_id: studentId,
         academic_record_id: recordId,
@@ -368,7 +371,7 @@ function CollectPaymentDialog({ open, onOpenChange, rows, scheduleRaw, studentId
         amount,
         sub_total: amount,
         payment_mode: mode,
-        payment_date: new Date().toISOString().slice(0, 10),
+        payment_date: today,
         academic_year: "",
         transaction_reference: reference || null,
         notes: notes || null,
@@ -377,18 +380,25 @@ function CollectPaymentDialog({ open, onOpenChange, rows, scheduleRaw, studentId
       }).select("id").single();
       if (pErr) throw pErr;
       const allocs = effective.map((a) => ({ fee_payment_id: payment.id, student_fee_schedule_id: a.scheduleId, amount: a.amount }));
-      if (allocs.length) {
-        const { error: aErr } = await supabase.from("fee_payment_allocations").insert(allocs);
-        if (aErr) throw aErr;
-      }
+      const { error: aErr } = await supabase.from("fee_payment_allocations").insert(allocs);
+      if (aErr) throw aErr;
+      await logActivity({
+        module: "Fees",
+        action: "Payment collected",
+        entityType: "fee_payment",
+        entityId: payment.id,
+        details: { receipt, amount, mode, student_id: studentId },
+      });
       toast.success(`Receipt ${receipt} generated`);
       onDone(payment.id);
     } catch (e) {
-      toast.error((e as Error).message);
+      console.error("Post payment failed", e);
+      toast.error((e as Error).message || "Failed to post payment");
     } finally {
       setSubmitting(false);
     }
   };
+
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
