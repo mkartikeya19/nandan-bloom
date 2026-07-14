@@ -3,6 +3,16 @@ import { supabase } from "@/integrations/supabase/client";
 export const FEE_FREQUENCIES = ["Monthly", "Quarterly", "Annual", "One Time", "Optional"] as const;
 export type FeeFrequency = (typeof FEE_FREQUENCIES)[number];
 
+export const FEE_APPLICABILITIES = ["All", "NewAdmission", "Existing", "Optional"] as const;
+export type FeeApplicability = (typeof FEE_APPLICABILITIES)[number];
+
+export const FEE_APPLICABILITY_LABELS: Record<FeeApplicability, string> = {
+  All: "All Students",
+  NewAdmission: "New Admissions Only",
+  Existing: "Existing Students Only",
+  Optional: "Optional (manual)",
+};
+
 export const PAYMENT_MODES = [
   "Cash", "Cheque", "UPI", "NEFT", "RTGS", "IMPS", "Bank Transfer",
   "Debit Card", "Credit Card", "QR Code",
