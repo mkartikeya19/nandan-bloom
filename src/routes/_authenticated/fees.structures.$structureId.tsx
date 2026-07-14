@@ -259,6 +259,14 @@ function FeeStructureBuilder() {
                         </div>
                       ) : <span className="text-xs text-muted-foreground">n/a</span>}
                     </TableCell>
+                    <TableCell>
+                      <Select value={d.applicability} disabled={!canManageFeeStructures} onValueChange={(v) => updateDraft(idx, { applicability: v as FeeApplicability })}>
+                        <SelectTrigger><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          {FEE_APPLICABILITIES.map((a) => <SelectItem key={a} value={a}>{FEE_APPLICABILITY_LABELS[a]}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                    </TableCell>
                     <TableCell><Checkbox checked={d.is_optional} disabled={!canManageFeeStructures} onCheckedChange={(v) => updateDraft(idx, { is_optional: !!v })} /></TableCell>
                     <TableCell>{canManageFeeStructures && <Button size="icon" variant="ghost" onClick={() => removeDraft(idx)}><Trash2 className="h-4 w-4" /></Button>}</TableCell>
                   </TableRow>
