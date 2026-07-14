@@ -19,6 +19,7 @@ import { toast } from "sonner";
 import { ArrowLeft, Wallet, Loader2, RefreshCw, Ban } from "lucide-react";
 import { allocatePayment, formatINR, generateStudentSchedule, nextReceiptNumber, outstandingOf, PAYMENT_MODES, PaymentMode, ScheduleRow } from "@/lib/fees-helpers";
 import { useUserRoles } from "@/hooks/use-user-role";
+import { logActivity } from "@/lib/activity";
 
 export const Route = createFileRoute("/_authenticated/fees/collect/$studentId")({
   component: StudentFeePage,
