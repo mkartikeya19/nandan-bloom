@@ -13,8 +13,7 @@ import { useUserRoles } from "@/hooks/use-user-role";
 import { PromoteDialog } from "@/components/students/promote-dialog";
 import { ArchiveDialog } from "@/components/students/archive-dialog";
 import { StudentFeesTab } from "@/components/students/student-fees-tab";
-import { PromoteDialog } from "@/components/students/promote-dialog";
-import { ArchiveDialog } from "@/components/students/archive-dialog";
+
 
 export const Route = createFileRoute("/_authenticated/students/$studentId")({
   component: StudentProfile,
