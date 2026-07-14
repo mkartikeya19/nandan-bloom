@@ -15,7 +15,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import { Plus, Trash2, ArrowLeft, Save, Loader2 } from "lucide-react";
-import { FEE_FREQUENCIES, FeeFrequency, MONTH_NAMES, formatINR } from "@/lib/fees-helpers";
+import { FEE_FREQUENCIES, FeeFrequency, FEE_APPLICABILITIES, FEE_APPLICABILITY_LABELS, FeeApplicability, MONTH_NAMES, formatINR } from "@/lib/fees-helpers";
 import { useUserRoles } from "@/hooks/use-user-role";
 
 export const Route = createFileRoute("/_authenticated/fees/structures/$structureId")({
@@ -29,6 +29,7 @@ interface DraftItem {
   frequency: FeeFrequency;
   applicable_months: number[];
   is_optional: boolean;
+  applicability: FeeApplicability;
   sort_order: number;
 }
 
@@ -81,6 +82,7 @@ function FeeStructureBuilder() {
         frequency: i.frequency as FeeFrequency,
         applicable_months: i.applicable_months ?? [],
         is_optional: i.is_optional,
+        applicability: (i.applicability ?? "All") as FeeApplicability,
         sort_order: i.sort_order || (idx + 1) * 10,
       })));
     }
@@ -99,6 +101,7 @@ function FeeStructureBuilder() {
       frequency: h.default_frequency as FeeFrequency,
       applicable_months: h.default_applicable_months ?? [],
       is_optional: false,
+      applicability: "All",
       sort_order: h.sort_order ?? drafts.length * 10 + 10,
     }]);
   };
@@ -126,6 +129,7 @@ function FeeStructureBuilder() {
           frequency: d.frequency,
           applicable_months: d.frequency === "Monthly" || d.frequency === "Quarterly" ? d.applicable_months : null,
           is_optional: d.is_optional,
+          applicability: d.applicability,
           sort_order: d.sort_order,
         };
         if (d.id) {
@@ -211,13 +215,14 @@ function FeeStructureBuilder() {
                 <TableHead className="w-32">Amount (₹)</TableHead>
                 <TableHead className="w-36">Frequency</TableHead>
                 <TableHead>Applicable Months</TableHead>
+                <TableHead className="w-44">Applicability</TableHead>
                 <TableHead className="w-20">Optional</TableHead>
                 <TableHead className="w-16"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {drafts.length === 0 ? (
-                <TableRow><TableCell colSpan={6} className="text-center py-8 text-muted-foreground">No fee heads added yet.</TableCell></TableRow>
+                <TableRow><TableCell colSpan={7} className="text-center py-8 text-muted-foreground">No fee heads added yet.</TableCell></TableRow>
               ) : drafts.map((d, idx) => {
                 const head = heads.data?.find((h) => h.id === d.fee_head_id);
                 const showMonths = d.frequency === "Monthly" || d.frequency === "Quarterly";
@@ -253,6 +258,14 @@ function FeeStructureBuilder() {
                           })}
                         </div>
                       ) : <span className="text-xs text-muted-foreground">n/a</span>}
+                    </TableCell>
+                    <TableCell>
+                      <Select value={d.applicability} disabled={!canManageFeeStructures} onValueChange={(v) => updateDraft(idx, { applicability: v as FeeApplicability })}>
+                        <SelectTrigger><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          {FEE_APPLICABILITIES.map((a) => <SelectItem key={a} value={a}>{FEE_APPLICABILITY_LABELS[a]}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
                     </TableCell>
                     <TableCell><Checkbox checked={d.is_optional} disabled={!canManageFeeStructures} onCheckedChange={(v) => updateDraft(idx, { is_optional: !!v })} /></TableCell>
                     <TableCell>{canManageFeeStructures && <Button size="icon" variant="ghost" onClick={() => removeDraft(idx)}><Trash2 className="h-4 w-4" /></Button>}</TableCell>
