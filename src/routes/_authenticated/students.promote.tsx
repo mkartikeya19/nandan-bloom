@@ -108,11 +108,17 @@ function PromotionWizardPage() {
     queryKey: ["promote-fee-structures", newSessionId],
     enabled: !!newSessionId,
     queryFn: async () => {
-      const { data, error } = await supabase.from("fee_structures").select("id, name, class_id, academic_session_id").eq("academic_session_id", newSessionId);
+      const { data, error } = await supabase
+        .from("fee_structures")
+        .select("id, name, class_id, academic_session_id, fee_structure_items(amount)")
+        .eq("academic_session_id", newSessionId);
       if (error) throw error;
-      return data ?? [];
+      // Only structures that have at least one configured amount (Complete) can be assigned
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      return ((data ?? []) as any[]).filter((s) => (s.fee_structure_items ?? []).some((i: { amount: number | string }) => Number(i.amount) > 0));
     },
   });
+
 
   const { data: houses } = useQuery({
     queryKey: ["promote-houses"],
