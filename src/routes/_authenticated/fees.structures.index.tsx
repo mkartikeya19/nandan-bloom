@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -19,8 +20,19 @@ export const Route = createFileRoute("/_authenticated/fees/structures/")({
   component: FeeStructuresList,
 });
 
+interface StructureRow {
+  id: string;
+  name: string;
+  is_active: boolean;
+  academic_session_id: string;
+  class_id: string;
+  academic_sessions: { name: string } | null;
+  school_classes: { name: string } | null;
+}
+
 function FeeStructuresList() {
   const qc = useQueryClient();
+  const nav = useNavigate();
   const { canManageFeeStructures } = useUserRoles();
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({ name: "", academic_session_id: "", class_id: "" });
@@ -43,9 +55,34 @@ function FeeStructuresList() {
         .not("academic_session_id", "is", null)
         .order("created_at", { ascending: false });
       if (error) throw error;
-      return data;
+      return (data ?? []) as unknown as StructureRow[];
     },
   });
+
+  // Fetch item summary (head_id + amount + mandatory) to compute Draft/Complete
+  const itemsSummary = useQuery({
+    queryKey: ["fee-structures-items-summary"],
+    queryFn: async () => {
+      const [{ data: items }, { data: heads }] = await Promise.all([
+        supabase.from("fee_structure_items").select("fee_structure_id, fee_head_id, amount"),
+        supabase.from("fee_heads").select("id, is_mandatory, is_active"),
+      ]);
+      return {
+        items: items ?? [],
+        heads: heads ?? [],
+      };
+    },
+  });
+
+  const statusFor = (structureId: string): "Draft" | "Complete" => {
+    if (!itemsSummary.data) return "Draft";
+    const items = itemsSummary.data.items.filter((i) => i.fee_structure_id === structureId && Number(i.amount) > 0);
+    if (items.length === 0) return "Draft";
+    const mandatoryHeads = itemsSummary.data.heads.filter((h) => h.is_active && h.is_mandatory);
+    const configuredHeadIds = new Set(items.map((i) => i.fee_head_id));
+    const allMandatoryConfigured = mandatoryHeads.every((h) => configuredHeadIds.has(h.id));
+    return allMandatoryConfigured ? "Complete" : "Draft";
+  };
 
   const create = useMutation({
     mutationFn: async () => {
@@ -59,11 +96,12 @@ function FeeStructuresList() {
       if (error) throw error;
       return data.id as string;
     },
-    onSuccess: () => {
-      toast.success("Structure created");
+    onSuccess: (id) => {
+      toast.success("Structure created — configure amounts");
       setOpen(false);
       setForm({ name: "", academic_session_id: "", class_id: "" });
       qc.invalidateQueries({ queryKey: ["fee-structures-new"] });
+      nav({ to: "/fees/structures/$structureId", params: { structureId: id } });
     },
     onError: (e: Error) => toast.error(e.message.includes("duplicate") ? "A structure for this session+class already exists" : e.message),
   });
@@ -72,7 +110,7 @@ function FeeStructuresList() {
     <div>
       <PageHeader
         title="Fee Structures"
-        description="Session-wise fee structures per class."
+        description="Session-wise fee structures per class. A structure must have amounts configured before it can be used."
         actions={
           canManageFeeStructures && (
             <Dialog open={open} onOpenChange={setOpen}>
@@ -93,10 +131,11 @@ function FeeStructuresList() {
                       <SelectContent>{classes.data?.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}</SelectContent>
                     </Select>
                   </div>
+                  <p className="text-xs text-muted-foreground">You'll be taken to the editor to set fee amounts.</p>
                 </div>
                 <DialogFooter>
                   <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
-                  <Button onClick={() => create.mutate()} disabled={create.isPending}>{create.isPending && <Loader2 className="h-4 w-4 animate-spin" />} Create</Button>
+                  <Button onClick={() => create.mutate()} disabled={create.isPending}>{create.isPending && <Loader2 className="h-4 w-4 animate-spin" />} Create & Configure</Button>
                 </DialogFooter>
               </DialogContent>
             </Dialog>
@@ -117,15 +156,22 @@ function FeeStructuresList() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {structures.data?.length ? structures.data.map((s) => (
-                <TableRow key={s.id}>
-                  <TableCell className="font-medium">{s.name}</TableCell>
-                  <TableCell>{s.academic_sessions?.name ?? "—"}</TableCell>
-                  <TableCell>{s.school_classes?.name ?? "—"}</TableCell>
-                  <TableCell>{s.is_active ? "Active" : "Inactive"}</TableCell>
-                  <TableCell><Button asChild size="sm" variant="ghost"><Link to="/fees/structures/$structureId" params={{ structureId: s.id }}><Pencil className="h-4 w-4" /></Link></Button></TableCell>
-                </TableRow>
-              )) : (
+              {structures.data?.length ? structures.data.map((s) => {
+                const status = statusFor(s.id);
+                return (
+                  <TableRow key={s.id}>
+                    <TableCell className="font-medium">
+                      <Link to="/fees/structures/$structureId" params={{ structureId: s.id }} className="hover:underline">{s.name}</Link>
+                    </TableCell>
+                    <TableCell>{s.academic_sessions?.name ?? "—"}</TableCell>
+                    <TableCell>{s.school_classes?.name ?? "—"}</TableCell>
+                    <TableCell>
+                      <Badge variant={status === "Complete" ? "default" : "secondary"}>{status}</Badge>
+                    </TableCell>
+                    <TableCell><Button asChild size="sm" variant="ghost"><Link to="/fees/structures/$structureId" params={{ structureId: s.id }}><Pencil className="h-4 w-4" /></Link></Button></TableCell>
+                  </TableRow>
+                );
+              }) : (
                 <TableRow><TableCell colSpan={5} className="text-center py-8 text-muted-foreground">No structures yet. Click "New Structure" to create one.</TableCell></TableRow>
               )}
             </TableBody>
