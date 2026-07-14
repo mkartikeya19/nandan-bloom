@@ -233,6 +233,25 @@ export function FeeHeadsTab({ canEdit }: { canEdit: boolean }) {
                   </div>
                 </div>
 
+                <div className="space-y-2">
+                  <Label>Applicability</Label>
+                  <Select
+                    value={form.default_applicability}
+                    onValueChange={(v) => setForm({ ...form, default_applicability: v as FeeApplicability })}
+                  >
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {FEE_APPLICABILITIES.map((a) => (
+                        <SelectItem key={a} value={a}>{FEE_APPLICABILITY_LABELS[a]}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-muted-foreground">
+                    Who this fee applies to. Admission Fee should be "New Admissions Only".
+                  </p>
+                </div>
+
+
                 {showMonths && (
                   <div className="space-y-2 rounded-md border p-3">
                     <Label>Applicable Months</Label>
