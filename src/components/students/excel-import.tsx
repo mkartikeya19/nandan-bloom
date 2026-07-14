@@ -181,7 +181,7 @@ export function ExcelImport() {
       let ok = 0;
       for (const row of valid) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const { data, error } = await (supabase as any).rpc("admit_student_with_fee_structure", {
+        const { error } = await (supabase as any).rpc("admit_student_with_fee_structure", {
           _student_payload: row.student,
           _academic_payload: row.academicRecord,
         });
