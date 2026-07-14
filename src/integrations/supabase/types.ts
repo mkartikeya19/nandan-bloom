@@ -564,6 +564,7 @@ export type Database = {
       fee_structure_items: {
         Row: {
           amount: number
+          applicability: Database["public"]["Enums"]["fee_applicability"]
           applicable_months: number[] | null
           created_at: string
           fee_head_id: string
@@ -576,6 +577,7 @@ export type Database = {
         }
         Insert: {
           amount?: number
+          applicability?: Database["public"]["Enums"]["fee_applicability"]
           applicable_months?: number[] | null
           created_at?: string
           fee_head_id: string
@@ -588,6 +590,7 @@ export type Database = {
         }
         Update: {
           amount?: number
+          applicability?: Database["public"]["Enums"]["fee_applicability"]
           applicable_months?: number[] | null
           created_at?: string
           fee_head_id?: string
@@ -1330,6 +1333,7 @@ export type Database = {
         | "super_admin"
         | "reception"
         | "principal"
+      fee_applicability: "All" | "NewAdmission" | "Existing" | "Optional"
       fee_frequency:
         | "Monthly"
         | "Quarterly"
@@ -1494,6 +1498,7 @@ export const Constants = {
         "reception",
         "principal",
       ],
+      fee_applicability: ["All", "NewAdmission", "Existing", "Optional"],
       fee_frequency: ["Monthly", "Quarterly", "Annual", "One Time", "Optional"],
       fee_payment_mode: [
         "Cash",
