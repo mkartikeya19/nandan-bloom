@@ -335,6 +335,24 @@ function CollectPaymentDialog({ open, onOpenChange, rows, scheduleRaw, studentId
     : autoAlloc;
   const allocatedTotal = effective.reduce((s, a) => s + a.amount, 0);
 
+  // Suggested collection: opening balance + Annual items + current-month recurring
+  const suggested = useMemo(() => {
+    const now = new Date();
+    const curMonth = now.getMonth() + 1;
+    const curYear = now.getFullYear();
+    const picked = rows.filter((r) => {
+      const os = outstandingOf(r);
+      if (os <= 0) return false;
+      if (r.is_opening_balance) return true;
+      if (r.period_month == null) return true; // annual/one-time
+      // include past-due months + current month
+      if (r.period_year != null && (r.period_year < curYear || (r.period_year === curYear && r.period_month <= curMonth))) return true;
+      return false;
+    });
+    return picked.reduce((s, r) => s + outstandingOf(r), 0);
+  }, [rows]);
+
+
   const submit = async () => {
     if (amount <= 0) return toast.error("Enter an amount");
     if (Math.abs(allocatedTotal - amount) > 0.01) return toast.error("Allocated total must equal amount");
