@@ -330,3 +330,12 @@ export function ExcelImport() {
     </div>
   );
 }
+
+function SummaryStat({ label, value }: { label: string; value: number | string }) {
+  return (
+    <div>
+      <p className="text-xs text-muted-foreground">{label}</p>
+      <p className="text-lg font-semibold">{value}</p>
+    </div>
+  );
+}
