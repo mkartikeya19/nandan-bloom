@@ -222,7 +222,7 @@ function FeeStructureBuilder() {
             </TableHeader>
             <TableBody>
               {drafts.length === 0 ? (
-                <TableRow><TableCell colSpan={6} className="text-center py-8 text-muted-foreground">No fee heads added yet.</TableCell></TableRow>
+                <TableRow><TableCell colSpan={7} className="text-center py-8 text-muted-foreground">No fee heads added yet.</TableCell></TableRow>
               ) : drafts.map((d, idx) => {
                 const head = heads.data?.find((h) => h.id === d.fee_head_id);
                 const showMonths = d.frequency === "Monthly" || d.frequency === "Quarterly";
