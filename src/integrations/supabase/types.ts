@@ -348,6 +348,7 @@ export type Database = {
           code: string | null
           created_at: string
           default_amount: number
+          default_applicability: Database["public"]["Enums"]["fee_applicability"]
           default_applicable_months: number[] | null
           default_frequency: Database["public"]["Enums"]["fee_frequency"]
           description: string | null
@@ -364,6 +365,7 @@ export type Database = {
           code?: string | null
           created_at?: string
           default_amount?: number
+          default_applicability?: Database["public"]["Enums"]["fee_applicability"]
           default_applicable_months?: number[] | null
           default_frequency?: Database["public"]["Enums"]["fee_frequency"]
           description?: string | null
@@ -380,6 +382,7 @@ export type Database = {
           code?: string | null
           created_at?: string
           default_amount?: number
+          default_applicability?: Database["public"]["Enums"]["fee_applicability"]
           default_applicable_months?: number[] | null
           default_frequency?: Database["public"]["Enums"]["fee_frequency"]
           description?: string | null

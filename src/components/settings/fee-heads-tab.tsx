@@ -17,7 +17,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { Plus, Pencil, Trash2, Search, Loader2 } from "lucide-react";
 import { ReadOnlyNotice } from "./read-only-notice";
-import { FEE_FREQUENCIES, MONTH_NAMES, DEFAULT_TUITION_MONTHS, type FeeFrequency } from "@/lib/fees-helpers";
+import { FEE_FREQUENCIES, FEE_APPLICABILITIES, FEE_APPLICABILITY_LABELS, MONTH_NAMES, DEFAULT_TUITION_MONTHS, type FeeFrequency, type FeeApplicability } from "@/lib/fees-helpers";
 
 type FeeHead = {
   id: string;
@@ -29,6 +29,7 @@ type FeeHead = {
   default_applicable_months: number[] | null;
   auto_generate: boolean;
   charge_trigger: "Automatic" | "Manual";
+  default_applicability: FeeApplicability;
 };
 
 type FormState = {
@@ -40,6 +41,7 @@ type FormState = {
   default_applicable_months: number[];
   auto_generate: boolean;
   charge_trigger: "Automatic" | "Manual";
+  default_applicability: FeeApplicability;
 };
 
 const EMPTY_FORM: FormState = {
@@ -51,7 +53,9 @@ const EMPTY_FORM: FormState = {
   default_applicable_months: DEFAULT_TUITION_MONTHS,
   auto_generate: true,
   charge_trigger: "Automatic",
+  default_applicability: "All",
 };
+
 
 export function FeeHeadsTab({ canEdit }: { canEdit: boolean }) {
   const qc = useQueryClient();
@@ -85,7 +89,9 @@ export function FeeHeadsTab({ canEdit }: { canEdit: boolean }) {
       default_applicable_months: f.default_applicable_months ?? [],
       auto_generate: f.auto_generate ?? true,
       charge_trigger: f.charge_trigger ?? "Automatic",
+      default_applicability: f.default_applicability ?? "All",
     });
+
     setOpen(true);
   };
 
@@ -103,7 +109,9 @@ export function FeeHeadsTab({ canEdit }: { canEdit: boolean }) {
         default_applicable_months: isMonthlyLike ? form.default_applicable_months : null,
         auto_generate: form.auto_generate,
         charge_trigger: form.charge_trigger,
+        default_applicability: form.default_applicability,
       };
+
       if (editing) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const { error } = await supabase.from("fee_heads").update(payload as any).eq("id", editing.id);
@@ -224,6 +232,25 @@ export function FeeHeadsTab({ canEdit }: { canEdit: boolean }) {
                     </p>
                   </div>
                 </div>
+
+                <div className="space-y-2">
+                  <Label>Applicability</Label>
+                  <Select
+                    value={form.default_applicability}
+                    onValueChange={(v) => setForm({ ...form, default_applicability: v as FeeApplicability })}
+                  >
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {FEE_APPLICABILITIES.map((a) => (
+                        <SelectItem key={a} value={a}>{FEE_APPLICABILITY_LABELS[a]}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-muted-foreground">
+                    Who this fee applies to. Admission Fee should be "New Admissions Only".
+                  </p>
+                </div>
+
 
                 {showMonths && (
                   <div className="space-y-2 rounded-md border p-3">

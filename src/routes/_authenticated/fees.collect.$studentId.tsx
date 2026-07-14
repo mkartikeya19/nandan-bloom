@@ -335,6 +335,24 @@ function CollectPaymentDialog({ open, onOpenChange, rows, scheduleRaw, studentId
     : autoAlloc;
   const allocatedTotal = effective.reduce((s, a) => s + a.amount, 0);
 
+  // Suggested collection: opening balance + Annual items + current-month recurring
+  const suggested = useMemo(() => {
+    const now = new Date();
+    const curMonth = now.getMonth() + 1;
+    const curYear = now.getFullYear();
+    const picked = rows.filter((r) => {
+      const os = outstandingOf(r);
+      if (os <= 0) return false;
+      if (r.is_opening_balance) return true;
+      if (r.period_month == null) return true; // annual/one-time
+      // include past-due months + current month
+      if (r.period_year != null && (r.period_year < curYear || (r.period_year === curYear && r.period_month <= curMonth))) return true;
+      return false;
+    });
+    return picked.reduce((s, r) => s + outstandingOf(r), 0);
+  }, [rows]);
+
+
   const submit = async () => {
     if (amount <= 0) return toast.error("Enter an amount");
     if (Math.abs(allocatedTotal - amount) > 0.01) return toast.error("Allocated total must equal amount");
@@ -387,6 +405,20 @@ function CollectPaymentDialog({ open, onOpenChange, rows, scheduleRaw, studentId
           </div>
           {mode !== "Cash" && <div className="space-y-1.5"><Label>Transaction Reference</Label><Input value={reference} onChange={(e) => setReference(e.target.value)} placeholder="Cheque #, UPI ref, etc." /></div>}
           <div className="space-y-1.5"><Label>Notes</Label><Textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} /></div>
+
+          {suggested > 0 && (
+            <div className="flex items-center justify-between rounded-md border bg-primary/5 p-3 text-sm">
+              <div>
+                <p className="font-medium">Suggested collection</p>
+                <p className="text-xs text-muted-foreground">Opening balance + annual dues + current/past-due months</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="font-semibold">{formatINR(suggested)}</span>
+                <Button size="sm" variant="outline" onClick={() => setAmount(suggested)}>Use</Button>
+              </div>
+            </div>
+          )}
+
 
           <div>
             <div className="flex items-center justify-between mb-2">
