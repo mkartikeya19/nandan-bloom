@@ -246,6 +246,11 @@ function StudentsPage() {
                               <ArrowUp className="h-4 w-4" /> Promote
                             </DropdownMenuItem>
                           )}
+                          {perms.canEditStudent && (
+                            <DropdownMenuItem onClick={() => setMarkLeft({ id: s.id, name: s.full_name, recordId: s.current?.id ?? null })}>
+                              <UserX className="h-4 w-4" /> Mark as Left
+                            </DropdownMenuItem>
+                          )}
                           {perms.canArchiveStudent && (
                             <DropdownMenuItem onClick={() => setArchive({ id: s.id, name: s.full_name, recordId: s.current?.id ?? null })}>
                               <Archive className="h-4 w-4" /> Archive
@@ -290,9 +295,15 @@ function StudentsPage() {
           currentRecordId={archive.recordId}
         />
       )}
+      {markLeft && (
+        <MarkLeftDialog
+          open
+          onOpenChange={(o) => !o && setMarkLeft(null)}
+          studentId={markLeft.id}
+          studentName={markLeft.name}
+          currentRecordId={markLeft.recordId}
+        />
+      )}
     </div>
   );
 }
-
-// silence unused warning if any status enum reference optimized away
-void ({} as StudentStatus);
