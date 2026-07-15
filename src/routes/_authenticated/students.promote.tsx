@@ -313,17 +313,30 @@ function PromotionWizardPage() {
               <Select value={currentClassId} onValueChange={setCurrentClassId}>
                 <SelectTrigger><SelectValue placeholder="Select class" /></SelectTrigger>
                 <SelectContent>
-                  {currentClasses?.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
+                  {(currentClasses?.length ?? 0) === 0 ? (
+                    <div className="p-2 text-xs text-muted-foreground">No classes found for this session.</div>
+                  ) : currentClasses!.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
+            {(newClasses?.length ?? 0) === 0 && (
+              <div className="rounded-md border border-destructive/40 bg-destructive/5 p-3 text-sm text-destructive">
+                The destination session has no classes yet. Create classes for the new session under Settings → Classes before running promotion.
+              </div>
+            )}
+            {(newClasses?.length ?? 0) > 0 && (feeStructures?.length ?? 0) === 0 && (
+              <div className="rounded-md border border-amber-500/40 bg-amber-500/5 p-3 text-sm text-amber-700 dark:text-amber-400">
+                No Complete Fee Structures exist for the destination session. Configure at least one Fee Structure with amounts before promotion.
+              </div>
+            )}
             <div className="flex justify-between pt-2">
               <Button variant="outline" onClick={() => setStep(1)}><ArrowLeft className="h-4 w-4" /> Back</Button>
-              <Button onClick={() => { setStep(3); loadStudents.mutate(); }} disabled={!currentClassId}>Load Students <ArrowRight className="h-4 w-4" /></Button>
+              <Button onClick={() => { setStep(3); loadStudents.mutate(); }} disabled={!currentClassId || (newClasses?.length ?? 0) === 0}>Load Students <ArrowRight className="h-4 w-4" /></Button>
             </div>
           </CardContent>
         </Card>
       )}
+
 
       {/* Step 3 — Roster */}
       {step === 3 && (
@@ -365,7 +378,9 @@ function PromotionWizardPage() {
                         <Select value={r.new_class_id} onValueChange={(v) => updateRow(idx, { new_class_id: v, new_section_id: "" })}>
                           <SelectTrigger className="h-8 w-[130px]"><SelectValue placeholder="—" /></SelectTrigger>
                           <SelectContent>
-                            {newClasses?.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
+                            {(newClasses?.length ?? 0) === 0 ? (
+                              <div className="p-2 text-xs text-muted-foreground">No classes in destination session</div>
+                            ) : newClasses!.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
                           </SelectContent>
                         </Select>
                       </TableCell>
@@ -373,7 +388,11 @@ function PromotionWizardPage() {
                         <Select value={r.new_section_id} onValueChange={(v) => updateRow(idx, { new_section_id: v })}>
                           <SelectTrigger className="h-8 w-[100px]"><SelectValue placeholder="—" /></SelectTrigger>
                           <SelectContent>
-                            {(newSections ?? []).filter((s) => s.class_id === r.new_class_id).map((s) => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
+                            {(() => {
+                              const opts = (newSections ?? []).filter((s) => s.class_id === r.new_class_id);
+                              if (opts.length === 0) return <div className="p-2 text-xs text-muted-foreground">{r.new_class_id ? "No sections for this class" : "Pick a class first"}</div>;
+                              return opts.map((s) => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>);
+                            })()}
                           </SelectContent>
                         </Select>
                       </TableCell>
@@ -394,7 +413,11 @@ function PromotionWizardPage() {
                           <SelectTrigger className="h-8 w-[160px]"><SelectValue placeholder="—" /></SelectTrigger>
                           <SelectContent>
                             <SelectItem value="none">—</SelectItem>
-                            {feeStructures?.filter((f) => f.class_id === r.new_class_id).map((f) => <SelectItem key={f.id} value={f.id}>{f.name}</SelectItem>)}
+                            {(() => {
+                              const opts = (feeStructures ?? []).filter((f) => f.class_id === r.new_class_id);
+                              if (opts.length === 0) return <div className="p-2 text-xs text-muted-foreground">{r.new_class_id ? "No Complete Fee Structures for this class" : "Pick a class first"}</div>;
+                              return opts.map((f) => <SelectItem key={f.id} value={f.id}>{f.name}</SelectItem>);
+                            })()}
                           </SelectContent>
                         </Select>
                       </TableCell>
@@ -406,7 +429,7 @@ function PromotionWizardPage() {
             )}
             <div className="p-4 flex justify-between border-t">
               <Button variant="outline" onClick={() => setStep(2)}><ArrowLeft className="h-4 w-4" /> Back</Button>
-              <Button onClick={() => setPreviewOpen(true)} disabled={rows.length === 0 || rows.some((r) => !r.new_class_id || !r.new_section_id)}>
+              <Button onClick={() => setPreviewOpen(true)} disabled={rows.length === 0 || rows.some((r) => !r.new_class_id || !r.new_section_id || (r.action === "promote" && !r.fee_structure_id))}>
                 Preview & Confirm <ArrowRight className="h-4 w-4" />
               </Button>
             </div>

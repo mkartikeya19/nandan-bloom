@@ -29,8 +29,8 @@ export function StudentFeesTab({ studentId, activeRecordId, hasFeeStructure = tr
         .select("id, fee_head_id, period_label, period_month, period_year, due_amount, concession_amount, paid_amount, status, is_opening_balance, display_order, sort_key, fee_heads(name)")
         .eq("student_id", studentId)
         .order("is_opening_balance", { ascending: false })
-        .order("display_order")
-        .order("sort_key");
+        .order("sort_key")
+        .order("display_order");
       if (error) throw error;
       return data;
     },

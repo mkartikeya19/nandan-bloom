@@ -86,19 +86,22 @@ export interface AllocationDraft {
 }
 
 /**
- * Default payment allocator.
- * Order:
- *  1. Opening balance / previous session dues (is_opening_balance)
- *  2. Oldest outstanding month (sort_key ascending, e.g. 2025-04)
- *  3. Remaining tuition months (covered by sort_key ordering)
- *  4. Annual charges (display_order 9000-9499)
- *  5. Other / Optional heads (display_order 9500+)
+ * Default payment allocator — always oldest chronological installment first.
+ * `sort_key` already encodes chronology:
+ *   opening   → "0000-OPENING"
+ *   monthly   → "YYYY-MM-…" (session-relative year, so July 2026 < January 2027)
+ *   annual/optional → "9-XXXX" (after all monthly rows)
+ * We therefore sort purely by (is_opening_balance desc, sort_key asc) and
+ * deliberately IGNORE display_order, which historically encoded month-number
+ * and put January before July.
  */
 export function allocatePayment(amount: number, rows: ScheduleRow[]): AllocationDraft[] {
   const sorted = [...rows].sort((a, b) => {
     if (a.is_opening_balance !== b.is_opening_balance) return a.is_opening_balance ? -1 : 1;
-    if (a.display_order !== b.display_order) return a.display_order - b.display_order;
-    return (a.sort_key ?? "").localeCompare(b.sort_key ?? "");
+    const ak = a.sort_key ?? "";
+    const bk = b.sort_key ?? "";
+    if (ak !== bk) return ak.localeCompare(bk);
+    return a.display_order - b.display_order;
   });
   let remaining = Math.max(0, Math.round(amount * 100) / 100);
   const result: AllocationDraft[] = [];
