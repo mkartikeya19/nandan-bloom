@@ -10,6 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Download, Search } from "lucide-react";
 import { useUserRoles } from "@/hooks/use-user-role";
+import { formatActivityDetails } from "@/lib/activity-format";
 
 export const Route = createFileRoute("/_authenticated/activity")({
   component: ActivityCenter,
@@ -162,7 +163,7 @@ function ActivityCenter() {
                     <TableCell className="text-xs">{p?.roles.join(", ") ?? "—"}</TableCell>
                     <TableCell><Badge variant="secondary">{r.module}</Badge></TableCell>
                     <TableCell className="font-medium">{r.action}</TableCell>
-                    <TableCell className="text-xs text-muted-foreground max-w-[300px] truncate">{Object.keys(r.details ?? {}).length ? JSON.stringify(r.details) : "—"}</TableCell>
+                    <TableCell className="text-xs text-muted-foreground max-w-[360px]" title={JSON.stringify(r.details ?? {})}>{formatActivityDetails(r.module, r.action, r.details)}</TableCell>
                   </TableRow>
                 );
               })}

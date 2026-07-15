@@ -1,7 +1,6 @@
 import { Link, useRouter, useRouterState } from "@tanstack/react-router";
 import {
-  LayoutDashboard, Users, UserPlus, Wallet, CalendarCheck,
-  ClipboardList, GraduationCap, BarChart3, Settings, LogOut, Activity, ArrowUpCircle,
+  LayoutDashboard, Users, Wallet, GraduationCap, Settings, LogOut, Activity, ArrowUpCircle,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import {
@@ -13,17 +12,16 @@ import { supabase } from "@/integrations/supabase/client";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { toast } from "sonner";
 
+// RC-1: Attendance / Examinations / Teachers / Reports / Admission Register
+// modules are out of scope for v1.0 and are hidden from the sidebar until
+// fully implemented. Do not restore without shipping the corresponding
+// feature end-to-end.
 const items = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
   { title: "Students", url: "/students", icon: Users },
-  { title: "Admission Register", url: "/admissions", icon: UserPlus },
   { title: "Promotion", url: "/students/promote", icon: ArrowUpCircle },
   { title: "Fee Management", url: "/fees", icon: Wallet },
-  { title: "Attendance", url: "/attendance", icon: CalendarCheck },
-  { title: "Examinations", url: "/examinations", icon: ClipboardList },
-  { title: "Teachers", url: "/teachers", icon: GraduationCap },
   { title: "Activity Center", url: "/activity", icon: Activity },
-  { title: "Reports", url: "/reports", icon: BarChart3 },
   { title: "Settings", url: "/settings", icon: Settings },
 ] as const;
 
