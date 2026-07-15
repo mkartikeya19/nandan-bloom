@@ -378,7 +378,9 @@ function PromotionWizardPage() {
                         <Select value={r.new_class_id} onValueChange={(v) => updateRow(idx, { new_class_id: v, new_section_id: "" })}>
                           <SelectTrigger className="h-8 w-[130px]"><SelectValue placeholder="—" /></SelectTrigger>
                           <SelectContent>
-                            {newClasses?.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
+                            {(newClasses?.length ?? 0) === 0 ? (
+                              <div className="p-2 text-xs text-muted-foreground">No classes in destination session</div>
+                            ) : newClasses!.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
                           </SelectContent>
                         </Select>
                       </TableCell>
@@ -386,7 +388,11 @@ function PromotionWizardPage() {
                         <Select value={r.new_section_id} onValueChange={(v) => updateRow(idx, { new_section_id: v })}>
                           <SelectTrigger className="h-8 w-[100px]"><SelectValue placeholder="—" /></SelectTrigger>
                           <SelectContent>
-                            {(newSections ?? []).filter((s) => s.class_id === r.new_class_id).map((s) => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
+                            {(() => {
+                              const opts = (newSections ?? []).filter((s) => s.class_id === r.new_class_id);
+                              if (opts.length === 0) return <div className="p-2 text-xs text-muted-foreground">{r.new_class_id ? "No sections for this class" : "Pick a class first"}</div>;
+                              return opts.map((s) => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>);
+                            })()}
                           </SelectContent>
                         </Select>
                       </TableCell>
@@ -407,7 +413,11 @@ function PromotionWizardPage() {
                           <SelectTrigger className="h-8 w-[160px]"><SelectValue placeholder="—" /></SelectTrigger>
                           <SelectContent>
                             <SelectItem value="none">—</SelectItem>
-                            {feeStructures?.filter((f) => f.class_id === r.new_class_id).map((f) => <SelectItem key={f.id} value={f.id}>{f.name}</SelectItem>)}
+                            {(() => {
+                              const opts = (feeStructures ?? []).filter((f) => f.class_id === r.new_class_id);
+                              if (opts.length === 0) return <div className="p-2 text-xs text-muted-foreground">{r.new_class_id ? "No Complete Fee Structures for this class" : "Pick a class first"}</div>;
+                              return opts.map((f) => <SelectItem key={f.id} value={f.id}>{f.name}</SelectItem>);
+                            })()}
                           </SelectContent>
                         </Select>
                       </TableCell>
