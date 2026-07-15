@@ -313,17 +313,30 @@ function PromotionWizardPage() {
               <Select value={currentClassId} onValueChange={setCurrentClassId}>
                 <SelectTrigger><SelectValue placeholder="Select class" /></SelectTrigger>
                 <SelectContent>
-                  {currentClasses?.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
+                  {(currentClasses?.length ?? 0) === 0 ? (
+                    <div className="p-2 text-xs text-muted-foreground">No classes found for this session.</div>
+                  ) : currentClasses!.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
+            {(newClasses?.length ?? 0) === 0 && (
+              <div className="rounded-md border border-destructive/40 bg-destructive/5 p-3 text-sm text-destructive">
+                The destination session has no classes yet. Create classes for the new session under Settings → Classes before running promotion.
+              </div>
+            )}
+            {(newClasses?.length ?? 0) > 0 && (feeStructures?.length ?? 0) === 0 && (
+              <div className="rounded-md border border-amber-500/40 bg-amber-500/5 p-3 text-sm text-amber-700 dark:text-amber-400">
+                No Complete Fee Structures exist for the destination session. Configure at least one Fee Structure with amounts before promotion.
+              </div>
+            )}
             <div className="flex justify-between pt-2">
               <Button variant="outline" onClick={() => setStep(1)}><ArrowLeft className="h-4 w-4" /> Back</Button>
-              <Button onClick={() => { setStep(3); loadStudents.mutate(); }} disabled={!currentClassId}>Load Students <ArrowRight className="h-4 w-4" /></Button>
+              <Button onClick={() => { setStep(3); loadStudents.mutate(); }} disabled={!currentClassId || (newClasses?.length ?? 0) === 0}>Load Students <ArrowRight className="h-4 w-4" /></Button>
             </div>
           </CardContent>
         </Card>
       )}
+
 
       {/* Step 3 — Roster */}
       {step === 3 && (
