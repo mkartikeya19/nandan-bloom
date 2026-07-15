@@ -1353,6 +1353,14 @@ export type Database = {
       }
       next_receipt_number: { Args: never; Returns: string }
       next_scholar_number: { Args: never; Returns: string }
+      regenerate_class_roll_numbers: {
+        Args: { _academic_session_id: string; _class_id: string }
+        Returns: number
+      }
+      regenerate_roll_numbers_after_promotion: {
+        Args: { _payload: Json }
+        Returns: number
+      }
     }
     Enums: {
       app_role:

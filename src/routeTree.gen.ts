@@ -33,6 +33,7 @@ import { Route as AuthenticatedFeesStructuresIndexRouteImport } from './routes/_
 import { Route as AuthenticatedFeesCollectIndexRouteImport } from './routes/_authenticated/fees.collect.index'
 import { Route as AuthenticatedStudentsStudentIdEditRouteImport } from './routes/_authenticated/students.$studentId.edit'
 import { Route as AuthenticatedFeesStructuresStructureIdRouteImport } from './routes/_authenticated/fees.structures.$structureId'
+import { Route as AuthenticatedFeesReportViewRouteImport } from './routes/_authenticated/fees.report.$view'
 import { Route as AuthenticatedFeesReceiptsPaymentIdRouteImport } from './routes/_authenticated/fees.receipts.$paymentId'
 import { Route as AuthenticatedFeesCollectStudentIdRouteImport } from './routes/_authenticated/fees.collect.$studentId'
 
@@ -167,6 +168,12 @@ const AuthenticatedFeesStructuresStructureIdRoute =
     path: '/fees/structures/$structureId',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedFeesReportViewRoute =
+  AuthenticatedFeesReportViewRouteImport.update({
+    id: '/fees/report/$view',
+    path: '/fees/report/$view',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedFeesReceiptsPaymentIdRoute =
   AuthenticatedFeesReceiptsPaymentIdRouteImport.update({
     id: '/fees/receipts/$paymentId',
@@ -202,6 +209,7 @@ export interface FileRoutesByFullPath {
   '/students/': typeof AuthenticatedStudentsIndexRoute
   '/fees/collect/$studentId': typeof AuthenticatedFeesCollectStudentIdRoute
   '/fees/receipts/$paymentId': typeof AuthenticatedFeesReceiptsPaymentIdRoute
+  '/fees/report/$view': typeof AuthenticatedFeesReportViewRoute
   '/fees/structures/$structureId': typeof AuthenticatedFeesStructuresStructureIdRoute
   '/students/$studentId/edit': typeof AuthenticatedStudentsStudentIdEditRoute
   '/fees/collect/': typeof AuthenticatedFeesCollectIndexRoute
@@ -229,6 +237,7 @@ export interface FileRoutesByTo {
   '/students': typeof AuthenticatedStudentsIndexRoute
   '/fees/collect/$studentId': typeof AuthenticatedFeesCollectStudentIdRoute
   '/fees/receipts/$paymentId': typeof AuthenticatedFeesReceiptsPaymentIdRoute
+  '/fees/report/$view': typeof AuthenticatedFeesReportViewRoute
   '/fees/structures/$structureId': typeof AuthenticatedFeesStructuresStructureIdRoute
   '/students/$studentId/edit': typeof AuthenticatedStudentsStudentIdEditRoute
   '/fees/collect': typeof AuthenticatedFeesCollectIndexRoute
@@ -258,6 +267,7 @@ export interface FileRoutesById {
   '/_authenticated/students/': typeof AuthenticatedStudentsIndexRoute
   '/_authenticated/fees/collect/$studentId': typeof AuthenticatedFeesCollectStudentIdRoute
   '/_authenticated/fees/receipts/$paymentId': typeof AuthenticatedFeesReceiptsPaymentIdRoute
+  '/_authenticated/fees/report/$view': typeof AuthenticatedFeesReportViewRoute
   '/_authenticated/fees/structures/$structureId': typeof AuthenticatedFeesStructuresStructureIdRoute
   '/_authenticated/students/$studentId/edit': typeof AuthenticatedStudentsStudentIdEditRoute
   '/_authenticated/fees/collect/': typeof AuthenticatedFeesCollectIndexRoute
@@ -287,6 +297,7 @@ export interface FileRouteTypes {
     | '/students/'
     | '/fees/collect/$studentId'
     | '/fees/receipts/$paymentId'
+    | '/fees/report/$view'
     | '/fees/structures/$structureId'
     | '/students/$studentId/edit'
     | '/fees/collect/'
@@ -314,6 +325,7 @@ export interface FileRouteTypes {
     | '/students'
     | '/fees/collect/$studentId'
     | '/fees/receipts/$paymentId'
+    | '/fees/report/$view'
     | '/fees/structures/$structureId'
     | '/students/$studentId/edit'
     | '/fees/collect'
@@ -342,6 +354,7 @@ export interface FileRouteTypes {
     | '/_authenticated/students/'
     | '/_authenticated/fees/collect/$studentId'
     | '/_authenticated/fees/receipts/$paymentId'
+    | '/_authenticated/fees/report/$view'
     | '/_authenticated/fees/structures/$structureId'
     | '/_authenticated/students/$studentId/edit'
     | '/_authenticated/fees/collect/'
@@ -524,6 +537,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedFeesStructuresStructureIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/fees/report/$view': {
+      id: '/_authenticated/fees/report/$view'
+      path: '/fees/report/$view'
+      fullPath: '/fees/report/$view'
+      preLoaderRoute: typeof AuthenticatedFeesReportViewRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/fees/receipts/$paymentId': {
       id: '/_authenticated/fees/receipts/$paymentId'
       path: '/fees/receipts/$paymentId'
@@ -576,6 +596,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedStudentsIndexRoute: typeof AuthenticatedStudentsIndexRoute
   AuthenticatedFeesCollectStudentIdRoute: typeof AuthenticatedFeesCollectStudentIdRoute
   AuthenticatedFeesReceiptsPaymentIdRoute: typeof AuthenticatedFeesReceiptsPaymentIdRoute
+  AuthenticatedFeesReportViewRoute: typeof AuthenticatedFeesReportViewRoute
   AuthenticatedFeesStructuresStructureIdRoute: typeof AuthenticatedFeesStructuresStructureIdRoute
   AuthenticatedFeesCollectIndexRoute: typeof AuthenticatedFeesCollectIndexRoute
   AuthenticatedFeesStructuresIndexRoute: typeof AuthenticatedFeesStructuresIndexRoute
@@ -604,6 +625,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
     AuthenticatedFeesCollectStudentIdRoute,
   AuthenticatedFeesReceiptsPaymentIdRoute:
     AuthenticatedFeesReceiptsPaymentIdRoute,
+  AuthenticatedFeesReportViewRoute: AuthenticatedFeesReportViewRoute,
   AuthenticatedFeesStructuresStructureIdRoute:
     AuthenticatedFeesStructuresStructureIdRoute,
   AuthenticatedFeesCollectIndexRoute: AuthenticatedFeesCollectIndexRoute,
@@ -621,13 +643,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

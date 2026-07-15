@@ -40,8 +40,10 @@ export function useUserRoles() {
     isPrincipal,
     isTeacher,
     // Student module permissions
+    // RC-1: Reception can admit students but cannot edit them afterwards.
+    // Only Admin / Super Admin may edit an existing student record.
     canCreateStudent: isAdmin || isReception,
-    canEditStudent: isAdmin || isReception,
+    canEditStudent: isAdmin,
     canPromoteStudent: isAdmin || isPrincipal,
     canArchiveStudent: isAdmin,
     canViewStudent: roles.length > 0,

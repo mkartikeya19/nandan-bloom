@@ -212,7 +212,9 @@ function PromotionWizardPage() {
         new_class_id: r.new_class_id,
         new_section_id: r.new_section_id,
         new_house_id: r.new_house_id,
-        new_roll_number: r.new_roll_number,
+        // RC-1: Roll numbers are NOT carried forward. They are regenerated
+        // alphabetically per class immediately after the bulk insert below.
+        new_roll_number: null,
         fee_structure_id: r.fee_structure_id,
         action: r.action,
         generate_schedule: settings.generateSchedule,
@@ -221,15 +223,18 @@ function PromotionWizardPage() {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { data, error } = await (supabase as any).rpc("bulk_promote_students", { _payload: { items } });
       if (error) throw error;
+      // Regenerate roll numbers alphabetically for every class touched.
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data: rolls } = await (supabase as any).rpc("regenerate_roll_numbers_after_promotion", { _payload: { items } });
       await logActivity({
         module: "Promotion",
         action: "Bulk Promotion Executed",
-        details: { ...data, current_session: currentSessionId, new_session: newSessionId, class: currentClassId },
+        details: { ...data, roll_numbers_assigned: rolls ?? 0, current_session: currentSessionId, new_session: newSessionId, class: currentClassId },
       });
-      return data as { promoted: number; retained: number; schedules_created: number };
+      return { ...data, roll_numbers_assigned: rolls ?? 0 } as { promoted: number; retained: number; schedules_created: number; roll_numbers_assigned: number };
     },
     onSuccess: (data) => {
-      toast.success(`Promoted ${data.promoted}, Retained ${data.retained}, ${data.schedules_created} fee rows created.`);
+      toast.success(`Promoted ${data.promoted}, Retained ${data.retained}. ${data.schedules_created} fee rows created. Roll numbers regenerated for ${data.roll_numbers_assigned} students.`);
       setPreviewOpen(false);
       nav({ to: "/students" });
     },
