@@ -429,7 +429,7 @@ function PromotionWizardPage() {
             )}
             <div className="p-4 flex justify-between border-t">
               <Button variant="outline" onClick={() => setStep(2)}><ArrowLeft className="h-4 w-4" /> Back</Button>
-              <Button onClick={() => setPreviewOpen(true)} disabled={rows.length === 0 || rows.some((r) => !r.new_class_id || !r.new_section_id)}>
+              <Button onClick={() => setPreviewOpen(true)} disabled={rows.length === 0 || rows.some((r) => !r.new_class_id || !r.new_section_id || (r.action === "promote" && !r.fee_structure_id))}>
                 Preview & Confirm <ArrowRight className="h-4 w-4" />
               </Button>
             </div>
