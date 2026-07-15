@@ -69,8 +69,15 @@ function AuthPage() {
     toast.success("Account created. Check your email if confirmation is required.");
   };
 
+  // RC-1: ssr:false makes TSR render <Suspense fallback={null}> server-side.
+  // Gate rendering until mounted to avoid the "hydration failed" warning.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
+  if (!mounted) return null;
+
   return (
     <div className="min-h-screen grid lg:grid-cols-2">
+
       {/* Left brand panel */}
       <div className="hidden lg:flex flex-col justify-between p-12 text-primary-foreground" style={{ backgroundImage: "var(--gradient-primary)" }}>
         <div className="flex items-center gap-3">

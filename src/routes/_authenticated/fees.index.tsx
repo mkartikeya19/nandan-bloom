@@ -62,12 +62,12 @@ function FeesDashboard() {
     },
   });
 
-  const cards = [
-    { label: "Today's Collection", value: formatINR(stats.data?.todayCollection ?? 0), icon: Wallet },
-    { label: "This Month", value: formatINR(stats.data?.monthCollection ?? 0), icon: Calendar },
-    { label: "Outstanding", value: formatINR(stats.data?.outstanding ?? 0), icon: AlertCircle },
-    { label: "Students with Pending Fee", value: String(stats.data?.pendingStudents ?? 0), icon: Users },
-    { label: "Receipts Today", value: String(stats.data?.receiptsToday ?? 0), icon: Receipt },
+  const cards: Array<{ label: string; value: string; icon: typeof Wallet; view: "today" | "month" | "outstanding" | "pending" | "receipts" }> = [
+    { label: "Today's Collection", value: formatINR(stats.data?.todayCollection ?? 0), icon: Wallet, view: "today" },
+    { label: "This Month", value: formatINR(stats.data?.monthCollection ?? 0), icon: Calendar, view: "month" },
+    { label: "Outstanding", value: formatINR(stats.data?.outstanding ?? 0), icon: AlertCircle, view: "outstanding" },
+    { label: "Students with Pending Fee", value: String(stats.data?.pendingStudents ?? 0), icon: Users, view: "pending" },
+    { label: "Receipts Today", value: String(stats.data?.receiptsToday ?? 0), icon: Receipt, view: "receipts" },
   ];
 
   return (
@@ -81,15 +81,17 @@ function FeesDashboard() {
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5 mb-6">
         {cards.map((c) => (
-          <Card key={c.label}>
-            <CardContent className="p-4 flex items-start justify-between gap-2">
-              <div>
-                <p className="text-xs text-muted-foreground">{c.label}</p>
-                <p className="text-lg font-semibold mt-1">{c.value}</p>
-              </div>
-              <c.icon className="h-5 w-5 text-muted-foreground shrink-0" />
-            </CardContent>
-          </Card>
+          <Link key={c.label} to="/fees/report/$view" params={{ view: c.view }} className="group">
+            <Card className="transition hover:border-primary/60 hover:shadow-sm cursor-pointer h-full">
+              <CardContent className="p-4 flex items-start justify-between gap-2">
+                <div>
+                  <p className="text-xs text-muted-foreground">{c.label}</p>
+                  <p className="text-lg font-semibold mt-1 group-hover:text-primary">{c.value}</p>
+                </div>
+                <c.icon className="h-5 w-5 text-muted-foreground shrink-0" />
+              </CardContent>
+            </Card>
+          </Link>
         ))}
       </div>
 
