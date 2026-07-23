@@ -84,7 +84,7 @@ function StatCard({ label, value, icon: Icon, hint }: StatCardProps) {
   );
 }
 
-function useCount(table: "students" | "teachers" | "admissions" | "fee_payments" | "attendance" | "exams", filter?: { column: string; value: string }) {
+function useCount(table: "students" | "teachers" | "admissions" | "fee_payments" | "attendance", filter?: { column: string; value: string }) {
   return useQuery({
     queryKey: ["count", table, filter],
     queryFn: async () => {
@@ -96,6 +96,7 @@ function useCount(table: "students" | "teachers" | "admissions" | "fee_payments"
     },
   });
 }
+
 
 function Dashboard() {
   const teachers = useCount("teachers", { column: "status", value: "active" });
