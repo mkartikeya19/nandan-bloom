@@ -321,20 +321,61 @@ interface CollectProps {
   onDone: (paymentId: string) => void;
 }
 
+type CollectMode = "auto" | "manual" | "opening";
+
 function CollectPaymentDialog({ open, onOpenChange, rows, scheduleRaw, studentId, recordId, sessionId, collectedBy, onDone }: CollectProps) {
+  const settings = useQuery({
+    queryKey: ["fee-settings-mode"],
+    queryFn: async () => (await supabase.from("fee_settings").select("default_collection_mode").limit(1).maybeSingle()).data,
+  });
+  const defaultMode = (settings.data?.default_collection_mode ?? "auto") as CollectMode | "ask";
+
+  const [mode, setModeState] = useState<CollectMode>(defaultMode === "ask" ? "auto" : (defaultMode as CollectMode));
+  useEffect(() => {
+    if (defaultMode !== "ask") setModeState(defaultMode as CollectMode);
+  }, [defaultMode]);
+
   const [amount, setAmount] = useState(0);
-  const [mode, setMode] = useState<PaymentMode>("Cash");
+  const [payMode, setPayMode] = useState<PaymentMode>("Cash");
   const [reference, setReference] = useState("");
   const [notes, setNotes] = useState("");
   const [overrides, setOverrides] = useState<Record<string, number>>({});
-  const [override, setOverride] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
 
-  const autoAlloc = useMemo(() => allocatePayment(amount, rows), [amount, rows]);
-  const effective: Array<{ scheduleId: string; amount: number }> = override
+  const openingRows = useMemo(() => rows.filter((r) => r.is_opening_balance && outstandingOf(r) > 0), [rows]);
+
+  const autoAlloc = useMemo(() => {
+    if (mode === "opening") {
+      let remaining = amount;
+      const out: Array<{ scheduleId: string; amount: number }> = [];
+      for (const r of openingRows) {
+        if (remaining <= 0) break;
+        const os = outstandingOf(r);
+        const take = Math.min(os, remaining);
+        out.push({ scheduleId: r.id, amount: take });
+        remaining -= take;
+      }
+      return out;
+    }
+    return allocatePayment(amount, rows);
+  }, [amount, rows, mode, openingRows]);
+
+  const effective: Array<{ scheduleId: string; amount: number }> = mode === "manual"
     ? Object.entries(overrides).map(([scheduleId, amt]) => ({ scheduleId, amount: Number(amt) || 0 })).filter((a) => a.amount > 0)
     : autoAlloc;
   const allocatedTotal = effective.reduce((s, a) => s + a.amount, 0);
+
+  useEffect(() => {
+    if (mode === "manual") {
+      const o: Record<string, number> = {};
+      autoAlloc.forEach((a) => (o[a.scheduleId] = a.amount));
+      setOverrides(o);
+    } else {
+      setOverrides({});
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mode]);
 
   // Suggested collection: opening balance + Annual items + current-month recurring
   const suggested = useMemo(() => {
@@ -345,14 +386,14 @@ function CollectPaymentDialog({ open, onOpenChange, rows, scheduleRaw, studentId
       const os = outstandingOf(r);
       if (os <= 0) return false;
       if (r.is_opening_balance) return true;
-      if (r.period_month == null) return true; // annual/one-time
-      // include past-due months + current month
+      if (r.period_month == null) return true;
       if (r.period_year != null && (r.period_year < curYear || (r.period_year === curYear && r.period_month <= curMonth))) return true;
       return false;
     });
     return picked.reduce((s, r) => s + outstandingOf(r), 0);
   }, [rows]);
 
+  const openingTotal = openingRows.reduce((s, r) => s + outstandingOf(r), 0);
 
   const submit = async () => {
     if (submitting) return;
@@ -370,7 +411,7 @@ function CollectPaymentDialog({ open, onOpenChange, rows, scheduleRaw, studentId
         receipt_number: receipt,
         amount,
         sub_total: amount,
-        payment_mode: mode,
+        payment_mode: payMode,
         payment_date: today,
         academic_year: "",
         transaction_reference: reference || null,
@@ -387,7 +428,7 @@ function CollectPaymentDialog({ open, onOpenChange, rows, scheduleRaw, studentId
         action: "Payment collected",
         entityType: "fee_payment",
         entityId: payment.id,
-        details: { receipt, amount, mode, student_id: studentId },
+        details: { receipt, amount, mode: payMode, allocation_mode: mode, student_id: studentId },
       });
       toast.success(`Receipt ${receipt} generated`);
       onDone(payment.id);
@@ -398,6 +439,10 @@ function CollectPaymentDialog({ open, onOpenChange, rows, scheduleRaw, studentId
       setSubmitting(false);
     }
   };
+
+  const setMode = (m: CollectMode) => { setModeState(m); setShowPreview(false); };
+
+
 
 
   return (
