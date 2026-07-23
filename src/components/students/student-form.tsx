@@ -291,16 +291,44 @@ export function StudentForm({ mode, student, currentRecord, onSaved }: Props) {
         aadhaar_copy_url?: string;
         transfer_certificate_url?: string;
       } = {};
-      if (photoFile) updates.photo_url = await uploadStudentFile(form.scholar_number, "photos", photoFile);
-      if (birthCertFile)
+      const uploadedDocs: { field: string; label: string; replaced: boolean }[] = [];
+      const trackDoc = (field: keyof typeof updates, label: string, existing?: string | null) => {
+        uploadedDocs.push({ field, label, replaced: Boolean(existing) });
+      };
+      if (photoFile) {
+        updates.photo_url = await uploadStudentFile(form.scholar_number, "photos", photoFile);
+        trackDoc("photo_url", "Student Photograph", student?.photo_url);
+      }
+      if (birthCertFile) {
         updates.birth_certificate_url = await uploadStudentFile(form.scholar_number, "documents", birthCertFile);
-      if (aadhaarFile)
+        trackDoc("birth_certificate_url", "Birth Certificate", student?.birth_certificate_url);
+      }
+      if (aadhaarFile) {
         updates.aadhaar_copy_url = await uploadStudentFile(form.scholar_number, "documents", aadhaarFile);
-      if (tcFile)
+        trackDoc("aadhaar_copy_url", "Aadhaar Copy", student?.aadhaar_copy_url);
+      }
+      if (tcFile) {
         updates.transfer_certificate_url = await uploadStudentFile(form.scholar_number, "documents", tcFile);
+        trackDoc("transfer_certificate_url", "Transfer Certificate", student?.transfer_certificate_url);
+      }
       if (Object.keys(updates).length > 0) {
         const { error } = await supabase.from("students").update(updates).eq("id", studentId);
         if (error) throw error;
+        for (const doc of uploadedDocs) {
+          try {
+            await logActivity({
+              module: "Students",
+              action: doc.replaced ? "Document Replaced" : "Document Uploaded",
+              entityType: "student",
+              entityId: studentId,
+              details: {
+                scholar_number: form.scholar_number,
+                student_name: form.full_name,
+                document: doc.label,
+              },
+            });
+          } catch { /* ignore */ }
+        }
       }
       try {
         await logActivity({

@@ -45,7 +45,31 @@ export function formatActivityDetails(
       const c = n(details, "generated_count") ?? n(details, "count");
       return c != null ? `${c} schedule rows generated` : "Fee schedule updated";
     }
+    if (a.includes("concession")) {
+      const stu = s(details, "student_name") ?? s(details, "scholar_number");
+      const amt = n(details, "amount");
+      const type = s(details, "concession_type");
+      const head = s(details, "fee_head");
+      const parts: string[] = [];
+      if (type) parts.push(type);
+      if (amt != null) parts.push(formatINR(amt));
+      if (head) parts.push(head);
+      if (stu) parts.push(`for ${stu}`);
+      if (parts.length) return parts.join(" · ");
+    }
   }
+
+  // Documents
+  if (module === "Students" && a.includes("document")) {
+    const doc = s(details, "document");
+    const stu = s(details, "student_name") ?? s(details, "scholar_number");
+    const bits: string[] = [];
+    if (doc) bits.push(doc);
+    if (stu) bits.push(`for ${stu}`);
+    if (bits.length) return bits.join(" · ");
+  }
+
+
 
   // Students / Admissions
   if (module === "Students" || module === "Admissions") {
