@@ -16,6 +16,7 @@ import { toast } from "sonner";
 import { Plus, Loader2 } from "lucide-react";
 import { formatINR } from "@/lib/fees-helpers";
 import { useUserRoles } from "@/hooks/use-user-role";
+import { logActivity } from "@/lib/activity";
 
 export const Route = createFileRoute("/_authenticated/fees/concessions")({
   component: ConcessionsPage,
