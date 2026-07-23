@@ -39,14 +39,31 @@ function ConcessionsPage() {
   const create = useMutation({
     mutationFn: async () => {
       if (!form.student_id || !form.academic_session_id || !form.amount) throw new Error("Fill all required fields");
-      const { error } = await supabase.from("fee_concessions").insert({
+      const { data: inserted, error } = await supabase.from("fee_concessions").insert({
         student_id: form.student_id, academic_session_id: form.academic_session_id,
         fee_head_id: form.fee_head_id || null, concession_type: form.concession_type,
         reason: form.reason || null, amount: Number(form.amount), approved_by: userId,
-      });
+      }).select("id").single();
       if (error) throw error;
+      const stu = students.data?.find((s) => s.id === form.student_id);
+      const head = heads.data?.find((h) => h.id === form.fee_head_id);
+      await logActivity({
+        module: "Fees",
+        action: "Concession Created",
+        entityType: "fee_concession",
+        entityId: inserted?.id ?? null,
+        details: {
+          student_id: form.student_id,
+          scholar_number: stu?.scholar_number,
+          student_name: stu?.full_name,
+          concession_type: form.concession_type,
+          amount: Number(form.amount),
+          fee_head: head?.name ?? "All heads",
+          reason: form.reason || null,
+        },
+      });
     },
-    onSuccess: () => { toast.success("Concession recorded"); setOpen(false); setForm({ student_id: "", academic_session_id: "", fee_head_id: "", concession_type: "Principal Approved", reason: "", amount: "" }); qc.invalidateQueries({ queryKey: ["fee-concessions"] }); },
+    onSuccess: () => { toast.success("Concession recorded"); setOpen(false); setForm({ student_id: "", academic_session_id: "", fee_head_id: "", concession_type: "Principal Approved", reason: "", amount: "" }); qc.invalidateQueries({ queryKey: ["fee-concessions"] }); qc.invalidateQueries({ queryKey: ["activity-log"] }); },
     onError: (e: Error) => toast.error(e.message),
   });
 
