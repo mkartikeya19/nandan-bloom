@@ -67,6 +67,9 @@ export function formatActivityDetails(
     if (doc) bits.push(doc);
     if (stu) bits.push(`for ${stu}`);
     if (bits.length) return bits.join(" · ");
+  }
+
+
 
   // Students / Admissions
   if (module === "Students" || module === "Admissions") {
