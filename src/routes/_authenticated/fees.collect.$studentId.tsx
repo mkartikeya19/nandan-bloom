@@ -450,19 +450,36 @@ function CollectPaymentDialog({ open, onOpenChange, rows, scheduleRaw, studentId
       <DialogContent className="max-w-2xl">
         <DialogHeader><DialogTitle>Collect Payment</DialogTitle></DialogHeader>
         <div className="grid gap-4">
+          {/* Mode selector */}
+          <div>
+            <Label className="mb-1.5 block">Allocation Mode</Label>
+            <div className="flex flex-wrap gap-2">
+              <Button size="sm" variant={mode === "auto" ? "default" : "outline"} onClick={() => setMode("auto")}>Quick Collect</Button>
+              <Button size="sm" variant={mode === "manual" ? "default" : "outline"} onClick={() => setMode("manual")}>Manual Allocation</Button>
+              <Button size="sm" variant={mode === "opening" ? "default" : "outline"} disabled={openingTotal <= 0} onClick={() => setMode("opening")}>
+                Opening Balance Only {openingTotal > 0 && <span className="ml-1 text-xs">({formatINR(openingTotal)})</span>}
+              </Button>
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              {mode === "auto" && "Amount is auto-allocated oldest-first across all outstanding items."}
+              {mode === "manual" && "Choose exactly how the amount is split across items."}
+              {mode === "opening" && "Applies only to previous-session opening balance rows."}
+            </p>
+          </div>
+
           <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5"><Label>Amount (₹) *</Label><Input type="number" min={0} step="0.01" autoFocus value={amount || ""} onChange={(e) => setAmount(Number(e.target.value) || 0)} /></div>
+            <div className="space-y-1.5"><Label>Amount (₹) *</Label><Input type="number" min={0} step="0.01" autoFocus value={amount || ""} onChange={(e) => { setAmount(Number(e.target.value) || 0); setShowPreview(false); }} /></div>
             <div className="space-y-1.5"><Label>Payment Mode *</Label>
-              <Select value={mode} onValueChange={(v) => setMode(v as PaymentMode)}>
+              <Select value={payMode} onValueChange={(v) => setPayMode(v as PaymentMode)}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>{PAYMENT_MODES.map((m) => <SelectItem key={m} value={m}>{m}</SelectItem>)}</SelectContent>
               </Select>
             </div>
           </div>
-          {mode !== "Cash" && <div className="space-y-1.5"><Label>Transaction Reference</Label><Input value={reference} onChange={(e) => setReference(e.target.value)} placeholder="Cheque #, UPI ref, etc." /></div>}
+          {payMode !== "Cash" && <div className="space-y-1.5"><Label>Transaction Reference</Label><Input value={reference} onChange={(e) => setReference(e.target.value)} placeholder="Cheque #, UPI ref, etc." /></div>}
           <div className="space-y-1.5"><Label>Notes</Label><Textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} /></div>
 
-          {suggested > 0 && (
+          {mode === "auto" && suggested > 0 && (
             <div className="flex items-center justify-between rounded-md border bg-primary/5 p-3 text-sm">
               <div>
                 <p className="font-medium">Suggested collection</p>
@@ -475,28 +492,24 @@ function CollectPaymentDialog({ open, onOpenChange, rows, scheduleRaw, studentId
             </div>
           )}
 
-
           <div>
             <div className="flex items-center justify-between mb-2">
               <Label>Allocation ({formatINR(allocatedTotal)} / {formatINR(amount)})</Label>
-              <Button size="sm" variant="ghost" onClick={() => { setOverride(!override); if (!override) { const o: Record<string, number> = {}; autoAlloc.forEach((a) => o[a.scheduleId] = a.amount); setOverrides(o); } }}>
-                {override ? "Auto Allocate" : "Override"}
-              </Button>
             </div>
             <div className="max-h-64 overflow-y-auto rounded border">
               <Table>
                 <TableHeader><TableRow><TableHead>Item</TableHead><TableHead className="text-right">Outstanding</TableHead><TableHead className="w-32 text-right">Allocate</TableHead></TableRow></TableHeader>
                 <TableBody>
-                  {rows.filter((r) => outstandingOf(r) > 0).map((r) => {
+                  {(mode === "opening" ? openingRows : rows.filter((r) => outstandingOf(r) > 0)).map((r) => {
                     const head = scheduleRaw.find((s) => s.id === r.id);
                     const autoAmt = autoAlloc.find((a) => a.scheduleId === r.id)?.amount ?? 0;
-                    const val = override ? (overrides[r.id] ?? 0) : autoAmt;
+                    const val = mode === "manual" ? (overrides[r.id] ?? 0) : autoAmt;
                     return (
                       <TableRow key={r.id}>
                         <TableCell>{r.is_opening_balance ? "Opening Balance" : `${head?.fee_heads?.name ?? ""} · ${r.period_label}`}</TableCell>
                         <TableCell className="text-right">{formatINR(outstandingOf(r))}</TableCell>
                         <TableCell className="text-right">
-                          {override ? (
+                          {mode === "manual" ? (
                             <Input type="number" min={0} step="0.01" className="text-right h-8" value={overrides[r.id] ?? ""} onChange={(e) => setOverrides({ ...overrides, [r.id]: Number(e.target.value) || 0 })} />
                           ) : formatINR(val)}
                         </TableCell>
@@ -507,18 +520,38 @@ function CollectPaymentDialog({ open, onOpenChange, rows, scheduleRaw, studentId
               </Table>
             </div>
           </div>
+
+          {showPreview && (
+            <div className="rounded-md border bg-muted/40 p-3 space-y-2">
+              <p className="text-sm font-semibold">Confirm allocation</p>
+              <div className="text-xs space-y-1 max-h-40 overflow-y-auto">
+                {effective.map((a) => {
+                  const row = rows.find((r) => r.id === a.scheduleId);
+                  const head = scheduleRaw.find((s) => s.id === a.scheduleId);
+                  const label = row?.is_opening_balance ? "Opening Balance" : `${head?.fee_heads?.name ?? ""} · ${row?.period_label ?? ""}`;
+                  return <div key={a.scheduleId} className="flex justify-between"><span>{label}</span><span className="font-mono">{formatINR(a.amount)}</span></div>;
+                })}
+              </div>
+              <div className="flex justify-between text-sm font-semibold border-t pt-1"><span>Total</span><span>{formatINR(allocatedTotal)}</span></div>
+            </div>
+          )}
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={submitting}>Cancel</Button>
-          <Button
-            onClick={submit}
-            disabled={submitting || amount <= 0 || effective.length === 0}
-          >
-            {submitting && <Loader2 className="h-4 w-4 animate-spin" />} Post Payment
-          </Button>
+          {!showPreview ? (
+            <Button onClick={() => setShowPreview(true)} disabled={amount <= 0 || effective.length === 0}>Preview</Button>
+          ) : (
+            <>
+              <Button variant="outline" onClick={() => setShowPreview(false)} disabled={submitting}>Modify</Button>
+              <Button onClick={submit} disabled={submitting}>
+                {submitting && <Loader2 className="h-4 w-4 animate-spin" />} Confirm & Post
+              </Button>
+            </>
+          )}
         </DialogFooter>
       </DialogContent>
     </Dialog>
   );
 }
+
 
