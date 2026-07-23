@@ -190,90 +190,334 @@ export type Database = {
           },
         ]
       }
-      exam_results: {
+      exam_class_subject_components: {
         Row: {
+          class_subject_id: string
           created_at: string
-          exam_id: string
-          grade: string | null
           id: string
-          marks_obtained: number
+          is_practical: boolean
           max_marks: number
-          remarks: string | null
-          student_id: string
-          subject: string
+          name: string
+          sort_order: number
+          updated_at: string
         }
         Insert: {
+          class_subject_id: string
           created_at?: string
-          exam_id: string
-          grade?: string | null
           id?: string
-          marks_obtained: number
+          is_practical?: boolean
           max_marks: number
-          remarks?: string | null
-          student_id: string
-          subject: string
+          name: string
+          sort_order?: number
+          updated_at?: string
         }
         Update: {
+          class_subject_id?: string
           created_at?: string
-          exam_id?: string
-          grade?: string | null
           id?: string
-          marks_obtained?: number
+          is_practical?: boolean
           max_marks?: number
-          remarks?: string | null
-          student_id?: string
-          subject?: string
+          name?: string
+          sort_order?: number
+          updated_at?: string
         }
         Relationships: [
           {
-            foreignKeyName: "exam_results_exam_id_fkey"
-            columns: ["exam_id"]
+            foreignKeyName: "exam_class_subject_components_class_subject_id_fkey"
+            columns: ["class_subject_id"]
             isOneToOne: false
-            referencedRelation: "exams"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "exam_results_student_id_fkey"
-            columns: ["student_id"]
-            isOneToOne: false
-            referencedRelation: "students"
+            referencedRelation: "exam_class_subjects"
             referencedColumns: ["id"]
           },
         ]
       }
-      exams: {
+      exam_class_subjects: {
         Row: {
-          academic_year: string
-          class_name: string | null
+          class_id: string
           created_at: string
-          end_date: string | null
-          exam_type: string
           id: string
-          max_marks: number | null
-          name: string
-          start_date: string | null
+          is_active: boolean
+          sort_order: number
+          subject_id: string
+          updated_at: string
         }
         Insert: {
-          academic_year: string
-          class_name?: string | null
+          class_id: string
           created_at?: string
-          end_date?: string | null
-          exam_type: string
           id?: string
-          max_marks?: number | null
-          name: string
-          start_date?: string | null
+          is_active?: boolean
+          sort_order?: number
+          subject_id: string
+          updated_at?: string
         }
         Update: {
-          academic_year?: string
-          class_name?: string | null
+          class_id?: string
           created_at?: string
-          end_date?: string | null
-          exam_type?: string
           id?: string
-          max_marks?: number | null
+          is_active?: boolean
+          sort_order?: number
+          subject_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exam_class_subjects_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "school_classes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "exam_class_subjects_subject_id_fkey"
+            columns: ["subject_id"]
+            isOneToOne: false
+            referencedRelation: "exam_subjects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      exam_grade_bands: {
+        Row: {
+          created_at: string
+          grade: string
+          id: string
+          max_percent: number
+          min_percent: number
+          remark: string | null
+          scale_id: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          grade: string
+          id?: string
+          max_percent: number
+          min_percent: number
+          remark?: string | null
+          scale_id: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          grade?: string
+          id?: string
+          max_percent?: number
+          min_percent?: number
+          remark?: string | null
+          scale_id?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exam_grade_bands_scale_id_fkey"
+            columns: ["scale_id"]
+            isOneToOne: false
+            referencedRelation: "exam_grade_scales"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      exam_grade_scales: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          is_default: boolean
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          is_default?: boolean
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          is_default?: boolean
           name?: string
-          start_date?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      exam_pattern_classes: {
+        Row: {
+          class_id: string
+          created_at: string
+          id: string
+          pattern_id: string
+        }
+        Insert: {
+          class_id: string
+          created_at?: string
+          id?: string
+          pattern_id: string
+        }
+        Update: {
+          class_id?: string
+          created_at?: string
+          id?: string
+          pattern_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exam_pattern_classes_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "school_classes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "exam_pattern_classes_pattern_id_fkey"
+            columns: ["pattern_id"]
+            isOneToOne: false
+            referencedRelation: "exam_patterns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      exam_pattern_terms: {
+        Row: {
+          created_at: string
+          id: string
+          include_in_final: boolean
+          name: string
+          pattern_id: string
+          sort_order: number
+          updated_at: string
+          weightage_percent: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          include_in_final?: boolean
+          name: string
+          pattern_id: string
+          sort_order?: number
+          updated_at?: string
+          weightage_percent?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          include_in_final?: boolean
+          name?: string
+          pattern_id?: string
+          sort_order?: number
+          updated_at?: string
+          weightage_percent?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exam_pattern_terms_pattern_id_fkey"
+            columns: ["pattern_id"]
+            isOneToOne: false
+            referencedRelation: "exam_patterns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      exam_patterns: {
+        Row: {
+          academic_session_id: string
+          created_at: string
+          created_by: string | null
+          grade_scale_id: string | null
+          id: string
+          is_active: boolean
+          is_locked: boolean
+          locked_at: string | null
+          name: string
+          parent_pattern_id: string | null
+          updated_at: string
+          version: number
+        }
+        Insert: {
+          academic_session_id: string
+          created_at?: string
+          created_by?: string | null
+          grade_scale_id?: string | null
+          id?: string
+          is_active?: boolean
+          is_locked?: boolean
+          locked_at?: string | null
+          name: string
+          parent_pattern_id?: string | null
+          updated_at?: string
+          version?: number
+        }
+        Update: {
+          academic_session_id?: string
+          created_at?: string
+          created_by?: string | null
+          grade_scale_id?: string | null
+          id?: string
+          is_active?: boolean
+          is_locked?: boolean
+          locked_at?: string | null
+          name?: string
+          parent_pattern_id?: string | null
+          updated_at?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exam_patterns_academic_session_id_fkey"
+            columns: ["academic_session_id"]
+            isOneToOne: false
+            referencedRelation: "academic_sessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "exam_patterns_grade_scale_id_fkey"
+            columns: ["grade_scale_id"]
+            isOneToOne: false
+            referencedRelation: "exam_grade_scales"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "exam_patterns_parent_pattern_id_fkey"
+            columns: ["parent_pattern_id"]
+            isOneToOne: false
+            referencedRelation: "exam_patterns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      exam_subjects: {
+        Row: {
+          code: string | null
+          created_at: string
+          id: string
+          is_active: boolean
+          name: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          code?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          code?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          sort_order?: number
+          updated_at?: string
         }
         Relationships: []
       }
@@ -542,6 +786,7 @@ export type Database = {
       }
       fee_settings: {
         Row: {
+          default_collection_mode: string
           id: string
           late_fee_amount: number
           late_fee_enabled: boolean
@@ -549,6 +794,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          default_collection_mode?: string
           id?: string
           late_fee_amount?: number
           late_fee_enabled?: boolean
@@ -556,6 +802,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          default_collection_mode?: string
           id?: string
           late_fee_amount?: number
           late_fee_enabled?: boolean
@@ -1324,7 +1571,12 @@ export type Database = {
         Returns: Json
       }
       bulk_promote_students: { Args: { _payload: Json }; Returns: Json }
+      can_manage_exam_masters: { Args: { _uid: string }; Returns: boolean }
       claim_first_admin: { Args: never; Returns: boolean }
+      clone_exam_pattern: {
+        Args: { _new_name: string; _new_session_id: string; _source_id: string }
+        Returns: string
+      }
       find_complete_fee_structure: {
         Args: { _academic_session_id: string; _class_id: string }
         Returns: {
@@ -1361,6 +1613,7 @@ export type Database = {
         Args: { _payload: Json }
         Returns: number
       }
+      version_exam_pattern: { Args: { _source_id: string }; Returns: string }
     }
     Enums: {
       app_role:
