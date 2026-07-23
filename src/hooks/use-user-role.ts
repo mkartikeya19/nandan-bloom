@@ -53,5 +53,9 @@ export function useUserRoles() {
     canVoidReceipt: isAdmin,
     canApproveConcession: isAdmin || isPrincipal,
     canViewFees: roles.length > 0,
+    // Exam module permissions
+    canManageExams: isAdmin || isPrincipal,
+    canViewExams: roles.length > 0,
   };
 }
+

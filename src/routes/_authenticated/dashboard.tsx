@@ -84,7 +84,7 @@ function StatCard({ label, value, icon: Icon, hint }: StatCardProps) {
   );
 }
 
-function useCount(table: "students" | "teachers" | "admissions" | "fee_payments" | "attendance" | "exams", filter?: { column: string; value: string }) {
+function useCount(table: "students" | "teachers" | "admissions" | "fee_payments" | "attendance", filter?: { column: string; value: string }) {
   return useQuery({
     queryKey: ["count", table, filter],
     queryFn: async () => {
@@ -97,9 +97,10 @@ function useCount(table: "students" | "teachers" | "admissions" | "fee_payments"
   });
 }
 
+
 function Dashboard() {
   const teachers = useCount("teachers", { column: "status", value: "active" });
-  const exams = useCount("exams");
+
   const activeStudents = useQuery({
     queryKey: ["students-active"],
     queryFn: async () => {
@@ -150,7 +151,7 @@ function Dashboard() {
         <StatCard label="Active Students" value={activeStudents.data ?? "—"} icon={Users} />
         <StatCard label="Teachers on staff" value={teachers.data ?? "—"} icon={GraduationCap} />
         <StatCard label="Present today" value={presentToday.data ?? "—"} icon={CalendarCheck} hint={today} />
-        <StatCard label="Scheduled exams" value={exams.data ?? "—"} icon={ClipboardList} />
+        <StatCard label="Scheduled exams" value="—" icon={ClipboardList} hint="Coming soon" />
         <StatCard
           label="Fees collected (month)"
           value={feesThisMonth.data != null ? `₹${feesThisMonth.data.toLocaleString("en-IN")}` : "—"}
