@@ -161,10 +161,10 @@ function StudentProfile() {
 
         <TabsContent value="docs">
           <Card><CardContent className="p-6 space-y-2 text-sm">
-            <DocLine label="Photograph" path={s.photo_url} />
-            <DocLine label="Birth Certificate" path={s.birth_certificate_url} />
-            <DocLine label="Aadhaar Copy" path={s.aadhaar_copy_url} />
-            <DocLine label="Transfer Certificate" path={s.transfer_certificate_url} />
+            <DocLine label="Photograph" field="photo_url" path={s.photo_url} studentId={s.id} scholar={s.scholar_number} folder="photos" accept="image/*" canReplace={perms.canEditStudent} />
+            <DocLine label="Birth Certificate" field="birth_certificate_url" path={s.birth_certificate_url} studentId={s.id} scholar={s.scholar_number} folder="documents" canReplace={perms.canEditStudent} />
+            <DocLine label="Aadhaar Copy" field="aadhaar_copy_url" path={s.aadhaar_copy_url} studentId={s.id} scholar={s.scholar_number} folder="documents" canReplace={perms.canEditStudent} />
+            <DocLine label="Transfer Certificate" field="transfer_certificate_url" path={s.transfer_certificate_url} studentId={s.id} scholar={s.scholar_number} folder="documents" canReplace={perms.canEditStudent} />
           </CardContent></Card>
         </TabsContent>
       </Tabs>
