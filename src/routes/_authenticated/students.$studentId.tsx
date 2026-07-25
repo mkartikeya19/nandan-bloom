@@ -200,11 +200,92 @@ function ActivityItem({ date, label }: { date?: string | null; label: string }) 
   );
 }
 
-function DocLine({ label, path }: { label: string; path?: string | null }) {
+function DocLine({ label, field, path, studentId, scholar, folder, accept, canReplace }: {
+  label: string;
+  field: "photo_url" | "birth_certificate_url" | "aadhaar_copy_url" | "transfer_certificate_url";
+  path?: string | null;
+  studentId: string;
+  scholar: string;
+  folder: "photos" | "documents";
+  accept?: string;
+  canReplace: boolean;
+}) {
+  const qc = useQueryClient();
+  const [signed, setSigned] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+
+  useEffect(() => {
+    let alive = true;
+    if (path) {
+      getSignedStudentUrl(path).then((u) => { if (alive) setSigned(u); });
+    } else {
+      setSigned(null);
+    }
+    return () => { alive = false; };
+  }, [path]);
+
+  const onReplace = async (file: File) => {
+    setUploading(true);
+    try {
+      const newPath = await uploadStudentFile(scholar, folder, file);
+      const { error } = await supabase.from("students").update({ [field]: newPath }).eq("id", studentId);
+      if (error) throw error;
+      await logActivity({
+        module: "Students",
+        action: path ? "Document Replaced" : "Document Uploaded",
+        entityType: "student",
+        entityId: studentId,
+        details: { scholar_number: scholar, document: label },
+      }).catch(() => {});
+      toast.success(`${label} ${path ? "replaced" : "uploaded"}`);
+      qc.invalidateQueries({ queryKey: ["student", studentId] });
+    } catch (e) {
+      toast.error((e as Error).message || "Upload failed");
+    } finally {
+      setUploading(false);
+    }
+  };
+
   return (
-    <div className="flex items-center justify-between border-b border-dashed py-2 last:border-0">
-      <span>{label}</span>
-      <span className="text-muted-foreground text-xs">{path ? "Uploaded" : "Not uploaded"}</span>
+    <div className="flex items-center justify-between gap-3 border-b border-dashed py-2 last:border-0">
+      <span className="font-medium">{label}</span>
+      <div className="flex items-center gap-2">
+        {path ? (
+          <>
+            <span className="text-xs text-muted-foreground">Uploaded</span>
+            {signed && (
+              <>
+                <Button size="sm" variant="ghost" asChild>
+                  <a href={signed} target="_blank" rel="noreferrer"><Eye className="h-4 w-4" /> View</a>
+                </Button>
+                <Button size="sm" variant="ghost" asChild>
+                  <a href={signed} download><Download className="h-4 w-4" /> Download</a>
+                </Button>
+              </>
+            )}
+          </>
+        ) : (
+          <span className="text-xs text-muted-foreground">Not uploaded</span>
+        )}
+        {canReplace && (
+          <label className="inline-flex">
+            <input
+              type="file"
+              accept={accept}
+              className="hidden"
+              disabled={uploading}
+              onChange={(e) => {
+                const f = e.target.files?.[0];
+                if (f) onReplace(f);
+                e.target.value = "";
+              }}
+            />
+            <Button size="sm" variant="outline" asChild disabled={uploading}>
+              <span><Upload className="h-4 w-4" /> {path ? "Replace" : "Upload"}</span>
+            </Button>
+          </label>
+        )}
+      </div>
     </div>
   );
 }
