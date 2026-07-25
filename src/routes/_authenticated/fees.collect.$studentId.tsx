@@ -53,7 +53,7 @@ function StudentFeePage() {
     enabled: !!activeRecord?.id,
     queryFn: async () => {
       const { data, error } = await supabase.from("student_fee_schedule")
-        .select("id, fee_head_id, period_label, period_month, period_year, due_amount, concession_amount, paid_amount, status, is_opening_balance, display_order, sort_key, academic_session_id, fee_heads(name)")
+        .select("id, fee_head_id, period_label, period_month, period_year, due_amount, concession_amount, paid_amount, status, is_opening_balance, display_order, sort_key, academic_session_id, fee_heads(name, sort_order, default_frequency)")
         .eq("student_id", studentId)
         .order("is_opening_balance", { ascending: false })
         .order("sort_key")
