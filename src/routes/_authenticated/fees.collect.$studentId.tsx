@@ -565,7 +565,7 @@ function CollectPaymentDialog({ open, onOpenChange, rows, scheduleRaw, studentId
                           </TableRow>
                         );
                       })}
-                    </>
+                    </Fragment>
                   ))}
                 </TableBody>
               </Table>
