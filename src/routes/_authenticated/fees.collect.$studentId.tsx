@@ -537,7 +537,7 @@ function CollectPaymentDialog({ open, onOpenChange, rows, scheduleRaw, studentId
                 <TableHeader><TableRow><TableHead>Item</TableHead><TableHead className="text-right">Outstanding</TableHead><TableHead className="w-32 text-right">Allocate</TableHead></TableRow></TableHeader>
                 <TableBody>
                   {groups.map((g) => (
-                    <>
+                    <Fragment key={g.key}>
                       <TableRow key={`h-${g.key}`} className="bg-muted/60 hover:bg-muted/60">
                         <TableCell colSpan={3} className="py-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">{g.label}</TableCell>
                       </TableRow>
