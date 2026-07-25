@@ -369,6 +369,23 @@ function CollectPaymentDialog({ open, onOpenChange, rows, scheduleRaw, studentId
     : autoAlloc;
   const allocatedTotal = effective.reduce((s, a) => s + a.amount, 0);
 
+  // UAT-04: In Manual mode, partial payment against a single fee item is not
+  // permitted. Each allocation must equal that row's outstanding amount (rounded).
+  const partialErrors: string[] = [];
+  if (mode === "manual") {
+    for (const a of effective) {
+      const row = rows.find((r) => r.id === a.scheduleId);
+      if (!row) continue;
+      const os = Math.round(outstandingOf(row) * 100) / 100;
+      const alloc = Math.round(a.amount * 100) / 100;
+      if (alloc > 0 && Math.abs(alloc - os) > 0.01) {
+        const head = scheduleRaw.find((s) => s.id === a.scheduleId)?.fee_heads?.name ?? "Item";
+        const label = row.is_opening_balance ? "Opening Balance" : `${head} · ${row.period_label}`;
+        partialErrors.push(`${label}: must be ${formatINR(os)} (partial payment not permitted)`);
+      }
+    }
+  }
+
   useEffect(() => {
     if (mode === "manual") {
       const o: Record<string, number> = {};
