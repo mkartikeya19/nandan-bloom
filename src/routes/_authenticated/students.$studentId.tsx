@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
@@ -8,11 +8,14 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ArrowLeft, Pencil, ArrowUp, Archive } from "lucide-react";
+import { ArrowLeft, Pencil, ArrowUp, Archive, Eye, Download, Upload } from "lucide-react";
 import { useUserRoles } from "@/hooks/use-user-role";
 import { PromoteDialog } from "@/components/students/promote-dialog";
 import { ArchiveDialog } from "@/components/students/archive-dialog";
 import { StudentFeesTab } from "@/components/students/student-fees-tab";
+import { getSignedStudentUrl, uploadStudentFile } from "@/lib/students-helpers";
+import { logActivity } from "@/lib/activity";
+import { toast } from "sonner";
 
 
 export const Route = createFileRoute("/_authenticated/students/$studentId")({
