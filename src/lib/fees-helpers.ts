@@ -91,29 +91,44 @@ export interface AllocationDraft {
 /**
  * Business priority for chronological allocation:
  *  0 = Opening balance (previous session dues)
- *  1 = One-time / Annual mandatory heads (Admission, Activity, Practical, ...)
- *  2 = Monthly recurring (Tuition, SMF) — chronological
- *  3 = Optional fees
+ *  1 = Admission Fee (only participates if still outstanding — typically new admissions)
+ *  2 = Activities Fee
+ *  3 = Monthly recurring (Tuition, SMF) — chronological (oldest first)
+ *  4 = Other charges (Annual, Practical, Examination, Library, Sports, ...) by fee_head sort_order
+ *  5 = Optional fees
+ *
+ * Note: Admission Fee is naturally excluded for existing students because their
+ * schedule doesn't contain it (or it has zero outstanding), so the effective
+ * order becomes Opening → Activities → Monthly → Other.
  */
+function isAdmissionHead(name?: string): boolean {
+  return /admission/i.test(name ?? "");
+}
+function isActivitiesHead(name?: string): boolean {
+  return /activit/i.test(name ?? "");
+}
+
 export function priorityRank(r: ScheduleRow): number {
   if (r.is_opening_balance) return 0;
   const freq = (r.fee_head_frequency ?? "").toLowerCase();
-  if (freq === "optional") return 3;
-  if (r.period_month == null) return 1; // Annual / One Time
-  return 2; // Monthly
+  if (freq === "optional") return 5;
+  if (isAdmissionHead(r.fee_head_name)) return 1;
+  if (isActivitiesHead(r.fee_head_name)) return 2;
+  if (r.period_month != null) return 3; // Monthly
+  return 4; // Other one-time / annual charges
 }
 
 export function comparePriority(a: ScheduleRow, b: ScheduleRow): number {
   const ra = priorityRank(a);
   const rb = priorityRank(b);
   if (ra !== rb) return ra - rb;
-  // Within one-time: sort by fee_head sort_order then name
-  if (ra === 1) {
+  // Within "other charges": sort by fee_head sort_order then name
+  if (ra === 4) {
     const so = (a.fee_head_sort_order ?? 999) - (b.fee_head_sort_order ?? 999);
     if (so !== 0) return so;
     return (a.fee_head_name ?? "").localeCompare(b.fee_head_name ?? "");
   }
-  // Within monthly / opening / optional: chronological sort_key
+  // Within monthly / opening / optional / admission / activities: chronological sort_key
   const ak = a.sort_key ?? "";
   const bk = b.sort_key ?? "";
   if (ak !== bk) return ak.localeCompare(bk);
