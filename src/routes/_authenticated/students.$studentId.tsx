@@ -228,7 +228,7 @@ function DocLine({ label, field, path, studentId, scholar, folder, accept, canRe
     setUploading(true);
     try {
       const newPath = await uploadStudentFile(scholar, folder, file);
-      const { error } = await supabase.from("students").update({ [field]: newPath }).eq("id", studentId);
+      const { error } = await supabase.from("students").update({ [field]: newPath } as never).eq("id", studentId);
       if (error) throw error;
       await logActivity({
         module: "Students",
