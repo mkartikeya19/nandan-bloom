@@ -228,8 +228,11 @@ export function StudentForm({ mode, student, currentRecord, onSaved }: Props) {
     if (!form.mother_mobile.trim()) mandatoryErrors.mother_mobile = "Mother mobile is required";
     if (!acad.academic_session_id) mandatoryErrors.academic_session_id = "Academic session is required";
     if (!acad.class_id) mandatoryErrors.class_id = "Class is required";
-    if (!acad.section_id) mandatoryErrors.section_id = "Section is required";
-    if (!acad.roll_number.trim()) mandatoryErrors.roll_number = "Roll number is required";
+    // Section is only mandatory when sections exist for the selected class.
+    if (acad.class_id && (sections?.length ?? 0) > 0 && !acad.section_id) {
+      mandatoryErrors.section_id = "Section is required";
+    }
+    // Roll number is assigned automatically post-admission and regenerated on promotion.
   }
   const canSubmit = mode === "edit" || Object.keys(mandatoryErrors).length === 0;
 
