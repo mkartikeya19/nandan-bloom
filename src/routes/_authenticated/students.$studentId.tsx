@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
@@ -8,11 +8,14 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ArrowLeft, Pencil, ArrowUp, Archive } from "lucide-react";
+import { ArrowLeft, Pencil, ArrowUp, Archive, Eye, Download, Upload } from "lucide-react";
 import { useUserRoles } from "@/hooks/use-user-role";
 import { PromoteDialog } from "@/components/students/promote-dialog";
 import { ArchiveDialog } from "@/components/students/archive-dialog";
 import { StudentFeesTab } from "@/components/students/student-fees-tab";
+import { getSignedStudentUrl, uploadStudentFile } from "@/lib/students-helpers";
+import { logActivity } from "@/lib/activity";
+import { toast } from "sonner";
 
 
 export const Route = createFileRoute("/_authenticated/students/$studentId")({
@@ -158,10 +161,10 @@ function StudentProfile() {
 
         <TabsContent value="docs">
           <Card><CardContent className="p-6 space-y-2 text-sm">
-            <DocLine label="Photograph" path={s.photo_url} />
-            <DocLine label="Birth Certificate" path={s.birth_certificate_url} />
-            <DocLine label="Aadhaar Copy" path={s.aadhaar_copy_url} />
-            <DocLine label="Transfer Certificate" path={s.transfer_certificate_url} />
+            <DocLine label="Photograph" field="photo_url" path={s.photo_url} studentId={s.id} scholar={s.scholar_number} folder="photos" accept="image/*" canReplace={perms.canEditStudent} />
+            <DocLine label="Birth Certificate" field="birth_certificate_url" path={s.birth_certificate_url} studentId={s.id} scholar={s.scholar_number} folder="documents" canReplace={perms.canEditStudent} />
+            <DocLine label="Aadhaar Copy" field="aadhaar_copy_url" path={s.aadhaar_copy_url} studentId={s.id} scholar={s.scholar_number} folder="documents" canReplace={perms.canEditStudent} />
+            <DocLine label="Transfer Certificate" field="transfer_certificate_url" path={s.transfer_certificate_url} studentId={s.id} scholar={s.scholar_number} folder="documents" canReplace={perms.canEditStudent} />
           </CardContent></Card>
         </TabsContent>
       </Tabs>
@@ -197,11 +200,92 @@ function ActivityItem({ date, label }: { date?: string | null; label: string }) 
   );
 }
 
-function DocLine({ label, path }: { label: string; path?: string | null }) {
+function DocLine({ label, field, path, studentId, scholar, folder, accept, canReplace }: {
+  label: string;
+  field: "photo_url" | "birth_certificate_url" | "aadhaar_copy_url" | "transfer_certificate_url";
+  path?: string | null;
+  studentId: string;
+  scholar: string;
+  folder: "photos" | "documents";
+  accept?: string;
+  canReplace: boolean;
+}) {
+  const qc = useQueryClient();
+  const [signed, setSigned] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+
+  useEffect(() => {
+    let alive = true;
+    if (path) {
+      getSignedStudentUrl(path).then((u) => { if (alive) setSigned(u); });
+    } else {
+      setSigned(null);
+    }
+    return () => { alive = false; };
+  }, [path]);
+
+  const onReplace = async (file: File) => {
+    setUploading(true);
+    try {
+      const newPath = await uploadStudentFile(scholar, folder, file);
+      const { error } = await supabase.from("students").update({ [field]: newPath } as never).eq("id", studentId);
+      if (error) throw error;
+      await logActivity({
+        module: "Students",
+        action: path ? "Document Replaced" : "Document Uploaded",
+        entityType: "student",
+        entityId: studentId,
+        details: { scholar_number: scholar, document: label },
+      }).catch(() => {});
+      toast.success(`${label} ${path ? "replaced" : "uploaded"}`);
+      qc.invalidateQueries({ queryKey: ["student", studentId] });
+    } catch (e) {
+      toast.error((e as Error).message || "Upload failed");
+    } finally {
+      setUploading(false);
+    }
+  };
+
   return (
-    <div className="flex items-center justify-between border-b border-dashed py-2 last:border-0">
-      <span>{label}</span>
-      <span className="text-muted-foreground text-xs">{path ? "Uploaded" : "Not uploaded"}</span>
+    <div className="flex items-center justify-between gap-3 border-b border-dashed py-2 last:border-0">
+      <span className="font-medium">{label}</span>
+      <div className="flex items-center gap-2">
+        {path ? (
+          <>
+            <span className="text-xs text-muted-foreground">Uploaded</span>
+            {signed && (
+              <>
+                <Button size="sm" variant="ghost" asChild>
+                  <a href={signed} target="_blank" rel="noreferrer"><Eye className="h-4 w-4" /> View</a>
+                </Button>
+                <Button size="sm" variant="ghost" asChild>
+                  <a href={signed} download><Download className="h-4 w-4" /> Download</a>
+                </Button>
+              </>
+            )}
+          </>
+        ) : (
+          <span className="text-xs text-muted-foreground">Not uploaded</span>
+        )}
+        {canReplace && (
+          <label className="inline-flex">
+            <input
+              type="file"
+              accept={accept}
+              className="hidden"
+              disabled={uploading}
+              onChange={(e) => {
+                const f = e.target.files?.[0];
+                if (f) onReplace(f);
+                e.target.value = "";
+              }}
+            />
+            <Button size="sm" variant="outline" asChild disabled={uploading}>
+              <span><Upload className="h-4 w-4" /> {path ? "Replace" : "Upload"}</span>
+            </Button>
+          </label>
+        )}
+      </div>
     </div>
   );
 }

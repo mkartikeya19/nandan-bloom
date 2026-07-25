@@ -78,6 +78,9 @@ export interface ScheduleRow {
   is_opening_balance: boolean;
   display_order: number;
   sort_key: string | null;
+  fee_head_name?: string;
+  fee_head_sort_order?: number;
+  fee_head_frequency?: string;
 }
 
 export interface AllocationDraft {
@@ -86,23 +89,43 @@ export interface AllocationDraft {
 }
 
 /**
- * Default payment allocator — always oldest chronological installment first.
- * `sort_key` already encodes chronology:
- *   opening   → "0000-OPENING"
- *   monthly   → "YYYY-MM-…" (session-relative year, so July 2026 < January 2027)
- *   annual/optional → "9-XXXX" (after all monthly rows)
- * We therefore sort purely by (is_opening_balance desc, sort_key asc) and
- * deliberately IGNORE display_order, which historically encoded month-number
- * and put January before July.
+ * Business priority for chronological allocation:
+ *  0 = Opening balance (previous session dues)
+ *  1 = One-time / Annual mandatory heads (Admission, Activity, Practical, ...)
+ *  2 = Monthly recurring (Tuition, SMF) — chronological
+ *  3 = Optional fees
+ */
+export function priorityRank(r: ScheduleRow): number {
+  if (r.is_opening_balance) return 0;
+  const freq = (r.fee_head_frequency ?? "").toLowerCase();
+  if (freq === "optional") return 3;
+  if (r.period_month == null) return 1; // Annual / One Time
+  return 2; // Monthly
+}
+
+export function comparePriority(a: ScheduleRow, b: ScheduleRow): number {
+  const ra = priorityRank(a);
+  const rb = priorityRank(b);
+  if (ra !== rb) return ra - rb;
+  // Within one-time: sort by fee_head sort_order then name
+  if (ra === 1) {
+    const so = (a.fee_head_sort_order ?? 999) - (b.fee_head_sort_order ?? 999);
+    if (so !== 0) return so;
+    return (a.fee_head_name ?? "").localeCompare(b.fee_head_name ?? "");
+  }
+  // Within monthly / opening / optional: chronological sort_key
+  const ak = a.sort_key ?? "";
+  const bk = b.sort_key ?? "";
+  if (ak !== bk) return ak.localeCompare(bk);
+  return a.display_order - b.display_order;
+}
+
+/**
+ * Default payment allocator — respects business priority (opening → one-time →
+ * monthly chronological → optional) so mandatory dues clear before recurring.
  */
 export function allocatePayment(amount: number, rows: ScheduleRow[]): AllocationDraft[] {
-  const sorted = [...rows].sort((a, b) => {
-    if (a.is_opening_balance !== b.is_opening_balance) return a.is_opening_balance ? -1 : 1;
-    const ak = a.sort_key ?? "";
-    const bk = b.sort_key ?? "";
-    if (ak !== bk) return ak.localeCompare(bk);
-    return a.display_order - b.display_order;
-  });
+  const sorted = [...rows].sort(comparePriority);
   let remaining = Math.max(0, Math.round(amount * 100) / 100);
   const result: AllocationDraft[] = [];
   for (const r of sorted) {

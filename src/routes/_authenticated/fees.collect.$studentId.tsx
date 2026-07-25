@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader } from "@/components/page-header";
@@ -17,7 +17,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import { ArrowLeft, Wallet, Loader2, RefreshCw, Ban } from "lucide-react";
-import { allocatePayment, formatINR, generateStudentSchedule, nextReceiptNumber, outstandingOf, PAYMENT_MODES, PaymentMode, ScheduleRow } from "@/lib/fees-helpers";
+import { allocatePayment, comparePriority, formatINR, generateStudentSchedule, nextReceiptNumber, outstandingOf, PAYMENT_MODES, PaymentMode, ScheduleRow } from "@/lib/fees-helpers";
 import { useUserRoles } from "@/hooks/use-user-role";
 import { logActivity } from "@/lib/activity";
 
@@ -53,7 +53,7 @@ function StudentFeePage() {
     enabled: !!activeRecord?.id,
     queryFn: async () => {
       const { data, error } = await supabase.from("student_fee_schedule")
-        .select("id, fee_head_id, period_label, period_month, period_year, due_amount, concession_amount, paid_amount, status, is_opening_balance, display_order, sort_key, academic_session_id, fee_heads(name)")
+        .select("id, fee_head_id, period_label, period_month, period_year, due_amount, concession_amount, paid_amount, status, is_opening_balance, display_order, sort_key, academic_session_id, fee_heads(name, sort_order, default_frequency)")
         .eq("student_id", studentId)
         .order("is_opening_balance", { ascending: false })
         .order("sort_key")
@@ -97,7 +97,10 @@ function StudentFeePage() {
     due_amount: Number(r.due_amount), concession_amount: Number(r.concession_amount),
     paid_amount: Number(r.paid_amount), status: r.status,
     is_opening_balance: r.is_opening_balance, display_order: r.display_order, sort_key: r.sort_key,
-  }));
+    fee_head_name: r.fee_heads?.name,
+    fee_head_sort_order: (r.fee_heads as { sort_order?: number } | null)?.sort_order,
+    fee_head_frequency: (r.fee_heads as { default_frequency?: string } | null)?.default_frequency,
+  })).sort(comparePriority);
 
   const outstandingTotal = rows.reduce((s, r) => s + outstandingOf(r), 0);
   const openingOutstanding = rows.filter((r) => r.is_opening_balance).reduce((s, r) => s + outstandingOf(r), 0);
@@ -366,6 +369,23 @@ function CollectPaymentDialog({ open, onOpenChange, rows, scheduleRaw, studentId
     : autoAlloc;
   const allocatedTotal = effective.reduce((s, a) => s + a.amount, 0);
 
+  // UAT-04: In Manual mode, partial payment against a single fee item is not
+  // permitted. Each allocation must equal that row's outstanding amount (rounded).
+  const partialErrors: string[] = [];
+  if (mode === "manual") {
+    for (const a of effective) {
+      const row = rows.find((r) => r.id === a.scheduleId);
+      if (!row) continue;
+      const os = Math.round(outstandingOf(row) * 100) / 100;
+      const alloc = Math.round(a.amount * 100) / 100;
+      if (alloc > 0 && Math.abs(alloc - os) > 0.01) {
+        const head = scheduleRaw.find((s) => s.id === a.scheduleId)?.fee_heads?.name ?? "Item";
+        const label = row.is_opening_balance ? "Opening Balance" : `${head} · ${row.period_label}`;
+        partialErrors.push(`${label}: must be ${formatINR(os)} (partial payment not permitted)`);
+      }
+    }
+  }
+
   useEffect(() => {
     if (mode === "manual") {
       const o: Record<string, number> = {};
@@ -445,11 +465,27 @@ function CollectPaymentDialog({ open, onOpenChange, rows, scheduleRaw, studentId
 
 
 
+  // UAT-07: Group outstanding rows by fee head for readability. Groups keep
+  // the priority order established by comparePriority (opening → one-time →
+  // monthly chronological → optional).
+  const visibleRows = (mode === "opening" ? openingRows : rows.filter((r) => outstandingOf(r) > 0));
+  const groups: Array<{ key: string; label: string; rows: ScheduleRow[] }> = [];
+  for (const r of visibleRows) {
+    const key = r.is_opening_balance ? "__opening__" : r.fee_head_id;
+    const label = r.is_opening_balance ? "Opening Balance (Previous Session)" : (r.fee_head_name ?? "Fee");
+    const g = groups.find((x) => x.key === key);
+    if (g) g.rows.push(r); else groups.push({ key, label, rows: [r] });
+  }
+
+  const canPreview = amount > 0 && effective.length > 0 && partialErrors.length === 0 && (allocatedTotal - amount <= 0.01);
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl">
-        <DialogHeader><DialogTitle>Collect Payment</DialogTitle></DialogHeader>
-        <div className="grid gap-4">
+      <DialogContent className="max-w-2xl flex max-h-[90vh] flex-col gap-0 p-0">
+        <DialogHeader className="shrink-0 border-b p-4">
+          <DialogTitle>Collect Payment</DialogTitle>
+        </DialogHeader>
+        <div className="grid gap-4 overflow-y-auto p-4">
           {/* Mode selector */}
           <div>
             <Label className="mb-1.5 block">Allocation Mode</Label>
@@ -461,8 +497,8 @@ function CollectPaymentDialog({ open, onOpenChange, rows, scheduleRaw, studentId
               </Button>
             </div>
             <p className="text-xs text-muted-foreground mt-1">
-              {mode === "auto" && "Amount is auto-allocated oldest-first across all outstanding items."}
-              {mode === "manual" && "Choose exactly how the amount is split across items."}
+              {mode === "auto" && "Amount auto-allocated by business priority: opening balance → one-time dues → monthly (chronological) → optional."}
+              {mode === "manual" && "Choose exactly how the amount is split. Partial payment against a single item is not permitted — allocate the full outstanding or leave it blank."}
               {mode === "opening" && "Applies only to previous-session opening balance rows."}
             </p>
           </div>
@@ -496,35 +532,59 @@ function CollectPaymentDialog({ open, onOpenChange, rows, scheduleRaw, studentId
             <div className="flex items-center justify-between mb-2">
               <Label>Allocation ({formatINR(allocatedTotal)} / {formatINR(amount)})</Label>
             </div>
-            <div className="max-h-64 overflow-y-auto rounded border">
+            <div className="rounded border">
               <Table>
                 <TableHeader><TableRow><TableHead>Item</TableHead><TableHead className="text-right">Outstanding</TableHead><TableHead className="w-32 text-right">Allocate</TableHead></TableRow></TableHeader>
                 <TableBody>
-                  {(mode === "opening" ? openingRows : rows.filter((r) => outstandingOf(r) > 0)).map((r) => {
-                    const head = scheduleRaw.find((s) => s.id === r.id);
-                    const autoAmt = autoAlloc.find((a) => a.scheduleId === r.id)?.amount ?? 0;
-                    const val = mode === "manual" ? (overrides[r.id] ?? 0) : autoAmt;
-                    return (
-                      <TableRow key={r.id}>
-                        <TableCell>{r.is_opening_balance ? "Opening Balance" : `${head?.fee_heads?.name ?? ""} · ${r.period_label}`}</TableCell>
-                        <TableCell className="text-right">{formatINR(outstandingOf(r))}</TableCell>
-                        <TableCell className="text-right">
-                          {mode === "manual" ? (
-                            <Input type="number" min={0} step="0.01" className="text-right h-8" value={overrides[r.id] ?? ""} onChange={(e) => setOverrides({ ...overrides, [r.id]: Number(e.target.value) || 0 })} />
-                          ) : formatINR(val)}
-                        </TableCell>
+                  {groups.map((g) => (
+                    <Fragment key={g.key}>
+                      <TableRow className="bg-muted/60 hover:bg-muted/60">
+                        <TableCell colSpan={3} className="py-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">{g.label}</TableCell>
                       </TableRow>
-                    );
-                  })}
+                      {g.rows.map((r) => {
+                        const autoAmt = autoAlloc.find((a) => a.scheduleId === r.id)?.amount ?? 0;
+                        const val = mode === "manual" ? (overrides[r.id] ?? 0) : autoAmt;
+                        const os = outstandingOf(r);
+                        const invalid = mode === "manual" && val > 0 && Math.abs(val - os) > 0.01;
+                        return (
+                          <TableRow key={r.id}>
+                            <TableCell className="pl-6">{r.is_opening_balance ? "—" : r.period_label}</TableCell>
+                            <TableCell className="text-right">{formatINR(os)}</TableCell>
+                            <TableCell className="text-right">
+                              {mode === "manual" ? (
+                                <Input
+                                  type="number"
+                                  min={0}
+                                  step="0.01"
+                                  className={"text-right h-8 " + (invalid ? "border-destructive" : "")}
+                                  value={overrides[r.id] ?? ""}
+                                  onChange={(e) => { setOverrides({ ...overrides, [r.id]: Number(e.target.value) || 0 }); setShowPreview(false); }}
+                                />
+                              ) : formatINR(val)}
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
+                    </Fragment>
+                  ))}
                 </TableBody>
               </Table>
             </div>
           </div>
 
+          {mode === "manual" && partialErrors.length > 0 && (
+            <div className="rounded-md border border-destructive/40 bg-destructive/5 p-3 text-xs">
+              <p className="font-medium text-destructive mb-1">Partial payment is not permitted for these items:</p>
+              <ul className="list-disc pl-5 space-y-0.5 text-destructive/90">
+                {partialErrors.map((e, i) => <li key={i}>{e}</li>)}
+              </ul>
+            </div>
+          )}
+
           {showPreview && (
             <div className="rounded-md border bg-muted/40 p-3 space-y-2">
               <p className="text-sm font-semibold">Confirm allocation</p>
-              <div className="text-xs space-y-1 max-h-40 overflow-y-auto">
+              <div className="text-xs space-y-1">
                 {effective.map((a) => {
                   const row = rows.find((r) => r.id === a.scheduleId);
                   const head = scheduleRaw.find((s) => s.id === a.scheduleId);
@@ -536,14 +596,17 @@ function CollectPaymentDialog({ open, onOpenChange, rows, scheduleRaw, studentId
             </div>
           )}
         </div>
-        <DialogFooter>
+        <DialogFooter className="shrink-0 border-t bg-background p-4">
+          <div className="mr-auto text-xs text-muted-foreground">
+            Allocated <span className="font-semibold text-foreground">{formatINR(allocatedTotal)}</span> of <span className="font-semibold text-foreground">{formatINR(amount)}</span>
+          </div>
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={submitting}>Cancel</Button>
           {!showPreview ? (
-            <Button onClick={() => setShowPreview(true)} disabled={amount <= 0 || effective.length === 0}>Preview</Button>
+            <Button onClick={() => setShowPreview(true)} disabled={!canPreview}>Preview</Button>
           ) : (
             <>
               <Button variant="outline" onClick={() => setShowPreview(false)} disabled={submitting}>Modify</Button>
-              <Button onClick={submit} disabled={submitting}>
+              <Button onClick={submit} disabled={submitting || !canPreview}>
                 {submitting && <Loader2 className="h-4 w-4 animate-spin" />} Confirm & Post
               </Button>
             </>
