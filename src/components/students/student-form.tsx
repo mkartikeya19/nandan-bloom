@@ -470,15 +470,18 @@ export function StudentForm({ mode, student, currentRecord, onSaved }: Props) {
                   </SelectContent>
                 </Select>
               </Field>
-              <Field label="Section *">
-                <Select value={acad.section_id} onValueChange={(v) => setA("section_id", v)}>
-                  <SelectTrigger><SelectValue placeholder="Select section" /></SelectTrigger>
+              <Field label={`Section${(sections?.length ?? 0) > 0 ? " *" : " (N/A)"}`}>
+                <Select value={acad.section_id || "none"} onValueChange={(v) => setA("section_id", v === "none" ? "" : v)} disabled={!acad.class_id || (sections?.length ?? 0) === 0}>
+                  <SelectTrigger><SelectValue placeholder={(sections?.length ?? 0) === 0 ? "No sections configured" : "Select section"} /></SelectTrigger>
                   <SelectContent>
+                    {(sections?.length ?? 0) === 0 && <SelectItem value="none">— Not Applicable —</SelectItem>}
                     {sections?.map((s) => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </Field>
-              <Field label="Roll Number"><Input value={acad.roll_number} onChange={(e) => setA("roll_number", e.target.value)} /></Field>
+              <Field label="Roll Number">
+                <Input value={acad.roll_number} onChange={(e) => setA("roll_number", e.target.value)} placeholder="Auto-assigned; leave blank" />
+              </Field>
               <Field label="House">
                 <Select value={acad.house_id || "none"} onValueChange={(v) => setA("house_id", v === "none" ? "" : v)}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
