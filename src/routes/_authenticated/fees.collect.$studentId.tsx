@@ -592,9 +592,9 @@ function CollectPaymentDialog({ open, onOpenChange, rows, scheduleRaw, studentId
             </div>
           </div>
 
-          {mode === "manual" && partialErrors.length > 0 && (
+          {partialErrors.length > 0 && (
             <div className="rounded-md border border-destructive/40 bg-destructive/5 p-3 text-xs">
-              <p className="font-medium text-destructive mb-1">Partial payment is not permitted for these items:</p>
+              <p className="font-medium text-destructive mb-1">Payment cannot be posted — partial payment is not permitted:</p>
               <ul className="list-disc pl-5 space-y-0.5 text-destructive/90">
                 {partialErrors.map((e, i) => <li key={i}>{e}</li>)}
               </ul>
