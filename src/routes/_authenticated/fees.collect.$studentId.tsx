@@ -369,9 +369,16 @@ function CollectPaymentDialog({ open, onOpenChange, rows, scheduleRaw, studentId
     : autoAlloc;
   const allocatedTotal = effective.reduce((s, a) => s + a.amount, 0);
 
-  // UAT-04: In Manual mode, partial payment against a single fee item is not
-  // permitted. Each allocation must equal that row's outstanding amount (rounded).
+  // UAT-08 & UAT-04: Partial payment against a single fee item is never
+  // permitted — in ANY mode. Each allocation must equal that row's full
+  // outstanding. In Quick Collect / Opening the entered amount must also not
+  // leave the last picked row underpaid or exceed total dues.
   const partialErrors: string[] = [];
+  const describe = (row: ScheduleRow): string => {
+    const head = scheduleRaw.find((s) => s.id === row.id)?.fee_heads?.name ?? row.fee_head_name ?? "Item";
+    return row.is_opening_balance ? "Opening Balance" : `${head} · ${row.period_label}`;
+  };
+
   if (mode === "manual") {
     for (const a of effective) {
       const row = rows.find((r) => r.id === a.scheduleId);
@@ -379,10 +386,23 @@ function CollectPaymentDialog({ open, onOpenChange, rows, scheduleRaw, studentId
       const os = Math.round(outstandingOf(row) * 100) / 100;
       const alloc = Math.round(a.amount * 100) / 100;
       if (alloc > 0 && Math.abs(alloc - os) > 0.01) {
-        const head = scheduleRaw.find((s) => s.id === a.scheduleId)?.fee_heads?.name ?? "Item";
-        const label = row.is_opening_balance ? "Opening Balance" : `${head} · ${row.period_label}`;
-        partialErrors.push(`${label}: must be ${formatINR(os)} (partial payment not permitted)`);
+        partialErrors.push(`${describe(row)}: must be ${formatINR(os)} (partial payment not permitted)`);
       }
+    }
+  } else if (amount > 0) {
+    const sourceRows = mode === "opening" ? openingRows : [...rows].sort(comparePriority);
+    for (const a of effective) {
+      const row = sourceRows.find((r) => r.id === a.scheduleId);
+      if (!row) continue;
+      const os = Math.round(outstandingOf(row) * 100) / 100;
+      const alloc = Math.round(a.amount * 100) / 100;
+      if (Math.abs(alloc - os) > 0.01) {
+        partialErrors.push(`${describe(row)}: needs ${formatINR(os)} but only ${formatINR(alloc)} would apply. Increase the amount or reduce to a full-item total.`);
+      }
+    }
+    if (allocatedTotal + 0.01 < amount) {
+      const excess = Math.round((amount - allocatedTotal) * 100) / 100;
+      partialErrors.push(`Amount exceeds total outstanding by ${formatINR(excess)}.`);
     }
   }
 
