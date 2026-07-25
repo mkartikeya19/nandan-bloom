@@ -97,7 +97,10 @@ function StudentFeePage() {
     due_amount: Number(r.due_amount), concession_amount: Number(r.concession_amount),
     paid_amount: Number(r.paid_amount), status: r.status,
     is_opening_balance: r.is_opening_balance, display_order: r.display_order, sort_key: r.sort_key,
-  }));
+    fee_head_name: r.fee_heads?.name,
+    fee_head_sort_order: (r.fee_heads as { sort_order?: number } | null)?.sort_order,
+    fee_head_frequency: (r.fee_heads as { default_frequency?: string } | null)?.default_frequency,
+  })).sort(comparePriority);
 
   const outstandingTotal = rows.reduce((s, r) => s + outstandingOf(r), 0);
   const openingOutstanding = rows.filter((r) => r.is_opening_balance).reduce((s, r) => s + outstandingOf(r), 0);
