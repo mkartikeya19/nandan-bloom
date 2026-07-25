@@ -17,7 +17,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import { ArrowLeft, Wallet, Loader2, RefreshCw, Ban } from "lucide-react";
-import { allocatePayment, formatINR, generateStudentSchedule, nextReceiptNumber, outstandingOf, PAYMENT_MODES, PaymentMode, ScheduleRow } from "@/lib/fees-helpers";
+import { allocatePayment, comparePriority, formatINR, generateStudentSchedule, nextReceiptNumber, outstandingOf, PAYMENT_MODES, PaymentMode, ScheduleRow } from "@/lib/fees-helpers";
 import { useUserRoles } from "@/hooks/use-user-role";
 import { logActivity } from "@/lib/activity";
 
