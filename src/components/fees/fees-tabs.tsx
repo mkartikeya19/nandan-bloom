@@ -1,16 +1,18 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, Layers, Wallet, Gift, Settings2, Upload } from "lucide-react";
+import { LayoutDashboard, Layers, Wallet, Gift, Settings2, Upload, Receipt } from "lucide-react";
 
 const tabs: Array<{ to: string; label: string; icon: typeof LayoutDashboard; exact?: boolean }> = [
   { to: "/fees", label: "Dashboard", icon: LayoutDashboard, exact: true },
   { to: "/fees/structures", label: "Fee Structures", icon: Layers },
   { to: "/fees/collect", label: "Collect Fee", icon: Wallet },
+  { to: "/fees/receipts", label: "Receipts", icon: Receipt },
   { to: "/fees/concessions", label: "Concessions", icon: Gift },
   { to: "/fees/import", label: "Opening Balance", icon: Upload },
   { to: "/fees/settings", label: "Settings", icon: Settings2 },
 ];
+
 
 export function FeesTabs() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
