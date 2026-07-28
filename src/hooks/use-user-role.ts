@@ -56,6 +56,9 @@ export function useUserRoles() {
     // Exam module permissions
     canManageExams: isAdmin || isPrincipal,
     canViewExams: roles.length > 0,
+    // Teacher module (RC-3 Phase 1): Super Admin only — confidential HR data.
+    canManageTeachers: isSuperAdmin,
+    canViewTeachers: isSuperAdmin,
   };
 }
 
