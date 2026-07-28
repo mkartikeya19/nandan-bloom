@@ -1477,10 +1477,54 @@ export type Database = {
         }
         Relationships: []
       }
+      teacher_documents: {
+        Row: {
+          created_at: string
+          doc_type: string
+          file_path: string
+          id: string
+          label: string | null
+          teacher_id: string
+          updated_at: string
+          uploaded_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          doc_type: string
+          file_path: string
+          id?: string
+          label?: string | null
+          teacher_id: string
+          updated_at?: string
+          uploaded_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          doc_type?: string
+          file_path?: string
+          id?: string
+          label?: string | null
+          teacher_id?: string
+          updated_at?: string
+          uploaded_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "teacher_documents_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "teachers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       teachers: {
         Row: {
           aadhaar_number: string | null
+          account_holder_name: string | null
+          account_number: string | null
           address: string | null
+          bank_name: string | null
           created_at: string
           date_of_birth: string | null
           date_of_joining: string | null
@@ -1490,17 +1534,26 @@ export type Database = {
           full_name: string
           gender: string | null
           id: string
+          ifsc_code: string | null
+          is_archived: boolean
+          monthly_salary: number | null
           pan_number: string | null
           phone: string | null
+          previous_school: string | null
           qualification: string | null
+          salary_effective_from: string | null
           status: string
           subject_specialization: string | null
+          total_experience_years: number | null
           updated_at: string
           user_id: string | null
         }
         Insert: {
           aadhaar_number?: string | null
+          account_holder_name?: string | null
+          account_number?: string | null
           address?: string | null
+          bank_name?: string | null
           created_at?: string
           date_of_birth?: string | null
           date_of_joining?: string | null
@@ -1510,17 +1563,26 @@ export type Database = {
           full_name: string
           gender?: string | null
           id?: string
+          ifsc_code?: string | null
+          is_archived?: boolean
+          monthly_salary?: number | null
           pan_number?: string | null
           phone?: string | null
+          previous_school?: string | null
           qualification?: string | null
+          salary_effective_from?: string | null
           status?: string
           subject_specialization?: string | null
+          total_experience_years?: number | null
           updated_at?: string
           user_id?: string | null
         }
         Update: {
           aadhaar_number?: string | null
+          account_holder_name?: string | null
+          account_number?: string | null
           address?: string | null
+          bank_name?: string | null
           created_at?: string
           date_of_birth?: string | null
           date_of_joining?: string | null
@@ -1530,11 +1592,17 @@ export type Database = {
           full_name?: string
           gender?: string | null
           id?: string
+          ifsc_code?: string | null
+          is_archived?: boolean
+          monthly_salary?: number | null
           pan_number?: string | null
           phone?: string | null
+          previous_school?: string | null
           qualification?: string | null
+          salary_effective_from?: string | null
           status?: string
           subject_specialization?: string | null
+          total_experience_years?: number | null
           updated_at?: string
           user_id?: string | null
         }
@@ -1603,6 +1671,7 @@ export type Database = {
         Args: { _record_id: string }
         Returns: Json
       }
+      next_employee_code: { Args: never; Returns: string }
       next_receipt_number: { Args: never; Returns: string }
       next_scholar_number: { Args: never; Returns: string }
       regenerate_class_roll_numbers: {
