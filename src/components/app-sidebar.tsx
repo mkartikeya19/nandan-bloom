@@ -32,6 +32,7 @@ const teachersItem = { title: "Teachers", url: "/teachers", icon: BriefcaseBusin
 
 export function AppSidebar() {
   const { state } = useSidebar();
+  const { canViewTeachers } = useUserRoles();
   const collapsed = state === "collapsed";
   const router = useRouter();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
@@ -74,7 +75,7 @@ export function AppSidebar() {
           <SidebarGroupLabel>Main menu</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {items.map((item) => (
+              {[...items, ...(canViewTeachers ? [teachersItem] : [])].map((item) => (
                 <SidebarMenuItem key={item.url}>
                   <SidebarMenuButton asChild isActive={isActive(item.url)} tooltip={item.title}>
                     <Link to={item.url}>
