@@ -12,7 +12,6 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as AuthenticatedTeachersRouteImport } from './routes/_authenticated/teachers'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedReportsRouteImport } from './routes/_authenticated/reports'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
@@ -55,11 +54,6 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
-} as any)
-const AuthenticatedTeachersRoute = AuthenticatedTeachersRouteImport.update({
-  id: '/teachers',
-  path: '/teachers',
-  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
   id: '/settings',
@@ -231,7 +225,6 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/reports': typeof AuthenticatedReportsRoute
   '/settings': typeof AuthenticatedSettingsRoute
-  '/teachers': typeof AuthenticatedTeachersRoute
   '/examinations/grade-scales': typeof AuthenticatedExaminationsGradeScalesRoute
   '/examinations/subjects': typeof AuthenticatedExaminationsSubjectsRoute
   '/fees/concessions': typeof AuthenticatedFeesConcessionsRoute
@@ -264,7 +257,6 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/reports': typeof AuthenticatedReportsRoute
   '/settings': typeof AuthenticatedSettingsRoute
-  '/teachers': typeof AuthenticatedTeachersRoute
   '/examinations/grade-scales': typeof AuthenticatedExaminationsGradeScalesRoute
   '/examinations/subjects': typeof AuthenticatedExaminationsSubjectsRoute
   '/fees/concessions': typeof AuthenticatedFeesConcessionsRoute
@@ -299,7 +291,6 @@ export interface FileRoutesById {
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/reports': typeof AuthenticatedReportsRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
-  '/_authenticated/teachers': typeof AuthenticatedTeachersRoute
   '/_authenticated/examinations/grade-scales': typeof AuthenticatedExaminationsGradeScalesRoute
   '/_authenticated/examinations/subjects': typeof AuthenticatedExaminationsSubjectsRoute
   '/_authenticated/fees/concessions': typeof AuthenticatedFeesConcessionsRoute
@@ -334,7 +325,6 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/reports'
     | '/settings'
-    | '/teachers'
     | '/examinations/grade-scales'
     | '/examinations/subjects'
     | '/fees/concessions'
@@ -367,7 +357,6 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/reports'
     | '/settings'
-    | '/teachers'
     | '/examinations/grade-scales'
     | '/examinations/subjects'
     | '/fees/concessions'
@@ -401,7 +390,6 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard'
     | '/_authenticated/reports'
     | '/_authenticated/settings'
-    | '/_authenticated/teachers'
     | '/_authenticated/examinations/grade-scales'
     | '/_authenticated/examinations/subjects'
     | '/_authenticated/fees/concessions'
@@ -454,13 +442,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
-    }
-    '/_authenticated/teachers': {
-      id: '/_authenticated/teachers'
-      path: '/teachers'
-      fullPath: '/teachers'
-      preLoaderRoute: typeof AuthenticatedTeachersRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/settings': {
       id: '/_authenticated/settings'
@@ -683,7 +664,6 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedReportsRoute: typeof AuthenticatedReportsRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
-  AuthenticatedTeachersRoute: typeof AuthenticatedTeachersRoute
   AuthenticatedExaminationsGradeScalesRoute: typeof AuthenticatedExaminationsGradeScalesRoute
   AuthenticatedExaminationsSubjectsRoute: typeof AuthenticatedExaminationsSubjectsRoute
   AuthenticatedFeesConcessionsRoute: typeof AuthenticatedFeesConcessionsRoute
@@ -714,7 +694,6 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedReportsRoute: AuthenticatedReportsRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
-  AuthenticatedTeachersRoute: AuthenticatedTeachersRoute,
   AuthenticatedExaminationsGradeScalesRoute:
     AuthenticatedExaminationsGradeScalesRoute,
   AuthenticatedExaminationsSubjectsRoute:
