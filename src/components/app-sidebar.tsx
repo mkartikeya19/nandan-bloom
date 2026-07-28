@@ -1,6 +1,6 @@
 import { Link, useRouter, useRouterState } from "@tanstack/react-router";
 import {
-  LayoutDashboard, Users, Wallet, GraduationCap, Settings, LogOut, Activity, ArrowUpCircle, ClipboardList,
+  LayoutDashboard, Users, Wallet, GraduationCap, Settings, LogOut, Activity, ArrowUpCircle, ClipboardList, BriefcaseBusiness,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import {
@@ -11,9 +11,11 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { toast } from "sonner";
+import { useUserRoles } from "@/hooks/use-user-role";
 
-// Attendance / Teachers / Reports / Admissions are hidden until they ship.
+// Attendance / Reports / Admissions are hidden until they ship.
 // Examinations is Phase-1 masters only in this release.
+// Teachers is Super Admin only (confidential HR data) — appended below.
 const items = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
   { title: "Students", url: "/students", icon: Users },
@@ -24,9 +26,13 @@ const items = [
   { title: "Settings", url: "/settings", icon: Settings },
 ] as const;
 
+const teachersItem = { title: "Teachers", url: "/teachers", icon: BriefcaseBusiness } as const;
+
+
 
 export function AppSidebar() {
   const { state } = useSidebar();
+  const { canViewTeachers } = useUserRoles();
   const collapsed = state === "collapsed";
   const router = useRouter();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
@@ -69,7 +75,7 @@ export function AppSidebar() {
           <SidebarGroupLabel>Main menu</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {items.map((item) => (
+              {[...items, ...(canViewTeachers ? [teachersItem] : [])].map((item) => (
                 <SidebarMenuItem key={item.url}>
                   <SidebarMenuButton asChild isActive={isActive(item.url)} tooltip={item.title}>
                     <Link to={item.url}>

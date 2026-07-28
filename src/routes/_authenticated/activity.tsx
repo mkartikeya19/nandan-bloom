@@ -113,7 +113,7 @@ function ActivityCenter() {
     URL.revokeObjectURL(url);
   };
 
-  const modules = ["Students", "Admissions", "Fees", "Attendance", "Examinations", "Users", "Sessions", "Settings", "Promotion"];
+  const modules = ["Students", "Admissions", "Fees", "Attendance", "Examinations", "Teachers", "Users", "Sessions", "Settings", "Promotion"];
   const canSeeAll = perms.isAdmin || perms.isSuperAdmin || perms.isPrincipal;
 
   return (

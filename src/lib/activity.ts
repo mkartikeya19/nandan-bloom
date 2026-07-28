@@ -9,7 +9,8 @@ export type ActivityModule =
   | "Users"
   | "Sessions"
   | "Settings"
-  | "Promotion";
+  | "Promotion"
+  | "Teachers";
 
 export interface LogArgs {
   module: ActivityModule;

@@ -70,6 +70,26 @@ export function formatActivityDetails(
   }
 
 
+  // Teachers (RC-3)
+  if (module === "Teachers") {
+    const code = s(details, "employee_code");
+    const who = s(details, "full_name");
+    const suffix = [who, code].filter(Boolean).join(" · ");
+    if (a.includes("status")) {
+      const from = s(details, "from");
+      const to = s(details, "to");
+      return `Status changed${from && to ? ` ${from} → ${to}` : ""}${suffix ? ` · ${suffix}` : ""}`;
+    }
+    if (a.includes("document")) {
+      const doc = s(details, "document");
+      const file = s(details, "file");
+      return [doc, file, code].filter(Boolean).join(" · ") || "Document updated";
+    }
+    if (a.includes("archive")) return `Teacher archived${suffix ? ` — ${suffix}` : ""}`;
+    if (a.includes("create")) return `Teacher created${suffix ? ` — ${suffix}` : ""}`;
+    if (a.includes("update")) return `Teacher updated${suffix ? ` — ${suffix}` : ""}`;
+  }
+
 
   // Students / Admissions
   if (module === "Students" || module === "Admissions") {
