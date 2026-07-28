@@ -32,6 +32,7 @@ import { Route as AuthenticatedFeesConcessionsRouteImport } from './routes/_auth
 import { Route as AuthenticatedExaminationsSubjectsRouteImport } from './routes/_authenticated/examinations.subjects'
 import { Route as AuthenticatedExaminationsGradeScalesRouteImport } from './routes/_authenticated/examinations.grade-scales'
 import { Route as AuthenticatedFeesStructuresIndexRouteImport } from './routes/_authenticated/fees.structures.index'
+import { Route as AuthenticatedFeesReceiptsIndexRouteImport } from './routes/_authenticated/fees.receipts.index'
 import { Route as AuthenticatedFeesCollectIndexRouteImport } from './routes/_authenticated/fees.collect.index'
 import { Route as AuthenticatedExaminationsPatternsIndexRouteImport } from './routes/_authenticated/examinations.patterns.index'
 import { Route as AuthenticatedStudentsStudentIdEditRouteImport } from './routes/_authenticated/students.$studentId.edit'
@@ -166,6 +167,12 @@ const AuthenticatedFeesStructuresIndexRoute =
     path: '/fees/structures/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedFeesReceiptsIndexRoute =
+  AuthenticatedFeesReceiptsIndexRouteImport.update({
+    id: '/fees/receipts/',
+    path: '/fees/receipts/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedFeesCollectIndexRoute =
   AuthenticatedFeesCollectIndexRouteImport.update({
     id: '/fees/collect/',
@@ -245,6 +252,7 @@ export interface FileRoutesByFullPath {
   '/students/$studentId/edit': typeof AuthenticatedStudentsStudentIdEditRoute
   '/examinations/patterns/': typeof AuthenticatedExaminationsPatternsIndexRoute
   '/fees/collect/': typeof AuthenticatedFeesCollectIndexRoute
+  '/fees/receipts/': typeof AuthenticatedFeesReceiptsIndexRoute
   '/fees/structures/': typeof AuthenticatedFeesStructuresIndexRoute
 }
 export interface FileRoutesByTo {
@@ -277,6 +285,7 @@ export interface FileRoutesByTo {
   '/students/$studentId/edit': typeof AuthenticatedStudentsStudentIdEditRoute
   '/examinations/patterns': typeof AuthenticatedExaminationsPatternsIndexRoute
   '/fees/collect': typeof AuthenticatedFeesCollectIndexRoute
+  '/fees/receipts': typeof AuthenticatedFeesReceiptsIndexRoute
   '/fees/structures': typeof AuthenticatedFeesStructuresIndexRoute
 }
 export interface FileRoutesById {
@@ -311,6 +320,7 @@ export interface FileRoutesById {
   '/_authenticated/students/$studentId/edit': typeof AuthenticatedStudentsStudentIdEditRoute
   '/_authenticated/examinations/patterns/': typeof AuthenticatedExaminationsPatternsIndexRoute
   '/_authenticated/fees/collect/': typeof AuthenticatedFeesCollectIndexRoute
+  '/_authenticated/fees/receipts/': typeof AuthenticatedFeesReceiptsIndexRoute
   '/_authenticated/fees/structures/': typeof AuthenticatedFeesStructuresIndexRoute
 }
 export interface FileRouteTypes {
@@ -345,6 +355,7 @@ export interface FileRouteTypes {
     | '/students/$studentId/edit'
     | '/examinations/patterns/'
     | '/fees/collect/'
+    | '/fees/receipts/'
     | '/fees/structures/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -377,6 +388,7 @@ export interface FileRouteTypes {
     | '/students/$studentId/edit'
     | '/examinations/patterns'
     | '/fees/collect'
+    | '/fees/receipts'
     | '/fees/structures'
   id:
     | '__root__'
@@ -410,6 +422,7 @@ export interface FileRouteTypes {
     | '/_authenticated/students/$studentId/edit'
     | '/_authenticated/examinations/patterns/'
     | '/_authenticated/fees/collect/'
+    | '/_authenticated/fees/receipts/'
     | '/_authenticated/fees/structures/'
   fileRoutesById: FileRoutesById
 }
@@ -582,6 +595,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedFeesStructuresIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/fees/receipts/': {
+      id: '/_authenticated/fees/receipts/'
+      path: '/fees/receipts'
+      fullPath: '/fees/receipts/'
+      preLoaderRoute: typeof AuthenticatedFeesReceiptsIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/fees/collect/': {
       id: '/_authenticated/fees/collect/'
       path: '/fees/collect'
@@ -683,6 +703,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedFeesStructuresStructureIdRoute: typeof AuthenticatedFeesStructuresStructureIdRoute
   AuthenticatedExaminationsPatternsIndexRoute: typeof AuthenticatedExaminationsPatternsIndexRoute
   AuthenticatedFeesCollectIndexRoute: typeof AuthenticatedFeesCollectIndexRoute
+  AuthenticatedFeesReceiptsIndexRoute: typeof AuthenticatedFeesReceiptsIndexRoute
   AuthenticatedFeesStructuresIndexRoute: typeof AuthenticatedFeesStructuresIndexRoute
 }
 
@@ -721,6 +742,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedExaminationsPatternsIndexRoute:
     AuthenticatedExaminationsPatternsIndexRoute,
   AuthenticatedFeesCollectIndexRoute: AuthenticatedFeesCollectIndexRoute,
+  AuthenticatedFeesReceiptsIndexRoute: AuthenticatedFeesReceiptsIndexRoute,
   AuthenticatedFeesStructuresIndexRoute: AuthenticatedFeesStructuresIndexRoute,
 }
 

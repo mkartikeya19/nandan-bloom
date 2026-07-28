@@ -8,7 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { FeesTabs } from "@/components/fees/fees-tabs";
 import { formatINR } from "@/lib/fees-helpers";
-import { Wallet, Calendar, AlertCircle, Users, Receipt } from "lucide-react";
+import { Wallet, Calendar, AlertCircle, Users, Receipt, Eye } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/fees/")({
   component: FeesDashboard,
@@ -96,7 +96,10 @@ function FeesDashboard() {
       </div>
 
       <Card>
-        <CardHeader><CardTitle className="text-base">Recent Receipts</CardTitle></CardHeader>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle className="text-base">Recent Receipts</CardTitle>
+          <Button asChild variant="outline" size="sm"><Link to="/fees/receipts">View all receipts</Link></Button>
+        </CardHeader>
         <CardContent className="p-0">
           <Table>
             <TableHeader>
@@ -107,6 +110,7 @@ function FeesDashboard() {
                 <TableHead>Mode</TableHead>
                 <TableHead>Date</TableHead>
                 <TableHead>Status</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -122,10 +126,18 @@ function FeesDashboard() {
                   <TableCell>{p.payment_mode}</TableCell>
                   <TableCell>{new Date(p.payment_date).toLocaleDateString("en-IN")}</TableCell>
                   <TableCell>{p.is_void ? <Badge variant="destructive">Void</Badge> : <Badge>Paid</Badge>}</TableCell>
+                  <TableCell className="text-right">
+                    <Button asChild size="sm" variant="outline">
+                      <Link to="/fees/receipts/$paymentId" params={{ paymentId: p.id }}>
+                        <Eye className="h-4 w-4" /> View
+                      </Link>
+                    </Button>
+                  </TableCell>
                 </TableRow>
               )) : (
-                <TableRow><TableCell colSpan={6} className="text-center py-6 text-muted-foreground">No receipts yet</TableCell></TableRow>
+                <TableRow><TableCell colSpan={7} className="text-center py-6 text-muted-foreground">No receipts yet</TableCell></TableRow>
               )}
+
             </TableBody>
           </Table>
         </CardContent>
