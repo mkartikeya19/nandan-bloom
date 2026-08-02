@@ -64,12 +64,10 @@ export const inviteUser = createServerFn({ method: "POST" })
       );
       if (!match) throw new Error(createErr.message);
 
-      const { error: grantErr } = await supabaseAdmin
-        .from("user_roles")
-        .upsert(
-          data.roles.map((role) => ({ user_id: match.id, role })),
-          { onConflict: "user_id,role" },
-        );
+      const { error: grantErr } = await supabaseAdmin.from("user_roles").upsert(
+        data.roles.map((role) => ({ user_id: match.id, role })),
+        { onConflict: "user_id,role" },
+      );
       if (grantErr) throw new Error(grantErr.message);
 
       await supabaseAdmin

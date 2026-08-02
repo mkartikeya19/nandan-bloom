@@ -17,12 +17,17 @@ describe("opening balance breakup", () => {
 
   it("rejects empty, zero and session-less rows", () => {
     expect(validateBreakup([]).valid).toBe(false);
-    expect(validateBreakup([{ session_label: "2024-2025", amount: 0 }]).errors[0]).toContain("greater than zero");
+    expect(validateBreakup([{ session_label: "2024-2025", amount: 0 }]).errors[0]).toContain(
+      "greater than zero",
+    );
     expect(validateBreakup([{ amount: 100 }]).errors[0]).toContain("previous session");
   });
 
   it("accepts a valid breakup", () => {
-    expect(validateBreakup([{ session_label: "2024-2025", amount: 500 }])).toEqual({ valid: true, errors: [] });
+    expect(validateBreakup([{ session_label: "2024-2025", amount: 500 }])).toEqual({
+      valid: true,
+      errors: [],
+    });
   });
 
   it("combines multiple imported rows per scholar into one balance", () => {

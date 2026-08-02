@@ -58,39 +58,39 @@ Everything is Postgres:
 
 File-based, flat convention under `src/routes`:
 
-| File | URL |
-| --- | --- |
-| `index.tsx` | `/` → redirects to `/dashboard` |
-| `auth.tsx` | `/auth` (public, `ssr: false`) |
-| `_authenticated/route.tsx` | auth gate + sidebar layout, renders `<Outlet />` |
-| `_authenticated/dashboard.tsx` | `/dashboard` |
-| `_authenticated/students.index.tsx` | `/students` |
-| `_authenticated/students.new.tsx` | `/students/new` |
-| `_authenticated/students.$studentId.tsx` | `/students/:studentId` |
-| `_authenticated/students.$studentId.edit.tsx` | `/students/:studentId/edit` |
-| `_authenticated/students.import.tsx` | `/students/import` |
-| `_authenticated/students.promote.tsx` | `/students/promote` |
-| `_authenticated/fees.index.tsx` | `/fees` |
-| `_authenticated/fees.structures.index.tsx` / `.$structureId.tsx` | `/fees/structures`, `/fees/structures/:id` |
-| `_authenticated/fees.collect.index.tsx` / `.$studentId.tsx` | `/fees/collect`, `/fees/collect/:studentId` |
-| `_authenticated/fees.receipts.index.tsx` / `.$paymentId.tsx` | `/fees/receipts`, `/fees/receipts/:id` |
-| `_authenticated/fees.concessions.tsx` | `/fees/concessions` |
-| `_authenticated/fees.import.tsx` | `/fees/import` (opening balance migration) |
-| `_authenticated/fees.report.$view.tsx` | `/fees/report/:view` |
-| `_authenticated/fees.settings.tsx` | `/fees/settings` |
-| `_authenticated/examinations.index.tsx` | `/examinations` |
-| `_authenticated/examinations.subjects.tsx` | `/examinations/subjects` |
-| `_authenticated/examinations.grade-scales.tsx` | `/examinations/grade-scales` |
-| `_authenticated/examinations.patterns.index.tsx` / `.$patternId.tsx` | `/examinations/patterns`, `/examinations/patterns/:id` |
-| `_authenticated/teachers.index.tsx` / `.$teacherId.tsx` | `/teachers`, `/teachers/:id` |
-| `_authenticated/activity.tsx` | `/activity` |
-| `_authenticated/settings.tsx` | `/settings` |
-| `_authenticated/admissions.tsx` | `/admissions` — Admission Register, not linked in the sidebar |
-| `_authenticated/attendance.tsx` | `/attendance` — read-only daily viewer, not linked in the sidebar |
-| `_authenticated/reports.tsx` | `/reports` — static list of planned reports, not linked in the sidebar |
+| File                                                                 | URL                                                                    |
+| -------------------------------------------------------------------- | ---------------------------------------------------------------------- |
+| `index.tsx`                                                          | `/` → redirects to `/dashboard`                                        |
+| `auth.tsx`                                                           | `/auth` (public, `ssr: false`)                                         |
+| `_authenticated/route.tsx`                                           | auth gate + sidebar layout, renders `<Outlet />`                       |
+| `_authenticated/dashboard.tsx`                                       | `/dashboard`                                                           |
+| `_authenticated/students.index.tsx`                                  | `/students`                                                            |
+| `_authenticated/students.new.tsx`                                    | `/students/new`                                                        |
+| `_authenticated/students.$studentId.tsx`                             | `/students/:studentId`                                                 |
+| `_authenticated/students.$studentId.edit.tsx`                        | `/students/:studentId/edit`                                            |
+| `_authenticated/students.import.tsx`                                 | `/students/import`                                                     |
+| `_authenticated/students.promote.tsx`                                | `/students/promote`                                                    |
+| `_authenticated/fees.index.tsx`                                      | `/fees`                                                                |
+| `_authenticated/fees.structures.index.tsx` / `.$structureId.tsx`     | `/fees/structures`, `/fees/structures/:id`                             |
+| `_authenticated/fees.collect.index.tsx` / `.$studentId.tsx`          | `/fees/collect`, `/fees/collect/:studentId`                            |
+| `_authenticated/fees.receipts.index.tsx` / `.$paymentId.tsx`         | `/fees/receipts`, `/fees/receipts/:id`                                 |
+| `_authenticated/fees.concessions.tsx`                                | `/fees/concessions`                                                    |
+| `_authenticated/fees.import.tsx`                                     | `/fees/import` (opening balance migration)                             |
+| `_authenticated/fees.report.$view.tsx`                               | `/fees/report/:view`                                                   |
+| `_authenticated/fees.settings.tsx`                                   | `/fees/settings`                                                       |
+| `_authenticated/examinations.index.tsx`                              | `/examinations`                                                        |
+| `_authenticated/examinations.subjects.tsx`                           | `/examinations/subjects`                                               |
+| `_authenticated/examinations.grade-scales.tsx`                       | `/examinations/grade-scales`                                           |
+| `_authenticated/examinations.patterns.index.tsx` / `.$patternId.tsx` | `/examinations/patterns`, `/examinations/patterns/:id`                 |
+| `_authenticated/teachers.index.tsx` / `.$teacherId.tsx`              | `/teachers`, `/teachers/:id`                                           |
+| `_authenticated/activity.tsx`                                        | `/activity`                                                            |
+| `_authenticated/settings.tsx`                                        | `/settings`                                                            |
+| `_authenticated/admissions.tsx`                                      | `/admissions` — Admission Register, not linked in the sidebar          |
+| `_authenticated/attendance.tsx`                                      | `/attendance` — read-only daily viewer, not linked in the sidebar      |
+| `_authenticated/reports.tsx`                                         | `/reports` — static list of planned reports, not linked in the sidebar |
 
 **Critical routing convention:** a module with child routes must use
-`module.index.tsx` for its landing page. A bare `module.tsx` becomes a *layout*
+`module.index.tsx` for its landing page. A bare `module.tsx` becomes a _layout_
 route and — unless it renders `<Outlet />` — swallows all child routes (this
 caused past regressions in Students and Fees). Never reintroduce
 `students.tsx` / `fees.tsx` / `fees.collect.tsx` / `fees.structures.tsx`.

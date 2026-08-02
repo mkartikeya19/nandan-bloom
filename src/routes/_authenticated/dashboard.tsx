@@ -4,7 +4,15 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/page-header";
-import { Users, GraduationCap, Wallet, CalendarCheck, ClipboardList, TrendingUp, ShieldCheck } from "lucide-react";
+import {
+  Users,
+  GraduationCap,
+  Wallet,
+  CalendarCheck,
+  ClipboardList,
+  TrendingUp,
+  ShieldCheck,
+} from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
@@ -22,7 +30,10 @@ function ClaimAdminBanner() {
     enabled: !!user,
     queryKey: ["my-roles", user?.id],
     queryFn: async () => {
-      const { data, error } = await supabase.from("user_roles").select("role").eq("user_id", user!.id);
+      const { data, error } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", user!.id);
       if (error) throw error;
       return data;
     },
@@ -48,7 +59,8 @@ function ClaimAdminBanner() {
           <div>
             <p className="font-medium">Finish setting up your school</p>
             <p className="text-sm text-muted-foreground">
-              You don't have a role yet. If you are the first user, claim the administrator role now.
+              You don't have a role yet. If you are the first user, claim the administrator role
+              now.
             </p>
           </div>
         </div>
@@ -84,7 +96,10 @@ function StatCard({ label, value, icon: Icon, hint }: StatCardProps) {
   );
 }
 
-function useCount(table: "students" | "teachers" | "admissions" | "fee_payments" | "attendance", filter?: { column: string; value: string }) {
+function useCount(
+  table: "students" | "teachers" | "admissions" | "fee_payments" | "attendance",
+  filter?: { column: string; value: string },
+) {
   return useQuery({
     queryKey: ["count", table, filter],
     queryFn: async () => {
@@ -96,7 +111,6 @@ function useCount(table: "students" | "teachers" | "admissions" | "fee_payments"
     },
   });
 }
-
 
 function Dashboard() {
   const teachers = useCount("teachers", { column: "status", value: "active" });
@@ -150,11 +164,18 @@ function Dashboard() {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         <StatCard label="Active Students" value={activeStudents.data ?? "—"} icon={Users} />
         <StatCard label="Teachers on staff" value={teachers.data ?? "—"} icon={GraduationCap} />
-        <StatCard label="Present today" value={presentToday.data ?? "—"} icon={CalendarCheck} hint={today} />
+        <StatCard
+          label="Present today"
+          value={presentToday.data ?? "—"}
+          icon={CalendarCheck}
+          hint={today}
+        />
         <StatCard label="Scheduled exams" value="—" icon={ClipboardList} hint="Coming soon" />
         <StatCard
           label="Fees collected (month)"
-          value={feesThisMonth.data != null ? `₹${feesThisMonth.data.toLocaleString("en-IN")}` : "—"}
+          value={
+            feesThisMonth.data != null ? `₹${feesThisMonth.data.toLocaleString("en-IN")}` : "—"
+          }
           icon={Wallet}
         />
       </div>
@@ -168,8 +189,8 @@ function Dashboard() {
           </CardHeader>
           <CardContent>
             <p className="text-sm text-muted-foreground">
-              Activity will appear here as staff record admissions, attendance,
-              fee payments and exam results.
+              Activity will appear here as staff record admissions, attendance, fee payments and
+              exam results.
             </p>
           </CardContent>
         </Card>

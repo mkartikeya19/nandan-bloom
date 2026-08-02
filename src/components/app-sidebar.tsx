@@ -1,11 +1,28 @@
 import { Link, useRouter, useRouterState } from "@tanstack/react-router";
 import {
-  LayoutDashboard, Users, Wallet, GraduationCap, Settings, LogOut, Activity, ArrowUpCircle, ClipboardList, BriefcaseBusiness,
+  LayoutDashboard,
+  Users,
+  Wallet,
+  GraduationCap,
+  Settings,
+  LogOut,
+  Activity,
+  ArrowUpCircle,
+  ClipboardList,
+  BriefcaseBusiness,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import {
-  Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent,
-  SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem,
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
 import { supabase } from "@/integrations/supabase/client";
@@ -28,8 +45,6 @@ const items = [
 
 const teachersItem = { title: "Teachers", url: "/teachers", icon: BriefcaseBusiness } as const;
 
-
-
 export function AppSidebar() {
   const { state } = useSidebar();
   const { canViewTeachers } = useUserRoles();
@@ -42,7 +57,9 @@ export function AppSidebar() {
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
       setEmail(data.user?.email ?? "");
-      setName((data.user?.user_metadata?.full_name as string) ?? data.user?.email?.split("@")[0] ?? "");
+      setName(
+        (data.user?.user_metadata?.full_name as string) ?? data.user?.email?.split("@")[0] ?? "",
+      );
     });
   }, []);
 

@@ -221,12 +221,14 @@ export function StudentForm({ mode, student, currentRecord, onSaved }: Props) {
     if (!form.scholar_number.trim()) mandatoryErrors.scholar_number = "Scholar number missing";
     if (!form.gender) mandatoryErrors.gender = "Gender is required";
     if (!form.date_of_birth) mandatoryErrors.date_of_birth = "Date of birth is required";
-    if (!form.date_of_admission) mandatoryErrors.date_of_admission = "Date of admission is required";
+    if (!form.date_of_admission)
+      mandatoryErrors.date_of_admission = "Date of admission is required";
     if (!form.father_name.trim()) mandatoryErrors.father_name = "Father name is required";
     if (!form.father_mobile.trim()) mandatoryErrors.father_mobile = "Father mobile is required";
     if (!form.mother_name.trim()) mandatoryErrors.mother_name = "Mother name is required";
     if (!form.mother_mobile.trim()) mandatoryErrors.mother_mobile = "Mother mobile is required";
-    if (!acad.academic_session_id) mandatoryErrors.academic_session_id = "Academic session is required";
+    if (!acad.academic_session_id)
+      mandatoryErrors.academic_session_id = "Academic session is required";
     if (!acad.class_id) mandatoryErrors.class_id = "Class is required";
     // Section is only mandatory when sections exist for the selected class.
     if (acad.class_id && (sections?.length ?? 0) > 0 && !acad.section_id) {
@@ -303,16 +305,32 @@ export function StudentForm({ mode, student, currentRecord, onSaved }: Props) {
         trackDoc("photo_url", "Student Photograph", student?.photo_url);
       }
       if (birthCertFile) {
-        updates.birth_certificate_url = await uploadStudentFile(form.scholar_number, "documents", birthCertFile);
+        updates.birth_certificate_url = await uploadStudentFile(
+          form.scholar_number,
+          "documents",
+          birthCertFile,
+        );
         trackDoc("birth_certificate_url", "Birth Certificate", student?.birth_certificate_url);
       }
       if (aadhaarFile) {
-        updates.aadhaar_copy_url = await uploadStudentFile(form.scholar_number, "documents", aadhaarFile);
+        updates.aadhaar_copy_url = await uploadStudentFile(
+          form.scholar_number,
+          "documents",
+          aadhaarFile,
+        );
         trackDoc("aadhaar_copy_url", "Aadhaar Copy", student?.aadhaar_copy_url);
       }
       if (tcFile) {
-        updates.transfer_certificate_url = await uploadStudentFile(form.scholar_number, "documents", tcFile);
-        trackDoc("transfer_certificate_url", "Transfer Certificate", student?.transfer_certificate_url);
+        updates.transfer_certificate_url = await uploadStudentFile(
+          form.scholar_number,
+          "documents",
+          tcFile,
+        );
+        trackDoc(
+          "transfer_certificate_url",
+          "Transfer Certificate",
+          student?.transfer_certificate_url,
+        );
       }
       if (Object.keys(updates).length > 0) {
         const { error } = await supabase.from("students").update(updates).eq("id", studentId);
@@ -330,7 +348,9 @@ export function StudentForm({ mode, student, currentRecord, onSaved }: Props) {
                 document: doc.label,
               },
             });
-          } catch { /* ignore */ }
+          } catch {
+            /* ignore */
+          }
         }
       }
       try {
@@ -341,7 +361,9 @@ export function StudentForm({ mode, student, currentRecord, onSaved }: Props) {
           entityId: studentId,
           details: { scholar_number: form.scholar_number, name: form.full_name },
         });
-      } catch { /* ignore */ }
+      } catch {
+        /* ignore */
+      }
       return studentId;
     },
     onSuccess: (id) => {
@@ -377,10 +399,19 @@ export function StudentForm({ mode, student, currentRecord, onSaved }: Props) {
                 <Input value={form.scholar_number} readOnly disabled />
               </Field>
               <Field label="Admission Type">
-                <Select value={form.admission_type} onValueChange={(v) => set("admission_type", v as AdmissionType)}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
+                <Select
+                  value={form.admission_type}
+                  onValueChange={(v) => set("admission_type", v as AdmissionType)}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
                   <SelectContent>
-                    {ADMISSION_TYPE_VALUES.map((v) => <SelectItem key={v} value={v}>{v}</SelectItem>)}
+                    {ADMISSION_TYPE_VALUES.map((v) => (
+                      <SelectItem key={v} value={v}>
+                        {v}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </Field>
@@ -389,7 +420,9 @@ export function StudentForm({ mode, student, currentRecord, onSaved }: Props) {
               </Field>
               <Field label="Gender">
                 <Select value={form.gender} onValueChange={(v) => set("gender", v)}>
-                  <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select" />
+                  </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="male">Male</SelectItem>
                     <SelectItem value="female">Female</SelectItem>
@@ -398,105 +431,292 @@ export function StudentForm({ mode, student, currentRecord, onSaved }: Props) {
                 </Select>
               </Field>
               <Field label="Date of Birth">
-                <Input type="date" value={form.date_of_birth} onChange={(e) => set("date_of_birth", e.target.value)} />
+                <Input
+                  type="date"
+                  value={form.date_of_birth}
+                  onChange={(e) => set("date_of_birth", e.target.value)}
+                />
               </Field>
               <Field label="Date of Admission *">
-                <Input type="date" value={form.date_of_admission} onChange={(e) => set("date_of_admission", e.target.value)} />
+                <Input
+                  type="date"
+                  value={form.date_of_admission}
+                  onChange={(e) => set("date_of_admission", e.target.value)}
+                />
               </Field>
             </div>
           </TabsContent>
 
           <TabsContent value="ids" className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <Field label="Aadhaar Number"><Input value={form.aadhaar_number} onChange={(e) => set("aadhaar_number", e.target.value)} /></Field>
-              <Field label="APAAR ID"><Input value={form.apaar_id} onChange={(e) => set("apaar_id", e.target.value)} /></Field>
-              <Field label="PEN ID"><Input value={form.pen_id} onChange={(e) => set("pen_id", e.target.value)} /></Field>
-              <Field label="Samagra ID"><Input value={form.samagra_id} onChange={(e) => set("samagra_id", e.target.value)} /></Field>
-              <Field label="Nationality"><Input value={form.nationality} onChange={(e) => set("nationality", e.target.value)} /></Field>
-              <Field label="Religion"><Input value={form.religion} onChange={(e) => set("religion", e.target.value)} /></Field>
-              <Field label="Category"><Input value={form.category} onChange={(e) => set("category", e.target.value)} placeholder="General / OBC / SC / ST" /></Field>
-              <Field label="Caste"><Input value={form.caste} onChange={(e) => set("caste", e.target.value)} /></Field>
-              <Field label="Blood Group"><Input value={form.blood_group} onChange={(e) => set("blood_group", e.target.value)} /></Field>
-              <Field label="Mother Tongue"><Input value={form.mother_tongue} onChange={(e) => set("mother_tongue", e.target.value)} /></Field>
+              <Field label="Aadhaar Number">
+                <Input
+                  value={form.aadhaar_number}
+                  onChange={(e) => set("aadhaar_number", e.target.value)}
+                />
+              </Field>
+              <Field label="APAAR ID">
+                <Input value={form.apaar_id} onChange={(e) => set("apaar_id", e.target.value)} />
+              </Field>
+              <Field label="PEN ID">
+                <Input value={form.pen_id} onChange={(e) => set("pen_id", e.target.value)} />
+              </Field>
+              <Field label="Samagra ID">
+                <Input
+                  value={form.samagra_id}
+                  onChange={(e) => set("samagra_id", e.target.value)}
+                />
+              </Field>
+              <Field label="Nationality">
+                <Input
+                  value={form.nationality}
+                  onChange={(e) => set("nationality", e.target.value)}
+                />
+              </Field>
+              <Field label="Religion">
+                <Input value={form.religion} onChange={(e) => set("religion", e.target.value)} />
+              </Field>
+              <Field label="Category">
+                <Input
+                  value={form.category}
+                  onChange={(e) => set("category", e.target.value)}
+                  placeholder="General / OBC / SC / ST"
+                />
+              </Field>
+              <Field label="Caste">
+                <Input value={form.caste} onChange={(e) => set("caste", e.target.value)} />
+              </Field>
+              <Field label="Blood Group">
+                <Input
+                  value={form.blood_group}
+                  onChange={(e) => set("blood_group", e.target.value)}
+                />
+              </Field>
+              <Field label="Mother Tongue">
+                <Input
+                  value={form.mother_tongue}
+                  onChange={(e) => set("mother_tongue", e.target.value)}
+                />
+              </Field>
             </div>
           </TabsContent>
 
           <TabsContent value="parents" className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <Field label="Father's Name"><Input value={form.father_name} onChange={(e) => set("father_name", e.target.value)} /></Field>
-              <Field label="Father's Mobile"><Input value={form.father_mobile} onChange={(e) => set("father_mobile", e.target.value)} /></Field>
-              <Field label="Father's Occupation"><Input value={form.father_occupation} onChange={(e) => set("father_occupation", e.target.value)} /></Field>
-              <Field label="Father's Email"><Input type="email" value={form.father_email} onChange={(e) => set("father_email", e.target.value)} /></Field>
-              <Field label="Mother's Name"><Input value={form.mother_name} onChange={(e) => set("mother_name", e.target.value)} /></Field>
-              <Field label="Mother's Mobile"><Input value={form.mother_mobile} onChange={(e) => set("mother_mobile", e.target.value)} /></Field>
-              <Field label="Mother's Occupation"><Input value={form.mother_occupation} onChange={(e) => set("mother_occupation", e.target.value)} /></Field>
-              <Field label="Mother's Email"><Input type="email" value={form.mother_email} onChange={(e) => set("mother_email", e.target.value)} /></Field>
-              <Field label="Guardian Name"><Input value={form.guardian_name} onChange={(e) => set("guardian_name", e.target.value)} /></Field>
-              <Field label="Guardian Mobile"><Input value={form.guardian_phone} onChange={(e) => set("guardian_phone", e.target.value)} /></Field>
-              <Field label="Emergency Contact Name"><Input value={form.emergency_contact_name} onChange={(e) => set("emergency_contact_name", e.target.value)} /></Field>
-              <Field label="Emergency Contact Number"><Input value={form.emergency_contact_number} onChange={(e) => set("emergency_contact_number", e.target.value)} /></Field>
+              <Field label="Father's Name">
+                <Input
+                  value={form.father_name}
+                  onChange={(e) => set("father_name", e.target.value)}
+                />
+              </Field>
+              <Field label="Father's Mobile">
+                <Input
+                  value={form.father_mobile}
+                  onChange={(e) => set("father_mobile", e.target.value)}
+                />
+              </Field>
+              <Field label="Father's Occupation">
+                <Input
+                  value={form.father_occupation}
+                  onChange={(e) => set("father_occupation", e.target.value)}
+                />
+              </Field>
+              <Field label="Father's Email">
+                <Input
+                  type="email"
+                  value={form.father_email}
+                  onChange={(e) => set("father_email", e.target.value)}
+                />
+              </Field>
+              <Field label="Mother's Name">
+                <Input
+                  value={form.mother_name}
+                  onChange={(e) => set("mother_name", e.target.value)}
+                />
+              </Field>
+              <Field label="Mother's Mobile">
+                <Input
+                  value={form.mother_mobile}
+                  onChange={(e) => set("mother_mobile", e.target.value)}
+                />
+              </Field>
+              <Field label="Mother's Occupation">
+                <Input
+                  value={form.mother_occupation}
+                  onChange={(e) => set("mother_occupation", e.target.value)}
+                />
+              </Field>
+              <Field label="Mother's Email">
+                <Input
+                  type="email"
+                  value={form.mother_email}
+                  onChange={(e) => set("mother_email", e.target.value)}
+                />
+              </Field>
+              <Field label="Guardian Name">
+                <Input
+                  value={form.guardian_name}
+                  onChange={(e) => set("guardian_name", e.target.value)}
+                />
+              </Field>
+              <Field label="Guardian Mobile">
+                <Input
+                  value={form.guardian_phone}
+                  onChange={(e) => set("guardian_phone", e.target.value)}
+                />
+              </Field>
+              <Field label="Emergency Contact Name">
+                <Input
+                  value={form.emergency_contact_name}
+                  onChange={(e) => set("emergency_contact_name", e.target.value)}
+                />
+              </Field>
+              <Field label="Emergency Contact Number">
+                <Input
+                  value={form.emergency_contact_number}
+                  onChange={(e) => set("emergency_contact_number", e.target.value)}
+                />
+              </Field>
             </div>
           </TabsContent>
 
           <TabsContent value="address" className="space-y-4">
             <Field label="Address">
-              <Textarea rows={3} value={form.address} onChange={(e) => set("address", e.target.value)} />
+              <Textarea
+                rows={3}
+                value={form.address}
+                onChange={(e) => set("address", e.target.value)}
+              />
             </Field>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <Field label="City"><Input value={form.city} onChange={(e) => set("city", e.target.value)} /></Field>
-              <Field label="State"><Input value={form.state} onChange={(e) => set("state", e.target.value)} /></Field>
-              <Field label="PIN Code"><Input value={form.pincode} onChange={(e) => set("pincode", e.target.value)} /></Field>
+              <Field label="City">
+                <Input value={form.city} onChange={(e) => set("city", e.target.value)} />
+              </Field>
+              <Field label="State">
+                <Input value={form.state} onChange={(e) => set("state", e.target.value)} />
+              </Field>
+              <Field label="PIN Code">
+                <Input value={form.pincode} onChange={(e) => set("pincode", e.target.value)} />
+              </Field>
             </div>
           </TabsContent>
 
           <TabsContent value="academic" className="space-y-4">
             {mode === "edit" && !currentRecord && (
-              <p className="text-sm text-muted-foreground">This student has no academic record yet. Use Promote to create one.</p>
+              <p className="text-sm text-muted-foreground">
+                This student has no academic record yet. Use Promote to create one.
+              </p>
             )}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <Field label="Academic Session *">
-                <Select value={acad.academic_session_id} onValueChange={(v) => setA("academic_session_id", v)}>
-                  <SelectTrigger><SelectValue placeholder="Select session" /></SelectTrigger>
+                <Select
+                  value={acad.academic_session_id}
+                  onValueChange={(v) => setA("academic_session_id", v)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select session" />
+                  </SelectTrigger>
                   <SelectContent>
-                    {sessions?.map((s) => <SelectItem key={s.id} value={s.id}>{s.name}{s.is_active ? " (active)" : ""}</SelectItem>)}
+                    {sessions?.map((s) => (
+                      <SelectItem key={s.id} value={s.id}>
+                        {s.name}
+                        {s.is_active ? " (active)" : ""}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </Field>
               <Field label="Class *">
-                <Select value={acad.class_id} onValueChange={(v) => { setA("class_id", v); setA("section_id", ""); }}>
-                  <SelectTrigger><SelectValue placeholder="Select class" /></SelectTrigger>
+                <Select
+                  value={acad.class_id}
+                  onValueChange={(v) => {
+                    setA("class_id", v);
+                    setA("section_id", "");
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select class" />
+                  </SelectTrigger>
                   <SelectContent>
-                    {classes?.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
+                    {classes?.map((c) => (
+                      <SelectItem key={c.id} value={c.id}>
+                        {c.name}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </Field>
               <Field label={`Section${(sections?.length ?? 0) > 0 ? " *" : " (N/A)"}`}>
-                <Select value={acad.section_id || "none"} onValueChange={(v) => setA("section_id", v === "none" ? "" : v)} disabled={!acad.class_id || (sections?.length ?? 0) === 0}>
-                  <SelectTrigger><SelectValue placeholder={(sections?.length ?? 0) === 0 ? "No sections configured" : "Select section"} /></SelectTrigger>
+                <Select
+                  value={acad.section_id || "none"}
+                  onValueChange={(v) => setA("section_id", v === "none" ? "" : v)}
+                  disabled={!acad.class_id || (sections?.length ?? 0) === 0}
+                >
+                  <SelectTrigger>
+                    <SelectValue
+                      placeholder={
+                        (sections?.length ?? 0) === 0 ? "No sections configured" : "Select section"
+                      }
+                    />
+                  </SelectTrigger>
                   <SelectContent>
-                    {(sections?.length ?? 0) === 0 && <SelectItem value="none">— Not Applicable —</SelectItem>}
-                    {sections?.map((s) => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
+                    {(sections?.length ?? 0) === 0 && (
+                      <SelectItem value="none">— Not Applicable —</SelectItem>
+                    )}
+                    {sections?.map((s) => (
+                      <SelectItem key={s.id} value={s.id}>
+                        {s.name}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </Field>
               <Field label="Roll Number">
-                <Input value={acad.roll_number} onChange={(e) => setA("roll_number", e.target.value)} placeholder="Auto-assigned; leave blank" />
+                <Input
+                  value={acad.roll_number}
+                  onChange={(e) => setA("roll_number", e.target.value)}
+                  placeholder="Auto-assigned; leave blank"
+                />
               </Field>
               <Field label="House">
-                <Select value={acad.house_id || "none"} onValueChange={(v) => setA("house_id", v === "none" ? "" : v)}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
+                <Select
+                  value={acad.house_id || "none"}
+                  onValueChange={(v) => setA("house_id", v === "none" ? "" : v)}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="none">— None —</SelectItem>
-                    {houses?.map((h) => <SelectItem key={h.id} value={h.id}>{h.name}</SelectItem>)}
+                    {houses?.map((h) => (
+                      <SelectItem key={h.id} value={h.id}>
+                        {h.name}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </Field>
-              <Field label="Joined On"><Input type="date" value={acad.joined_on} onChange={(e) => setA("joined_on", e.target.value)} /></Field>
+              <Field label="Joined On">
+                <Input
+                  type="date"
+                  value={acad.joined_on}
+                  onChange={(e) => setA("joined_on", e.target.value)}
+                />
+              </Field>
               <Field label="Status">
-                <Select value={acad.status} onValueChange={(v) => setA("status", v as StudentStatus)}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
+                <Select
+                  value={acad.status}
+                  onValueChange={(v) => setA("status", v as StudentStatus)}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
                   <SelectContent>
-                    {STUDENT_STATUS_VALUES.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+                    {STUDENT_STATUS_VALUES.map((s) => (
+                      <SelectItem key={s} value={s}>
+                        {s}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </Field>
@@ -504,10 +724,31 @@ export function StudentForm({ mode, student, currentRecord, onSaved }: Props) {
           </TabsContent>
 
           <TabsContent value="docs" className="space-y-4">
-            <FileField label="Student Photograph" accept="image/*" file={photoFile} setFile={setPhotoFile} existing={student?.photo_url} />
-            <FileField label="Birth Certificate" file={birthCertFile} setFile={setBirthCertFile} existing={student?.birth_certificate_url} />
-            <FileField label="Aadhaar Copy" file={aadhaarFile} setFile={setAadhaarFile} existing={student?.aadhaar_copy_url} />
-            <FileField label="Transfer Certificate" file={tcFile} setFile={setTcFile} existing={student?.transfer_certificate_url} />
+            <FileField
+              label="Student Photograph"
+              accept="image/*"
+              file={photoFile}
+              setFile={setPhotoFile}
+              existing={student?.photo_url}
+            />
+            <FileField
+              label="Birth Certificate"
+              file={birthCertFile}
+              setFile={setBirthCertFile}
+              existing={student?.birth_certificate_url}
+            />
+            <FileField
+              label="Aadhaar Copy"
+              file={aadhaarFile}
+              setFile={setAadhaarFile}
+              existing={student?.aadhaar_copy_url}
+            />
+            <FileField
+              label="Transfer Certificate"
+              file={tcFile}
+              setFile={setTcFile}
+              existing={student?.transfer_certificate_url}
+            />
           </TabsContent>
         </Tabs>
 
@@ -515,7 +756,9 @@ export function StudentForm({ mode, student, currentRecord, onSaved }: Props) {
           <div className="mt-6 rounded-md border border-destructive/40 bg-destructive/5 p-3 text-sm">
             <p className="font-medium text-destructive mb-1">Complete the required fields:</p>
             <ul className="list-disc pl-5 text-destructive/90 space-y-0.5">
-              {Object.entries(mandatoryErrors).map(([k, v]) => <li key={k}>{v}</li>)}
+              {Object.entries(mandatoryErrors).map(([k, v]) => (
+                <li key={k}>{v}</li>
+              ))}
             </ul>
           </div>
         )}
@@ -559,7 +802,9 @@ function FileField({
       {file ? (
         <p className="text-xs text-muted-foreground">Selected: {file.name}</p>
       ) : existing ? (
-        <p className="text-xs text-muted-foreground">Existing file uploaded. Choose a new file to replace.</p>
+        <p className="text-xs text-muted-foreground">
+          Existing file uploaded. Choose a new file to replace.
+        </p>
       ) : null}
     </div>
   );

@@ -53,7 +53,11 @@ export async function fetchNextEmployeeCode(): Promise<string> {
 
 export function formatSalary(v: number | null | undefined): string {
   if (v == null) return "—";
-  return new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(v);
+  return new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
+    maximumFractionDigits: 0,
+  }).format(v);
 }
 
 export function maskAccount(v: string | null | undefined): string {

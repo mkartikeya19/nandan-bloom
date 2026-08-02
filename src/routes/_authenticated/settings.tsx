@@ -29,9 +29,13 @@ function SettingsPage() {
         actions={
           !isLoading ? (
             isSuperAdmin ? (
-              <Badge className="gap-1"><ShieldCheck className="h-3.5 w-3.5" /> Super Admin</Badge>
+              <Badge className="gap-1">
+                <ShieldCheck className="h-3.5 w-3.5" /> Super Admin
+              </Badge>
             ) : (
-              <Badge variant="secondary" className="gap-1"><Eye className="h-3.5 w-3.5" /> View only</Badge>
+              <Badge variant="secondary" className="gap-1">
+                <Eye className="h-3.5 w-3.5" /> View only
+              </Badge>
             )
           ) : null
         }
@@ -50,14 +54,30 @@ function SettingsPage() {
         </TabsList>
 
         <div className="mt-6">
-          <TabsContent value="profile"><SchoolProfileTab canEdit={isSuperAdmin} /></TabsContent>
-          <TabsContent value="sessions"><SessionsTab canEdit={isSuperAdmin} /></TabsContent>
-          <TabsContent value="classes"><ClassesTab canEdit={isSuperAdmin} /></TabsContent>
-          <TabsContent value="sections"><SectionsTab canEdit={isSuperAdmin} /></TabsContent>
-          <TabsContent value="houses"><HousesTab canEdit={isSuperAdmin} /></TabsContent>
-          <TabsContent value="fee-heads"><FeeHeadsTab canEdit={isSuperAdmin} /></TabsContent>
-          <TabsContent value="users"><UsersTab canEdit={isSuperAdmin} /></TabsContent>
-          <TabsContent value="health"><SystemHealthTab /></TabsContent>
+          <TabsContent value="profile">
+            <SchoolProfileTab canEdit={isSuperAdmin} />
+          </TabsContent>
+          <TabsContent value="sessions">
+            <SessionsTab canEdit={isSuperAdmin} />
+          </TabsContent>
+          <TabsContent value="classes">
+            <ClassesTab canEdit={isSuperAdmin} />
+          </TabsContent>
+          <TabsContent value="sections">
+            <SectionsTab canEdit={isSuperAdmin} />
+          </TabsContent>
+          <TabsContent value="houses">
+            <HousesTab canEdit={isSuperAdmin} />
+          </TabsContent>
+          <TabsContent value="fee-heads">
+            <FeeHeadsTab canEdit={isSuperAdmin} />
+          </TabsContent>
+          <TabsContent value="users">
+            <UsersTab canEdit={isSuperAdmin} />
+          </TabsContent>
+          <TabsContent value="health">
+            <SystemHealthTab />
+          </TabsContent>
         </div>
       </Tabs>
     </div>

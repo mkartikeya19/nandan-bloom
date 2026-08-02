@@ -8,8 +8,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
-  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription,
-  AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft, Archive, Pencil, ShieldAlert } from "lucide-react";
@@ -26,9 +32,15 @@ export const Route = createFileRoute("/_authenticated/teachers/$teacherId")({
   head: () => ({
     meta: [
       { title: "Teacher Profile — Nandan Kids ERP" },
-      { name: "description", content: "Employee profile, bank details, documents and activity history." },
+      {
+        name: "description",
+        content: "Employee profile, bank details, documents and activity history.",
+      },
       { property: "og:title", content: "Teacher Profile — Nandan Kids ERP" },
-      { property: "og:description", content: "Employee profile, bank details, documents and activity history." },
+      {
+        property: "og:description",
+        content: "Employee profile, bank details, documents and activity history.",
+      },
       { property: "og:type", content: "profile" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -55,7 +67,11 @@ function TeacherDetailPage() {
     enabled: perms.canViewTeachers,
     queryKey: ["teacher", teacherId],
     queryFn: async () => {
-      const { data, error } = await supabase.from("teachers").select("*").eq("id", teacherId).maybeSingle();
+      const { data, error } = await supabase
+        .from("teachers")
+        .select("*")
+        .eq("id", teacherId)
+        .maybeSingle();
       if (error) throw error;
       return data as unknown as TeacherRecord | null;
     },
@@ -81,10 +97,16 @@ function TeacherDetailPage() {
     mutationFn: async () => {
       if (!teacher) return;
       const next = teacher.status === "Active" ? "Inactive" : "Active";
-      const { error } = await supabase.from("teachers").update({ status: next }).eq("id", teacher.id);
+      const { error } = await supabase
+        .from("teachers")
+        .update({ status: next })
+        .eq("id", teacher.id);
       if (error) throw error;
       await logActivity({
-        module: "Teachers", action: "Status Changed", entityType: "teacher", entityId: teacher.id,
+        module: "Teachers",
+        action: "Status Changed",
+        entityType: "teacher",
+        entityId: teacher.id,
         details: { employee_code: teacher.employee_code, from: teacher.status, to: next },
       });
     },
@@ -106,7 +128,10 @@ function TeacherDetailPage() {
         .eq("id", teacher.id);
       if (error) throw error;
       await logActivity({
-        module: "Teachers", action: "Teacher Archived", entityType: "teacher", entityId: teacher.id,
+        module: "Teachers",
+        action: "Teacher Archived",
+        entityType: "teacher",
+        entityId: teacher.id,
         details: { employee_code: teacher.employee_code, full_name: teacher.full_name },
       });
     },
@@ -137,13 +162,25 @@ function TeacherDetailPage() {
     );
   }
 
-  if (isLoading) return <Card><CardContent className="p-6 text-sm text-muted-foreground">Loading…</CardContent></Card>;
-  if (!teacher) return <Card><CardContent className="p-6 text-sm text-muted-foreground">Teacher not found.</CardContent></Card>;
+  if (isLoading)
+    return (
+      <Card>
+        <CardContent className="p-6 text-sm text-muted-foreground">Loading…</CardContent>
+      </Card>
+    );
+  if (!teacher)
+    return (
+      <Card>
+        <CardContent className="p-6 text-sm text-muted-foreground">Teacher not found.</CardContent>
+      </Card>
+    );
 
   return (
     <div>
       <Button asChild variant="ghost" size="sm" className="mb-3">
-        <Link to="/teachers"><ArrowLeft className="h-4 w-4" /> Back to teachers</Link>
+        <Link to="/teachers">
+          <ArrowLeft className="h-4 w-4" /> Back to teachers
+        </Link>
       </Button>
 
       <PageHeader
@@ -151,14 +188,24 @@ function TeacherDetailPage() {
         description={`Employee ID ${teacher.employee_code}`}
         actions={
           <div className="flex flex-wrap items-center gap-2">
-            <Badge variant={teacher.status === "Active" ? "default" : "secondary"}>{teacher.status}</Badge>
+            <Badge variant={teacher.status === "Active" ? "default" : "secondary"}>
+              {teacher.status}
+            </Badge>
             {teacher.is_archived && <Badge variant="outline">Archived</Badge>}
-            <Button variant="outline" onClick={() => toggleStatus.mutate()} disabled={toggleStatus.isPending}>
+            <Button
+              variant="outline"
+              onClick={() => toggleStatus.mutate()}
+              disabled={toggleStatus.isPending}
+            >
               Mark {teacher.status === "Active" ? "Inactive" : "Active"}
             </Button>
-            <Button variant="outline" onClick={() => setEditOpen(true)}><Pencil className="h-4 w-4" /> Edit</Button>
+            <Button variant="outline" onClick={() => setEditOpen(true)}>
+              <Pencil className="h-4 w-4" /> Edit
+            </Button>
             {!teacher.is_archived && (
-              <Button variant="destructive" onClick={() => setArchiveOpen(true)}><Archive className="h-4 w-4" /> Archive</Button>
+              <Button variant="destructive" onClick={() => setArchiveOpen(true)}>
+                <Archive className="h-4 w-4" /> Archive
+              </Button>
             )}
           </div>
         }
@@ -173,25 +220,46 @@ function TeacherDetailPage() {
 
         <TabsContent value="profile" className="mt-4 grid gap-4 md:grid-cols-2">
           <Card>
-            <CardHeader><CardTitle className="text-base">Basic information</CardTitle></CardHeader>
+            <CardHeader>
+              <CardTitle className="text-base">Basic information</CardTitle>
+            </CardHeader>
             <CardContent className="divide-y">
-              <Row label="Employee ID" value={<span className="font-mono">{teacher.employee_code}</span>} />
+              <Row
+                label="Employee ID"
+                value={<span className="font-mono">{teacher.employee_code}</span>}
+              />
               <Row label="Full name" value={teacher.full_name} />
-              <Row label="Date of joining" value={teacher.date_of_joining ? new Date(teacher.date_of_joining).toLocaleDateString("en-IN") : "—"} />
+              <Row
+                label="Date of joining"
+                value={
+                  teacher.date_of_joining
+                    ? new Date(teacher.date_of_joining).toLocaleDateString("en-IN")
+                    : "—"
+                }
+              />
               <Row label="Mobile number" value={teacher.phone} />
               <Row label="Email" value={teacher.email} />
               <Row label="Designation" value={teacher.designation} />
               <Row label="Qualification" value={teacher.qualification} />
               <Row label="Subject specialisation" value={teacher.subject_specialization} />
               <Row label="Gender" value={teacher.gender} />
-              <Row label="Date of birth" value={teacher.date_of_birth ? new Date(teacher.date_of_birth).toLocaleDateString("en-IN") : "—"} />
+              <Row
+                label="Date of birth"
+                value={
+                  teacher.date_of_birth
+                    ? new Date(teacher.date_of_birth).toLocaleDateString("en-IN")
+                    : "—"
+                }
+              />
               <Row label="Address" value={teacher.address} />
             </CardContent>
           </Card>
 
           <div className="space-y-4">
             <Card>
-              <CardHeader><CardTitle className="text-base">Government IDs</CardTitle></CardHeader>
+              <CardHeader>
+                <CardTitle className="text-base">Government IDs</CardTitle>
+              </CardHeader>
               <CardContent className="divide-y">
                 <Row label="Aadhaar number" value={maskAccount(teacher.aadhaar_number)} />
                 <Row label="PAN number" value={teacher.pan_number} />
@@ -199,19 +267,30 @@ function TeacherDetailPage() {
             </Card>
 
             <Card>
-              <CardHeader><CardTitle className="text-base">Bank &amp; salary</CardTitle></CardHeader>
+              <CardHeader>
+                <CardTitle className="text-base">Bank &amp; salary</CardTitle>
+              </CardHeader>
               <CardContent className="divide-y">
                 <Row label="Bank name" value={teacher.bank_name} />
                 <Row label="Account holder" value={teacher.account_holder_name} />
                 <Row label="Account number" value={maskAccount(teacher.account_number)} />
                 <Row label="IFSC code" value={teacher.ifsc_code} />
                 <Row label="Monthly salary" value={formatSalary(teacher.monthly_salary)} />
-                <Row label="Effective from" value={teacher.salary_effective_from ? new Date(teacher.salary_effective_from).toLocaleDateString("en-IN") : "—"} />
+                <Row
+                  label="Effective from"
+                  value={
+                    teacher.salary_effective_from
+                      ? new Date(teacher.salary_effective_from).toLocaleDateString("en-IN")
+                      : "—"
+                  }
+                />
               </CardContent>
             </Card>
 
             <Card>
-              <CardHeader><CardTitle className="text-base">Experience</CardTitle></CardHeader>
+              <CardHeader>
+                <CardTitle className="text-base">Experience</CardTitle>
+              </CardHeader>
               <CardContent className="divide-y">
                 <Row label="Total experience" value={experience} />
                 <Row label="Previous school" value={teacher.previous_school} />
@@ -221,12 +300,18 @@ function TeacherDetailPage() {
         </TabsContent>
 
         <TabsContent value="documents" className="mt-4">
-          <TeacherDocuments teacherId={teacher.id} employeeCode={teacher.employee_code} canEdit={perms.canManageTeachers} />
+          <TeacherDocuments
+            teacherId={teacher.id}
+            employeeCode={teacher.employee_code}
+            canEdit={perms.canManageTeachers}
+          />
         </TabsContent>
 
         <TabsContent value="activity" className="mt-4">
           <Card>
-            <CardHeader><CardTitle className="text-base">Activity log</CardTitle></CardHeader>
+            <CardHeader>
+              <CardTitle className="text-base">Activity log</CardTitle>
+            </CardHeader>
             <CardContent className="divide-y p-0">
               {(activity ?? []).length === 0 ? (
                 <p className="p-6 text-sm text-muted-foreground">No activity recorded yet.</p>
@@ -236,7 +321,11 @@ function TeacherDetailPage() {
                     <p className="text-sm font-medium">{a.action}</p>
                     <p className="text-xs text-muted-foreground">
                       {new Date(a.created_at).toLocaleString("en-IN")} ·{" "}
-                      {formatActivityDetails(a.module, a.action, a.details as Record<string, unknown>)}
+                      {formatActivityDetails(
+                        a.module,
+                        a.action,
+                        a.details as Record<string, unknown>,
+                      )}
                     </p>
                   </div>
                 ))
@@ -253,8 +342,8 @@ function TeacherDetailPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Archive this teacher?</AlertDialogTitle>
             <AlertDialogDescription>
-              {teacher.full_name} will be marked Inactive and hidden from the directory. The record is preserved for audit and can
-              be restored by a Super Admin.
+              {teacher.full_name} will be marked Inactive and hidden from the directory. The record
+              is preserved for audit and can be restored by a Super Admin.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

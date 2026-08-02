@@ -27,13 +27,53 @@ function row(p: Partial<ScheduleRow> & { id: string }): ScheduleRow {
 }
 
 describe("fee allocation priority", () => {
-  const opening = row({ id: "ob", is_opening_balance: true, due_amount: 1000, sort_key: "0000-OPENING" });
-  const admission = row({ id: "adm", fee_head_name: "Admission Fee", due_amount: 500, sort_key: "9-0001" });
-  const activity = row({ id: "act", fee_head_name: "Activities Fee", due_amount: 300, sort_key: "9-0002" });
-  const july = row({ id: "jul", fee_head_name: "Tuition Fee", period_month: 7, period_year: 2026, due_amount: 1000, sort_key: "2026-07-0001" });
-  const jan = row({ id: "jan", fee_head_name: "Tuition Fee", period_month: 1, period_year: 2027, due_amount: 1000, sort_key: "2027-01-0001" });
-  const library = row({ id: "lib", fee_head_name: "Library Fee", due_amount: 200, sort_key: "9-0005", fee_head_sort_order: 9 });
-  const optional = row({ id: "opt", fee_head_name: "Transport", due_amount: 400, fee_head_frequency: "Optional" });
+  const opening = row({
+    id: "ob",
+    is_opening_balance: true,
+    due_amount: 1000,
+    sort_key: "0000-OPENING",
+  });
+  const admission = row({
+    id: "adm",
+    fee_head_name: "Admission Fee",
+    due_amount: 500,
+    sort_key: "9-0001",
+  });
+  const activity = row({
+    id: "act",
+    fee_head_name: "Activities Fee",
+    due_amount: 300,
+    sort_key: "9-0002",
+  });
+  const july = row({
+    id: "jul",
+    fee_head_name: "Tuition Fee",
+    period_month: 7,
+    period_year: 2026,
+    due_amount: 1000,
+    sort_key: "2026-07-0001",
+  });
+  const jan = row({
+    id: "jan",
+    fee_head_name: "Tuition Fee",
+    period_month: 1,
+    period_year: 2027,
+    due_amount: 1000,
+    sort_key: "2027-01-0001",
+  });
+  const library = row({
+    id: "lib",
+    fee_head_name: "Library Fee",
+    due_amount: 200,
+    sort_key: "9-0005",
+    fee_head_sort_order: 9,
+  });
+  const optional = row({
+    id: "opt",
+    fee_head_name: "Transport",
+    due_amount: 400,
+    fee_head_frequency: "Optional",
+  });
 
   it("ranks heads in business order", () => {
     expect(priorityRank(opening)).toBe(0);
@@ -61,7 +101,14 @@ describe("fee allocation priority", () => {
   });
 
   it("never allocates more than the outstanding amount", () => {
-    const partly = row({ id: "p", due_amount: 1000, concession_amount: 200, paid_amount: 300, sort_key: "2026-07-0001", period_month: 7 });
+    const partly = row({
+      id: "p",
+      due_amount: 1000,
+      concession_amount: 200,
+      paid_amount: 300,
+      sort_key: "2026-07-0001",
+      period_month: 7,
+    });
     expect(outstandingOf(partly)).toBe(500);
     expect(allocatePayment(10_000, [partly])).toEqual([{ scheduleId: "p", amount: 500 }]);
   });

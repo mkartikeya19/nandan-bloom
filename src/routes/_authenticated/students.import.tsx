@@ -15,8 +15,15 @@ function ImportPage() {
   if (!perms.isLoading && !perms.canCreateStudent) {
     return (
       <div>
-        <PageHeader title="Import Students" description="You do not have permission to import students." />
-        <Button asChild variant="outline"><Link to="/students"><ArrowLeft className="h-4 w-4" /> Back</Link></Button>
+        <PageHeader
+          title="Import Students"
+          description="You do not have permission to import students."
+        />
+        <Button asChild variant="outline">
+          <Link to="/students">
+            <ArrowLeft className="h-4 w-4" /> Back
+          </Link>
+        </Button>
       </div>
     );
   }
@@ -25,7 +32,13 @@ function ImportPage() {
       <PageHeader
         title="Import Students"
         description="Bulk-import existing students from an Excel file. Invalid rows are skipped."
-        actions={<Button variant="outline" asChild><Link to="/students"><ArrowLeft className="h-4 w-4" /> Back</Link></Button>}
+        actions={
+          <Button variant="outline" asChild>
+            <Link to="/students">
+              <ArrowLeft className="h-4 w-4" /> Back
+            </Link>
+          </Button>
+        }
       />
       <ExcelImport />
     </div>

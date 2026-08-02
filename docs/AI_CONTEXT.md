@@ -9,7 +9,7 @@ bug fixes ship in `v1.0.x`; new functionality targets `v1.1.0`
 a change is not complete until the affected doc is updated in the same commit.
 
 Start here: [WORKFLOW.md](./WORKFLOW.md) for how a flow runs end to end,
-[DECISIONS.md](./DECISIONS.md) for *why* the hard constraints exist,
+[DECISIONS.md](./DECISIONS.md) for _why_ the hard constraints exist,
 [PERMISSIONS.md](./PERMISSIONS.md) for who may do what,
 [SECURITY.md](./SECURITY.md) for the enforcement model, and
 [CONTRIBUTING.md](./CONTRIBUTING.md) for process.
@@ -62,19 +62,19 @@ Start here: [WORKFLOW.md](./WORKFLOW.md) for how a flow runs end to end,
 
 ## Reusable components & utilities
 
-| Use this | Instead of |
-| --- | --- |
-| `PageHeader` (`@/components/page-header`) | ad-hoc page titles |
-| `EmptyState` (`@/components/empty-state`) | inline "no data" markup |
-| `FeesTabs` (`@/components/fees/fees-tabs`) | duplicating fee sub-navigation |
-| `ReadOnlyNotice` (`@/components/settings/read-only-notice`) | custom permission banners |
-| `StudentFeesTab`, `OpeningBalanceBreakup` | re-querying the ledger |
-| `useUserRoles()` / `buildPermissions()` | reading `user_roles` or hand-rolling role checks in a component |
-| `src/lib/date.ts` helpers | ad-hoc `toLocaleDateString()` / inline date formats |
-| `src/services/*` query modules | new inline Supabase queries inside route files |
-| `formatINR`, `amountInWords`, `formatSalary`, `maskAccount` | manual formatting |
-| `allocatePayment`, `comparePriority`, `outstandingOf` | re-deriving allocation logic |
-| `uploadStudentFile` / `uploadTeacherFile` + signed-URL helpers | direct storage calls |
+| Use this                                                       | Instead of                                                      |
+| -------------------------------------------------------------- | --------------------------------------------------------------- |
+| `PageHeader` (`@/components/page-header`)                      | ad-hoc page titles                                              |
+| `EmptyState` (`@/components/empty-state`)                      | inline "no data" markup                                         |
+| `FeesTabs` (`@/components/fees/fees-tabs`)                     | duplicating fee sub-navigation                                  |
+| `ReadOnlyNotice` (`@/components/settings/read-only-notice`)    | custom permission banners                                       |
+| `StudentFeesTab`, `OpeningBalanceBreakup`                      | re-querying the ledger                                          |
+| `useUserRoles()` / `buildPermissions()`                        | reading `user_roles` or hand-rolling role checks in a component |
+| `src/lib/date.ts` helpers                                      | ad-hoc `toLocaleDateString()` / inline date formats             |
+| `src/services/*` query modules                                 | new inline Supabase queries inside route files                  |
+| `formatINR`, `amountInWords`, `formatSalary`, `maskAccount`    | manual formatting                                               |
+| `allocatePayment`, `comparePriority`, `outstandingOf`          | re-deriving allocation logic                                    |
+| `uploadStudentFile` / `uploadTeacherFile` + signed-URL helpers | direct storage calls                                            |
 
 ## Things AI assistants should never change
 
@@ -117,15 +117,15 @@ Start here: [WORKFLOW.md](./WORKFLOW.md) for how a flow runs end to end,
 3. **Schema changes** ship as one new migration containing
    `CREATE TABLE` → `GRANT` → `ENABLE ROW LEVEL SECURITY` → policies, plus an
    `updated_at` trigger. Regenerate types afterwards (do not hand-edit them).
-4. **Permissions:** add the flag to `src/lib/permissions.ts` *and* the matching
+4. **Permissions:** add the flag to `src/lib/permissions.ts` _and_ the matching
    RLS policy / `has_role()` check, plus a case in `permissions.test.ts`.
 5. **Instrument:** add a `logActivity()` call and, if the payload is new, a
    branch in `formatActivityDetails()`.
 6. **Test:** extend the unit suites in `src/lib/__tests__` for any pure logic you
    touch ([TESTING.md](./TESTING.md)).
 7. **Verify:** `bun run verify:migrations && bun run typecheck && bun run lint &&
-   bun run test && bun run build`, then exercise the affected flow in the preview
+bun run test && bun run build`, then exercise the affected flow in the preview
    (admission → schedule → collect → receipt is the highest-value regression
    path).
 8. **Document:** update the relevant file in `/docs` in the same change, and add
-   a `CHANGELOG.md` entry under *Unreleased*.
+   a `CHANGELOG.md` entry under _Unreleased_.

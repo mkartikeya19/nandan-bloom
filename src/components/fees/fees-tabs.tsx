@@ -13,13 +13,14 @@ const tabs: Array<{ to: string; label: string; icon: typeof LayoutDashboard; exa
   { to: "/fees/settings", label: "Settings", icon: Settings2 },
 ];
 
-
 export function FeesTabs() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   return (
     <div className="mb-6 flex flex-wrap items-center gap-1 border-b">
       {tabs.map((t) => {
-        const active = t.exact ? pathname === t.to : pathname === t.to || pathname.startsWith(t.to + "/");
+        const active = t.exact
+          ? pathname === t.to
+          : pathname === t.to || pathname.startsWith(t.to + "/");
         return (
           <Button
             asChild

@@ -9,8 +9,21 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Eye, Search, Download } from "lucide-react";
 import { formatINR, PAYMENT_MODES } from "@/lib/fees-helpers";
 
@@ -19,9 +32,15 @@ export const Route = createFileRoute("/_authenticated/fees/receipts/")({
   head: () => ({
     meta: [
       { title: "Receipts — Fee Management | School ERP" },
-      { name: "description", content: "Search, filter, view, print and void fee receipts across sessions and classes." },
+      {
+        name: "description",
+        content: "Search, filter, view, print and void fee receipts across sessions and classes.",
+      },
       { property: "og:title", content: "Receipts — Fee Management" },
-      { property: "og:description", content: "Search, filter, view, print and void fee receipts across sessions and classes." },
+      {
+        property: "og:description",
+        content: "Search, filter, view, print and void fee receipts across sessions and classes.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -60,7 +79,10 @@ function ReceiptsPage() {
   const sessions = useQuery({
     queryKey: ["sessions-list"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("academic_sessions").select("id, name").order("start_date", { ascending: false });
+      const { data, error } = await supabase
+        .from("academic_sessions")
+        .select("id, name")
+        .order("start_date", { ascending: false });
       if (error) throw error;
       return data ?? [];
     },
@@ -99,10 +121,12 @@ function ReceiptsPage() {
       return ((data as any[]) ?? []).map((p): Row => {
         const s = p.students;
         const recs = s?.student_academic_records ?? [];
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const rec = recs.find((r: any) => r.academic_session_id === p.academic_session_id)
+
+        const rec =
+          recs.find((r: any) => r.academic_session_id === p.academic_session_id) ??
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          ?? recs.find((r: any) => r.status === "Active") ?? recs[0];
+          recs.find((r: any) => r.status === "Active") ??
+          recs[0];
         return {
           id: p.id,
           receipt_number: p.receipt_number,
@@ -123,15 +147,24 @@ function ReceiptsPage() {
   });
 
   const classOptions = useMemo(
-    () => Array.from(new Set((payments.data ?? []).map((r) => r.class_name).filter((c) => c !== "—"))).sort(),
+    () =>
+      Array.from(
+        new Set((payments.data ?? []).map((r) => r.class_name).filter((c) => c !== "—")),
+      ).sort(),
     [payments.data],
   );
   const sectionOptions = useMemo(
-    () => Array.from(new Set((payments.data ?? []).map((r) => r.section_name).filter((c) => c !== "—"))).sort(),
+    () =>
+      Array.from(
+        new Set((payments.data ?? []).map((r) => r.section_name).filter((c) => c !== "—")),
+      ).sort(),
     [payments.data],
   );
   const collectorOptions = useMemo(
-    () => Array.from(new Set((payments.data ?? []).map((r) => r.collected_by).filter(Boolean) as string[])),
+    () =>
+      Array.from(
+        new Set((payments.data ?? []).map((r) => r.collected_by).filter(Boolean) as string[]),
+      ),
     [payments.data],
   );
 
@@ -158,12 +191,37 @@ function ReceiptsPage() {
   const total = filtered.reduce((s, r) => s + (r.is_void ? 0 : r.amount), 0);
 
   const exportCsv = () => {
-    const header = ["Receipt", "Date", "Student", "Scholar No", "Class", "Section", "Mode", "Amount", "Status", "Collected By"];
-    const lines = filtered.map((r) => [
-      r.receipt_number, r.payment_date, r.student_name, r.scholar_number, r.class_name,
-      r.section_name, r.payment_mode, r.amount, r.is_void ? "Void" : "Paid", profileName(r.collected_by),
-    ].map((v) => `"${String(v).replace(/"/g, '""')}"`).join(","));
-    const blob = new Blob([[header.join(","), ...lines].join("\n")], { type: "text/csv;charset=utf-8;" });
+    const header = [
+      "Receipt",
+      "Date",
+      "Student",
+      "Scholar No",
+      "Class",
+      "Section",
+      "Mode",
+      "Amount",
+      "Status",
+      "Collected By",
+    ];
+    const lines = filtered.map((r) =>
+      [
+        r.receipt_number,
+        r.payment_date,
+        r.student_name,
+        r.scholar_number,
+        r.class_name,
+        r.section_name,
+        r.payment_mode,
+        r.amount,
+        r.is_void ? "Void" : "Paid",
+        profileName(r.collected_by),
+      ]
+        .map((v) => `"${String(v).replace(/"/g, '""')}"`)
+        .join(","),
+    );
+    const blob = new Blob([[header.join(","), ...lines].join("\n")], {
+      type: "text/csv;charset=utf-8;",
+    });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
@@ -173,8 +231,15 @@ function ReceiptsPage() {
   };
 
   const resetFilters = () => {
-    setQ(""); setSession(ALL); setKlass(ALL); setSection(ALL);
-    setMode(ALL); setStatus(ALL); setCollector(ALL); setFrom(""); setTo("");
+    setQ("");
+    setSession(ALL);
+    setKlass(ALL);
+    setSection(ALL);
+    setMode(ALL);
+    setStatus(ALL);
+    setCollector(ALL);
+    setFrom("");
+    setTo("");
   };
 
   return (
@@ -182,7 +247,11 @@ function ReceiptsPage() {
       <PageHeader
         title="Receipts"
         description="Every posted receipt, searchable and always accessible."
-        actions={<Button variant="outline" onClick={exportCsv}><Download className="h-4 w-4" /> Export CSV</Button>}
+        actions={
+          <Button variant="outline" onClick={exportCsv}>
+            <Download className="h-4 w-4" /> Export CSV
+          </Button>
+        }
       />
       <FeesTabs />
 
@@ -201,47 +270,73 @@ function ReceiptsPage() {
             <div>
               <Label className="text-xs">Session</Label>
               <Select value={session} onValueChange={setSession}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
                 <SelectContent>
                   <SelectItem value={ALL}>All sessions</SelectItem>
-                  {sessions.data?.map((s) => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
+                  {sessions.data?.map((s) => (
+                    <SelectItem key={s.id} value={s.id}>
+                      {s.name}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
             <div>
               <Label className="text-xs">Class</Label>
               <Select value={klass} onValueChange={setKlass}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
                 <SelectContent>
                   <SelectItem value={ALL}>All classes</SelectItem>
-                  {classOptions.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                  {classOptions.map((c) => (
+                    <SelectItem key={c} value={c}>
+                      {c}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
             <div>
               <Label className="text-xs">Section</Label>
               <Select value={section} onValueChange={setSection}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
                 <SelectContent>
                   <SelectItem value={ALL}>All sections</SelectItem>
-                  {sectionOptions.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                  {sectionOptions.map((c) => (
+                    <SelectItem key={c} value={c}>
+                      {c}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
             <div>
               <Label className="text-xs">Payment mode</Label>
               <Select value={mode} onValueChange={setMode}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
                 <SelectContent>
                   <SelectItem value={ALL}>All modes</SelectItem>
-                  {PAYMENT_MODES.map((m) => <SelectItem key={m} value={m}>{m}</SelectItem>)}
+                  {PAYMENT_MODES.map((m) => (
+                    <SelectItem key={m} value={m}>
+                      {m}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
             <div>
               <Label className="text-xs">Status</Label>
               <Select value={status} onValueChange={setStatus}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
                 <SelectContent>
                   <SelectItem value={ALL}>All</SelectItem>
                   <SelectItem value="paid">Paid</SelectItem>
@@ -252,10 +347,16 @@ function ReceiptsPage() {
             <div>
               <Label className="text-xs">Collected by</Label>
               <Select value={collector} onValueChange={setCollector}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
                 <SelectContent>
                   <SelectItem value={ALL}>Anyone</SelectItem>
-                  {collectorOptions.map((id) => <SelectItem key={id} value={id}>{profileName(id)}</SelectItem>)}
+                  {collectorOptions.map((id) => (
+                    <SelectItem key={id} value={id}>
+                      {profileName(id)}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -270,9 +371,12 @@ function ReceiptsPage() {
           </div>
           <div className="flex items-center justify-between pt-1">
             <p className="text-sm text-muted-foreground">
-              {filtered.length} receipt{filtered.length === 1 ? "" : "s"} · Net collected {formatINR(total)}
+              {filtered.length} receipt{filtered.length === 1 ? "" : "s"} · Net collected{" "}
+              {formatINR(total)}
             </p>
-            <Button variant="ghost" size="sm" onClick={resetFilters}>Reset filters</Button>
+            <Button variant="ghost" size="sm" onClick={resetFilters}>
+              Reset filters
+            </Button>
           </div>
         </CardContent>
       </Card>
@@ -295,34 +399,59 @@ function ReceiptsPage() {
             </TableHeader>
             <TableBody>
               {payments.isLoading ? (
-                <TableRow><TableCell colSpan={9} className="text-center py-8 text-muted-foreground">Loading receipts…</TableCell></TableRow>
-              ) : filtered.length ? filtered.map((r) => (
-                <TableRow key={r.id}>
-                  <TableCell className="font-mono">
-                    <Link to="/fees/receipts/$paymentId" params={{ paymentId: r.id }} className="text-primary hover:underline">
-                      {r.receipt_number}
-                    </Link>
-                  </TableCell>
-                  <TableCell>{new Date(r.payment_date).toLocaleDateString("en-IN")}</TableCell>
-                  <TableCell>
-                    {r.student_name}
-                    <span className="block text-xs text-muted-foreground">{r.scholar_number} · {r.mobile}</span>
-                  </TableCell>
-                  <TableCell>{r.class_name}{r.section_name !== "—" ? ` · ${r.section_name}` : ""}</TableCell>
-                  <TableCell>{r.payment_mode}</TableCell>
-                  <TableCell className="text-right font-semibold">{formatINR(r.amount)}</TableCell>
-                  <TableCell>{r.is_void ? <Badge variant="destructive">Void</Badge> : <Badge>Paid</Badge>}</TableCell>
-                  <TableCell className="text-sm text-muted-foreground">{profileName(r.collected_by)}</TableCell>
-                  <TableCell className="text-right">
-                    <Button asChild size="sm" variant="outline">
-                      <Link to="/fees/receipts/$paymentId" params={{ paymentId: r.id }}>
-                        <Eye className="h-4 w-4" /> View
-                      </Link>
-                    </Button>
+                <TableRow>
+                  <TableCell colSpan={9} className="text-center py-8 text-muted-foreground">
+                    Loading receipts…
                   </TableCell>
                 </TableRow>
-              )) : (
-                <TableRow><TableCell colSpan={9} className="text-center py-8 text-muted-foreground">No receipts match these filters.</TableCell></TableRow>
+              ) : filtered.length ? (
+                filtered.map((r) => (
+                  <TableRow key={r.id}>
+                    <TableCell className="font-mono">
+                      <Link
+                        to="/fees/receipts/$paymentId"
+                        params={{ paymentId: r.id }}
+                        className="text-primary hover:underline"
+                      >
+                        {r.receipt_number}
+                      </Link>
+                    </TableCell>
+                    <TableCell>{new Date(r.payment_date).toLocaleDateString("en-IN")}</TableCell>
+                    <TableCell>
+                      {r.student_name}
+                      <span className="block text-xs text-muted-foreground">
+                        {r.scholar_number} · {r.mobile}
+                      </span>
+                    </TableCell>
+                    <TableCell>
+                      {r.class_name}
+                      {r.section_name !== "—" ? ` · ${r.section_name}` : ""}
+                    </TableCell>
+                    <TableCell>{r.payment_mode}</TableCell>
+                    <TableCell className="text-right font-semibold">
+                      {formatINR(r.amount)}
+                    </TableCell>
+                    <TableCell>
+                      {r.is_void ? <Badge variant="destructive">Void</Badge> : <Badge>Paid</Badge>}
+                    </TableCell>
+                    <TableCell className="text-sm text-muted-foreground">
+                      {profileName(r.collected_by)}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Button asChild size="sm" variant="outline">
+                        <Link to="/fees/receipts/$paymentId" params={{ paymentId: r.id }}>
+                          <Eye className="h-4 w-4" /> View
+                        </Link>
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={9} className="text-center py-8 text-muted-foreground">
+                    No receipts match these filters.
+                  </TableCell>
+                </TableRow>
               )}
             </TableBody>
           </Table>

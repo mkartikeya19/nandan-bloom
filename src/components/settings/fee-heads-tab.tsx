@@ -2,7 +2,14 @@ import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,14 +17,45 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { Plus, Pencil, Trash2, Search, Loader2 } from "lucide-react";
 import { ReadOnlyNotice } from "./read-only-notice";
-import { FEE_FREQUENCIES, FEE_APPLICABILITIES, FEE_APPLICABILITY_LABELS, MONTH_NAMES, DEFAULT_TUITION_MONTHS, type FeeFrequency, type FeeApplicability } from "@/lib/fees-helpers";
+import {
+  FEE_FREQUENCIES,
+  FEE_APPLICABILITIES,
+  FEE_APPLICABILITY_LABELS,
+  MONTH_NAMES,
+  DEFAULT_TUITION_MONTHS,
+  type FeeFrequency,
+  type FeeApplicability,
+} from "@/lib/fees-helpers";
 
 type FeeHead = {
   id: string;
@@ -55,7 +93,6 @@ const EMPTY_FORM: FormState = {
   charge_trigger: "Automatic",
   default_applicability: "All",
 };
-
 
 export function FeeHeadsTab({ canEdit }: { canEdit: boolean }) {
   const qc = useQueryClient();
@@ -99,7 +136,8 @@ export function FeeHeadsTab({ canEdit }: { canEdit: boolean }) {
     mutationFn: async () => {
       if (!form.name.trim()) throw new Error("Fee head name is required");
       if (form.default_amount < 0) throw new Error("Amount must be non-negative");
-      const isMonthlyLike = form.default_frequency === "Monthly" || form.default_frequency === "Quarterly";
+      const isMonthlyLike =
+        form.default_frequency === "Monthly" || form.default_frequency === "Quarterly";
       const payload = {
         name: form.name.trim(),
         description: form.description || null,
@@ -113,8 +151,10 @@ export function FeeHeadsTab({ canEdit }: { canEdit: boolean }) {
       };
 
       if (editing) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const { error } = await supabase.from("fee_heads").update(payload as any).eq("id", editing.id);
+        const { error } = await supabase
+          .from("fee_heads")
+          .update(payload as any)
+          .eq("id", editing.id);
         if (error) throw error;
       } else {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -127,7 +167,10 @@ export function FeeHeadsTab({ canEdit }: { canEdit: boolean }) {
       setOpen(false);
       qc.invalidateQueries({ queryKey: ["fee_heads"] });
     },
-    onError: (e: Error) => toast.error(e.message.includes("duplicate") ? "A fee head with that name already exists" : e.message),
+    onError: (e: Error) =>
+      toast.error(
+        e.message.includes("duplicate") ? "A fee head with that name already exists" : e.message,
+      ),
   });
 
   const del = useMutation({
@@ -161,8 +204,9 @@ export function FeeHeadsTab({ canEdit }: { canEdit: boolean }) {
         <div>
           <CardTitle>Fee Head Master</CardTitle>
           <CardDescription>
-            Fee Heads define the <strong>rule</strong> (frequency, months, auto/manual, mandatory). Fee Structures define the{" "}
-            <strong>amount</strong> per class/session. Schedules inherit rules from the head and amounts from the structure.
+            Fee Heads define the <strong>rule</strong> (frequency, months, auto/manual, mandatory).
+            Fee Structures define the <strong>amount</strong> per class/session. Schedules inherit
+            rules from the head and amounts from the structure.
           </CardDescription>
         </div>
         {canEdit && (
@@ -180,7 +224,11 @@ export function FeeHeadsTab({ canEdit }: { canEdit: boolean }) {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label>Name *</Label>
-                    <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="e.g. Tuition Fee" />
+                    <Input
+                      value={form.name}
+                      onChange={(e) => setForm({ ...form, name: e.target.value })}
+                      placeholder="e.g. Tuition Fee"
+                    />
                   </div>
                   <div className="space-y-2">
                     <Label>Default amount (₹)</Label>
@@ -189,15 +237,22 @@ export function FeeHeadsTab({ canEdit }: { canEdit: boolean }) {
                       min={0}
                       step="0.01"
                       value={form.default_amount}
-                      onChange={(e) => setForm({ ...form, default_amount: Number(e.target.value) || 0 })}
+                      onChange={(e) =>
+                        setForm({ ...form, default_amount: Number(e.target.value) || 0 })
+                      }
                     />
-                    <p className="text-xs text-muted-foreground">Suggested amount — overridden by the Fee Structure.</p>
+                    <p className="text-xs text-muted-foreground">
+                      Suggested amount — overridden by the Fee Structure.
+                    </p>
                   </div>
                 </div>
 
                 <div className="space-y-2">
                   <Label>Description</Label>
-                  <Textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
+                  <Textarea
+                    value={form.description}
+                    onChange={(e) => setForm({ ...form, description: e.target.value })}
+                  />
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
@@ -205,12 +260,18 @@ export function FeeHeadsTab({ canEdit }: { canEdit: boolean }) {
                     <Label>Frequency</Label>
                     <Select
                       value={form.default_frequency}
-                      onValueChange={(v) => setForm({ ...form, default_frequency: v as FeeFrequency })}
+                      onValueChange={(v) =>
+                        setForm({ ...form, default_frequency: v as FeeFrequency })
+                      }
                     >
-                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
                       <SelectContent>
                         {FEE_FREQUENCIES.map((f) => (
-                          <SelectItem key={f} value={f}>{f}</SelectItem>
+                          <SelectItem key={f} value={f}>
+                            {f}
+                          </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
@@ -219,9 +280,13 @@ export function FeeHeadsTab({ canEdit }: { canEdit: boolean }) {
                     <Label>Charge Trigger</Label>
                     <Select
                       value={form.charge_trigger}
-                      onValueChange={(v) => setForm({ ...form, charge_trigger: v as "Automatic" | "Manual" })}
+                      onValueChange={(v) =>
+                        setForm({ ...form, charge_trigger: v as "Automatic" | "Manual" })
+                      }
                     >
-                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="Automatic">Automatic</SelectItem>
                         <SelectItem value="Manual">Manual</SelectItem>
@@ -237,12 +302,18 @@ export function FeeHeadsTab({ canEdit }: { canEdit: boolean }) {
                   <Label>Applicability</Label>
                   <Select
                     value={form.default_applicability}
-                    onValueChange={(v) => setForm({ ...form, default_applicability: v as FeeApplicability })}
+                    onValueChange={(v) =>
+                      setForm({ ...form, default_applicability: v as FeeApplicability })
+                    }
                   >
-                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
                     <SelectContent>
                       {FEE_APPLICABILITIES.map((a) => (
-                        <SelectItem key={a} value={a}>{FEE_APPLICABILITY_LABELS[a]}</SelectItem>
+                        <SelectItem key={a} value={a}>
+                          {FEE_APPLICABILITY_LABELS[a]}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -250,7 +321,6 @@ export function FeeHeadsTab({ canEdit }: { canEdit: boolean }) {
                     Who this fee applies to. Admission Fee should be "New Admissions Only".
                   </p>
                 </div>
-
 
                 {showMonths && (
                   <div className="space-y-2 rounded-md border p-3">
@@ -274,21 +344,33 @@ export function FeeHeadsTab({ canEdit }: { canEdit: boolean }) {
                   <div className="flex items-center justify-between rounded-md border p-3">
                     <div>
                       <Label>Auto Generate</Label>
-                      <p className="text-xs text-muted-foreground">Include when a student's fee schedule is generated.</p>
+                      <p className="text-xs text-muted-foreground">
+                        Include when a student's fee schedule is generated.
+                      </p>
                     </div>
-                    <Switch checked={form.auto_generate} onCheckedChange={(v) => setForm({ ...form, auto_generate: v })} />
+                    <Switch
+                      checked={form.auto_generate}
+                      onCheckedChange={(v) => setForm({ ...form, auto_generate: v })}
+                    />
                   </div>
                   <div className="flex items-center justify-between rounded-md border p-3">
                     <div>
                       <Label>Mandatory</Label>
-                      <p className="text-xs text-muted-foreground">Charged to every student by default.</p>
+                      <p className="text-xs text-muted-foreground">
+                        Charged to every student by default.
+                      </p>
                     </div>
-                    <Switch checked={form.is_mandatory} onCheckedChange={(v) => setForm({ ...form, is_mandatory: v })} />
+                    <Switch
+                      checked={form.is_mandatory}
+                      onCheckedChange={(v) => setForm({ ...form, is_mandatory: v })}
+                    />
                   </div>
                 </div>
               </div>
               <DialogFooter>
-                <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+                <Button variant="outline" onClick={() => setOpen(false)}>
+                  Cancel
+                </Button>
                 <Button onClick={() => save.mutate()} disabled={save.isPending}>
                   {save.isPending && <Loader2 className="h-4 w-4 animate-spin" />} Save
                 </Button>
@@ -301,7 +383,12 @@ export function FeeHeadsTab({ canEdit }: { canEdit: boolean }) {
         {!canEdit && <ReadOnlyNotice />}
         <div className="relative mb-4">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input className="pl-9" placeholder="Search fee heads..." value={search} onChange={(e) => setSearch(e.target.value)} />
+          <Input
+            className="pl-9"
+            placeholder="Search fee heads..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
         </div>
 
         {isLoading ? (
@@ -324,14 +411,18 @@ export function FeeHeadsTab({ canEdit }: { canEdit: boolean }) {
               <TableBody>
                 {filtered.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={canEdit ? 8 : 7} className="text-center text-sm text-muted-foreground py-8">
+                    <TableCell
+                      colSpan={canEdit ? 8 : 7}
+                      className="text-center text-sm text-muted-foreground py-8"
+                    >
                       No fee heads found
                     </TableCell>
                   </TableRow>
                 ) : (
                   filtered.map((f) => {
                     const months = f.default_applicable_months ?? [];
-                    const isMonthlyLike = f.default_frequency === "Monthly" || f.default_frequency === "Quarterly";
+                    const isMonthlyLike =
+                      f.default_frequency === "Monthly" || f.default_frequency === "Quarterly";
                     return (
                       <TableRow key={f.id}>
                         <TableCell className="font-medium">{f.name}</TableCell>
@@ -350,8 +441,20 @@ export function FeeHeadsTab({ canEdit }: { canEdit: boolean }) {
                             {f.charge_trigger}
                           </Badge>
                         </TableCell>
-                        <TableCell>{f.auto_generate ? <Badge>Yes</Badge> : <Badge variant="secondary">No</Badge>}</TableCell>
-                        <TableCell>{f.is_mandatory ? <Badge>Yes</Badge> : <Badge variant="secondary">No</Badge>}</TableCell>
+                        <TableCell>
+                          {f.auto_generate ? (
+                            <Badge>Yes</Badge>
+                          ) : (
+                            <Badge variant="secondary">No</Badge>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {f.is_mandatory ? (
+                            <Badge>Yes</Badge>
+                          ) : (
+                            <Badge variant="secondary">No</Badge>
+                          )}
+                        </TableCell>
                         <TableCell>₹ {Number(f.default_amount).toLocaleString("en-IN")}</TableCell>
                         {canEdit && (
                           <TableCell className="text-right">
@@ -367,11 +470,15 @@ export function FeeHeadsTab({ canEdit }: { canEdit: boolean }) {
                               <AlertDialogContent>
                                 <AlertDialogHeader>
                                   <AlertDialogTitle>Delete fee head "{f.name}"?</AlertDialogTitle>
-                                  <AlertDialogDescription>This action cannot be undone.</AlertDialogDescription>
+                                  <AlertDialogDescription>
+                                    This action cannot be undone.
+                                  </AlertDialogDescription>
                                 </AlertDialogHeader>
                                 <AlertDialogFooter>
                                   <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                  <AlertDialogAction onClick={() => del.mutate(f.id)}>Delete</AlertDialogAction>
+                                  <AlertDialogAction onClick={() => del.mutate(f.id)}>
+                                    Delete
+                                  </AlertDialogAction>
                                 </AlertDialogFooter>
                               </AlertDialogContent>
                             </AlertDialog>

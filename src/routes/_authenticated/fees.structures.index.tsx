@@ -9,9 +9,29 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { Plus, Pencil, Loader2 } from "lucide-react";
 import { useUserRoles } from "@/hooks/use-user-role";
@@ -39,11 +59,18 @@ function FeeStructuresList() {
 
   const sessions = useQuery({
     queryKey: ["academic-sessions"],
-    queryFn: async () => (await supabase.from("academic_sessions").select("id, name, start_date, end_date").order("start_date", { ascending: false })).data ?? [],
+    queryFn: async () =>
+      (
+        await supabase
+          .from("academic_sessions")
+          .select("id, name, start_date, end_date")
+          .order("start_date", { ascending: false })
+      ).data ?? [],
   });
   const classes = useQuery({
     queryKey: ["school-classes"],
-    queryFn: async () => (await supabase.from("school_classes").select("id, name").order("name")).data ?? [],
+    queryFn: async () =>
+      (await supabase.from("school_classes").select("id, name").order("name")).data ?? [],
   });
 
   const structures = useQuery({
@@ -51,7 +78,9 @@ function FeeStructuresList() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("fee_structures")
-        .select("id, name, is_active, academic_session_id, class_id, academic_sessions(name), school_classes(name)")
+        .select(
+          "id, name, is_active, academic_session_id, class_id, academic_sessions(name), school_classes(name)",
+        )
         .not("academic_session_id", "is", null)
         .order("created_at", { ascending: false });
       if (error) throw error;
@@ -76,7 +105,9 @@ function FeeStructuresList() {
 
   const statusFor = (structureId: string): "Draft" | "Complete" => {
     if (!itemsSummary.data) return "Draft";
-    const items = itemsSummary.data.items.filter((i) => i.fee_structure_id === structureId && Number(i.amount) > 0);
+    const items = itemsSummary.data.items.filter(
+      (i) => i.fee_structure_id === structureId && Number(i.amount) > 0,
+    );
     if (items.length === 0) return "Draft";
     const mandatoryHeads = itemsSummary.data.heads.filter((h) => h.is_active && h.is_mandatory);
     const configuredHeadIds = new Set(items.map((i) => i.fee_head_id));
@@ -86,13 +117,18 @@ function FeeStructuresList() {
 
   const create = useMutation({
     mutationFn: async () => {
-      if (!form.name.trim() || !form.academic_session_id || !form.class_id) throw new Error("All fields required");
-      const { data, error } = await supabase.from("fee_structures").insert({
-        name: form.name.trim(),
-        academic_session_id: form.academic_session_id,
-        class_id: form.class_id,
-        is_active: true,
-      }).select("id").single();
+      if (!form.name.trim() || !form.academic_session_id || !form.class_id)
+        throw new Error("All fields required");
+      const { data, error } = await supabase
+        .from("fee_structures")
+        .insert({
+          name: form.name.trim(),
+          academic_session_id: form.academic_session_id,
+          class_id: form.class_id,
+          is_active: true,
+        })
+        .select("id")
+        .single();
       if (error) throw error;
       return data.id as string;
     },
@@ -103,7 +139,12 @@ function FeeStructuresList() {
       qc.invalidateQueries({ queryKey: ["fee-structures-new"] });
       nav({ to: "/fees/structures/$structureId", params: { structureId: id } });
     },
-    onError: (e: Error) => toast.error(e.message.includes("duplicate") ? "A structure for this session+class already exists" : e.message),
+    onError: (e: Error) =>
+      toast.error(
+        e.message.includes("duplicate")
+          ? "A structure for this session+class already exists"
+          : e.message,
+      ),
   });
 
   return (
@@ -114,28 +155,72 @@ function FeeStructuresList() {
         actions={
           canManageFeeStructures && (
             <Dialog open={open} onOpenChange={setOpen}>
-              <DialogTrigger asChild><Button><Plus className="h-4 w-4" /> New Structure</Button></DialogTrigger>
+              <DialogTrigger asChild>
+                <Button>
+                  <Plus className="h-4 w-4" /> New Structure
+                </Button>
+              </DialogTrigger>
               <DialogContent>
-                <DialogHeader><DialogTitle>New Fee Structure</DialogTitle></DialogHeader>
+                <DialogHeader>
+                  <DialogTitle>New Fee Structure</DialogTitle>
+                </DialogHeader>
                 <div className="space-y-3">
-                  <div className="space-y-1.5"><Label>Name</Label><Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="e.g. Class 1 - 2025-26" /></div>
-                  <div className="space-y-1.5"><Label>Academic Session</Label>
-                    <Select value={form.academic_session_id} onValueChange={(v) => setForm({ ...form, academic_session_id: v })}>
-                      <SelectTrigger><SelectValue placeholder="Select session" /></SelectTrigger>
-                      <SelectContent>{sessions.data?.map((s) => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}</SelectContent>
+                  <div className="space-y-1.5">
+                    <Label>Name</Label>
+                    <Input
+                      value={form.name}
+                      onChange={(e) => setForm({ ...form, name: e.target.value })}
+                      placeholder="e.g. Class 1 - 2025-26"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label>Academic Session</Label>
+                    <Select
+                      value={form.academic_session_id}
+                      onValueChange={(v) => setForm({ ...form, academic_session_id: v })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select session" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {sessions.data?.map((s) => (
+                          <SelectItem key={s.id} value={s.id}>
+                            {s.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
                     </Select>
                   </div>
-                  <div className="space-y-1.5"><Label>Class</Label>
-                    <Select value={form.class_id} onValueChange={(v) => setForm({ ...form, class_id: v })}>
-                      <SelectTrigger><SelectValue placeholder="Select class" /></SelectTrigger>
-                      <SelectContent>{classes.data?.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}</SelectContent>
+                  <div className="space-y-1.5">
+                    <Label>Class</Label>
+                    <Select
+                      value={form.class_id}
+                      onValueChange={(v) => setForm({ ...form, class_id: v })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select class" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {classes.data?.map((c) => (
+                          <SelectItem key={c.id} value={c.id}>
+                            {c.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
                     </Select>
                   </div>
-                  <p className="text-xs text-muted-foreground">You'll be taken to the editor to set fee amounts.</p>
+                  <p className="text-xs text-muted-foreground">
+                    You'll be taken to the editor to set fee amounts.
+                  </p>
                 </div>
                 <DialogFooter>
-                  <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
-                  <Button onClick={() => create.mutate()} disabled={create.isPending}>{create.isPending && <Loader2 className="h-4 w-4 animate-spin" />} Create & Configure</Button>
+                  <Button variant="outline" onClick={() => setOpen(false)}>
+                    Cancel
+                  </Button>
+                  <Button onClick={() => create.mutate()} disabled={create.isPending}>
+                    {create.isPending && <Loader2 className="h-4 w-4 animate-spin" />} Create &
+                    Configure
+                  </Button>
                 </DialogFooter>
               </DialogContent>
             </Dialog>
@@ -156,23 +241,43 @@ function FeeStructuresList() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {structures.data?.length ? structures.data.map((s) => {
-                const status = statusFor(s.id);
-                return (
-                  <TableRow key={s.id}>
-                    <TableCell className="font-medium">
-                      <Link to="/fees/structures/$structureId" params={{ structureId: s.id }} className="hover:underline">{s.name}</Link>
-                    </TableCell>
-                    <TableCell>{s.academic_sessions?.name ?? "—"}</TableCell>
-                    <TableCell>{s.school_classes?.name ?? "—"}</TableCell>
-                    <TableCell>
-                      <Badge variant={status === "Complete" ? "default" : "secondary"}>{status}</Badge>
-                    </TableCell>
-                    <TableCell><Button asChild size="sm" variant="ghost"><Link to="/fees/structures/$structureId" params={{ structureId: s.id }}><Pencil className="h-4 w-4" /></Link></Button></TableCell>
-                  </TableRow>
-                );
-              }) : (
-                <TableRow><TableCell colSpan={5} className="text-center py-8 text-muted-foreground">No structures yet. Click "New Structure" to create one.</TableCell></TableRow>
+              {structures.data?.length ? (
+                structures.data.map((s) => {
+                  const status = statusFor(s.id);
+                  return (
+                    <TableRow key={s.id}>
+                      <TableCell className="font-medium">
+                        <Link
+                          to="/fees/structures/$structureId"
+                          params={{ structureId: s.id }}
+                          className="hover:underline"
+                        >
+                          {s.name}
+                        </Link>
+                      </TableCell>
+                      <TableCell>{s.academic_sessions?.name ?? "—"}</TableCell>
+                      <TableCell>{s.school_classes?.name ?? "—"}</TableCell>
+                      <TableCell>
+                        <Badge variant={status === "Complete" ? "default" : "secondary"}>
+                          {status}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Button asChild size="sm" variant="ghost">
+                          <Link to="/fees/structures/$structureId" params={{ structureId: s.id }}>
+                            <Pencil className="h-4 w-4" />
+                          </Link>
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                    No structures yet. Click "New Structure" to create one.
+                  </TableCell>
+                </TableRow>
               )}
             </TableBody>
           </Table>

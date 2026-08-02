@@ -79,9 +79,16 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "Nandan Kids H.S. School — ERP" },
-      { name: "description", content: "Cloud-based School ERP for Nandan Kids Higher Secondary School: admissions, students, fees, attendance, exams and reports." },
+      {
+        name: "description",
+        content:
+          "Cloud-based School ERP for Nandan Kids Higher Secondary School: admissions, students, fees, attendance, exams and reports.",
+      },
       { property: "og:title", content: "Nandan Kids H.S. School — ERP" },
-      { property: "og:description", content: "Cloud-based School ERP for Nandan Kids Higher Secondary School." },
+      {
+        property: "og:description",
+        content: "Cloud-based School ERP for Nandan Kids Higher Secondary School.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],

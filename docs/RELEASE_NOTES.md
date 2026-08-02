@@ -31,25 +31,24 @@ Go-live readiness is tracked in
 [GO_LIVE_CHECKLIST.md](./GO_LIVE_CHECKLIST.md); first-time setup is documented
 in [BOOTSTRAP.md](./BOOTSTRAP.md).
 
-
 ## Features
 
-| Area | What you can do |
-| --- | --- |
-| Dashboard | See operational counters; the very first user claims the admin role |
-| Students | Admit, search, edit, archive; manage documents and academic history |
-| Admission | Guided form with validation; fee structure assigned automatically in one transaction |
-| Promotion | Bulk promotion wizard with preview and alphabetical roll-number regeneration |
-| Fees — setup | Global fee heads, session+class fee structures, Draft/Complete status, lock |
-| Fees — ledger | Idempotent schedule generation, July→April tuition, opening balances with itemised breakup |
-| Fees — collection | Quick Collect, Manual Allocation and Opening Balance Only, with allocation preview |
-| Fees — receipts | Receipt register, receipt detail with print, void-with-reason workflow |
-| Fees — reporting | Five KPI cards with drill-down reports, opening balance report with Excel export |
-| Concessions | Amount or percentage concessions per head or across all heads, with approval |
-| Teachers | Confidential HR records, auto employee code, bank/salary details, private documents |
-| Examinations | Configuration masters: subjects, components, grade scales, versioned patterns |
-| Activity Center | Global append-only audit trail with human-readable summaries |
-| Settings | School profile, sessions, classes, sections, houses, fee heads, users, invitations, system health |
+| Area              | What you can do                                                                                   |
+| ----------------- | ------------------------------------------------------------------------------------------------- |
+| Dashboard         | See operational counters; the very first user claims the admin role                               |
+| Students          | Admit, search, edit, archive; manage documents and academic history                               |
+| Admission         | Guided form with validation; fee structure assigned automatically in one transaction              |
+| Promotion         | Bulk promotion wizard with preview and alphabetical roll-number regeneration                      |
+| Fees — setup      | Global fee heads, session+class fee structures, Draft/Complete status, lock                       |
+| Fees — ledger     | Idempotent schedule generation, July→April tuition, opening balances with itemised breakup        |
+| Fees — collection | Quick Collect, Manual Allocation and Opening Balance Only, with allocation preview                |
+| Fees — receipts   | Receipt register, receipt detail with print, void-with-reason workflow                            |
+| Fees — reporting  | Five KPI cards with drill-down reports, opening balance report with Excel export                  |
+| Concessions       | Amount or percentage concessions per head or across all heads, with approval                      |
+| Teachers          | Confidential HR records, auto employee code, bank/salary details, private documents               |
+| Examinations      | Configuration masters: subjects, components, grade scales, versioned patterns                     |
+| Activity Center   | Global append-only audit trail with human-readable summaries                                      |
+| Settings          | School profile, sessions, classes, sections, houses, fee heads, users, invitations, system health |
 
 ## Improvements
 

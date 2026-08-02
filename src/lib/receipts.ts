@@ -72,8 +72,10 @@ export function canVoidReceipt(
   perms: { canVoidReceipt: boolean },
   reason: string,
 ): VoidGuard {
-  if (!perms.canVoidReceipt) return { allowed: false, reason: "Only Admin / Super Admin can void a receipt." };
+  if (!perms.canVoidReceipt)
+    return { allowed: false, reason: "Only Admin / Super Admin can void a receipt." };
   if (receipt.is_void) return { allowed: false, reason: "This receipt is already void." };
-  if (reason.trim().length < 5) return { allowed: false, reason: "A void reason of at least 5 characters is required." };
+  if (reason.trim().length < 5)
+    return { allowed: false, reason: "A void reason of at least 5 characters is required." };
   return { allowed: true };
 }

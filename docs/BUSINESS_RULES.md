@@ -6,36 +6,36 @@ noted so you know what can and cannot be bypassed.
 
 ## Roles & permissions
 
-- Roles live only in `user_roles`; never on `profiles` or `students`. *(DB)*
-- `super_admin` implies `admin` in UI permission checks. *(UI: `use-user-role.ts`)*
+- Roles live only in `user_roles`; never on `profiles` or `students`. _(DB)_
+- `super_admin` implies `admin` in UI permission checks. _(UI: `use-user-role.ts`)_
 - The first authenticated user may call `claim_first_admin()` to become
-  `admin` + `super_admin` — only while no super admin exists. *(DB)*
-- Teacher records are Super Admin only, in both the sidebar/routes and RLS. *(UI + DB)*
+  `admin` + `super_admin` — only while no super admin exists. _(DB)_
+- Teacher records are Super Admin only, in both the sidebar/routes and RLS. _(UI + DB)_
 - **Settings is Super Admin editable only** — every tab receives
-  `canEdit={isSuperAdmin}`; other roles get a "View only" badge. *(UI)*
+  `canEdit={isSuperAdmin}`; other roles get a "View only" badge. _(UI)_
 - The Dashboard "Claim admin role" banner shows only for a signed-in user with
-  no role, and `claim_first_admin()` refuses once a super admin exists. *(UI + DB)*
+  no role, and `claim_first_admin()` refuses once a super admin exists. _(UI + DB)_
 - Permission matrix: see [MODULES.md](./MODULES.md).
 
 ## Academic sessions
 
-- Status is one of `Draft`, `Active`, `Closed`; `is_active` is derived from it. *(DB trigger)*
-- **Only one Active session** at any time. *(DB partial unique index)*
+- Status is one of `Draft`, `Active`, `Closed`; `is_active` is derived from it. _(DB trigger)_
+- **Only one Active session** at any time. _(DB partial unique index)_
 - Allowed transitions: Draft→Active, Active→Closed, Active→Draft, Closed→Draft.
-  Closed→Active and Draft→Closed are rejected. *(DB trigger)*
-- Classes belong to a session; sections belong to a class. *(DB FKs + trigger)*
+  Closed→Active and Draft→Closed are rejected. _(DB trigger)_
+- Classes belong to a session; sections belong to a class. _(DB FKs + trigger)_
 
 ## Student lifecycle
 
-- `scholar_number` is continuous: next = `max(numeric scholar_number) + 1`. *(DB `next_scholar_number()`)*
+- `scholar_number` is continuous: next = `max(numeric scholar_number) + 1`. _(DB `next_scholar_number()`)_
 - Admission requires the mandatory fields collected by the admission form; the
-  submit button stays disabled until they are valid. *(UI)*
+  submit button stays disabled until they are valid. _(UI)_
 - Section is optional when the selected class has no sections; roll number is
-  optional at admission. *(UI)*
-- A section must belong to the selected class. *(DB trigger)*
+  optional at admission. _(UI)_
+- A section must belong to the selected class. _(DB trigger)_
 - Student statuses used by the app: **Active, Left, Passed Out, Inactive**
   (the enum also contains `Promoted`/`Transferred` used by promotion). Marking a
-  student Left captures `date_of_leaving` and `reason_for_leaving`. *(UI)*
+  student Left captures `date_of_leaving` and `reason_for_leaving`. _(UI)_
 - Historical statuses were deliberately **not** migrated.
 - One `student_academic_records` row per student per session; the promotion
   chain is tracked by `promoted_from_record_id`.
@@ -51,9 +51,9 @@ noted so you know what can and cannot be bypassed.
   - more than 1 match → blocked, duplicate must be resolved.
 - "Complete" = the structure has at least one item with amount > 0 **and** every
   active mandatory fee head is configured with amount > 0.
-  *(DB `is_fee_structure_complete()`)*
+  _(DB `is_fee_structure_complete()`)_
 - Any `Active` academic record must reference an active, complete structure that
-  matches its class and session. *(DB trigger)*
+  matches its class and session. _(DB trigger)_
 - Existing records missing a structure can be repaired with
   `link_academic_record_fee_structure()` (admin / super admin only).
 
@@ -101,7 +101,7 @@ Rules:
   the default comes from `fee_settings.default_collection_mode`.
 - **Partial payments are not allowed.** Quick Collect and Opening Balance Only
   require the exact outstanding amount; Manual Allocation requires the selected
-  rows to be settled in full. Violations show an inline error banner. *(UI)*
+  rows to be settled in full. Violations show an inline error banner. _(UI)_
 - Outstanding of a row = `due_amount − concession_amount − paid_amount`.
 - `paid_amount` and `status` on the schedule are recomputed by triggers from
   non-void allocations only — never written by the client.
@@ -114,7 +114,7 @@ Rules:
 - Payments are **immutable**: `DELETE` is denied. Corrections are
   **void and re-post** only.
 - Void requires a mandatory reason and is restricted to admin / super admin;
-  it records `voided_by`/`voided_at` and reverses the ledger via trigger. *(UI + DB)*
+  it records `voided_by`/`voided_at` and reverses the ledger via trigger. _(UI + DB)_
 - Receipt numbers are clickable everywhere they appear and link to the receipt
   detail screen; print count and last printed timestamp are tracked.
 
@@ -122,7 +122,7 @@ Rules:
 
 - Recorded per student + session, optionally per fee head, as an amount or a
   percentage, with an approver and approval date.
-- Approval is limited to admin / principal (`canApproveConcession`). *(UI)*
+- Approval is limited to admin / principal (`canApproveConcession`). _(UI)_
 - All concession changes are written to the activity log.
 
 ## Opening balances
@@ -142,19 +142,19 @@ Rules:
   (`bulk_promote_students`), creating new academic records, linking the fee
   structure and generating the schedule.
 - Roll numbers in affected classes are regenerated **alphabetically by name**
-  (tie-break: scholar number). *(DB `regenerate_class_roll_numbers`, admin/
-  super_admin/principal only)*
+  (tie-break: scholar number). _(DB `regenerate_class_roll_numbers`, admin/
+  super_admin/principal only)_
 
 ## Examinations
 
 - Exam masters may be managed by admin, super_admin or principal
   (`can_manage_exam_masters`).
-- Grade bands within a scale may not overlap. *(DB trigger)*
+- Grade bands within a scale may not overlap. _(DB trigger)_
 - Patterns are versioned: `version_exam_pattern()` creates the next version and
   deactivates the previous one; `clone_exam_pattern()` copies a pattern into
   another session as version 1.
 - A locked pattern cannot be edited (name, version, session, grade scale,
-  parent) or deleted, and its terms/classes cannot change. *(DB trigger)*
+  parent) or deleted, and its terms/classes cannot change. _(DB trigger)_
 
 ## Teachers
 

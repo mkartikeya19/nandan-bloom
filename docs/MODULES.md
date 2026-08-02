@@ -6,19 +6,19 @@ policies / `has_role()` checks in the database.
 Role flags: `super_admin`, `admin` (super admin implies admin), `principal`,
 `reception`, `teacher`, `staff`.
 
-| Permission flag | Granted to |
-| --- | --- |
-| `canCreateStudent` | admin, reception |
-| `canEditStudent` | admin |
-| `canPromoteStudent` | admin, principal |
-| `canArchiveStudent` | admin |
+| Permission flag                                   | Granted to           |
+| ------------------------------------------------- | -------------------- |
+| `canCreateStudent`                                | admin, reception     |
+| `canEditStudent`                                  | admin                |
+| `canPromoteStudent`                               | admin, principal     |
+| `canArchiveStudent`                               | admin                |
 | `canViewStudent` / `canViewFees` / `canViewExams` | any user with a role |
-| `canManageFeeStructures` | admin |
-| `canCollectFee` | admin, reception |
-| `canVoidReceipt` | admin |
-| `canApproveConcession` | admin, principal |
-| `canManageExams` | admin, principal |
-| `canManageTeachers` / `canViewTeachers` | super_admin only |
+| `canManageFeeStructures`                          | admin                |
+| `canCollectFee`                                   | admin, reception     |
+| `canVoidReceipt`                                  | admin                |
+| `canApproveConcession`                            | admin, principal     |
+| `canManageExams`                                  | admin, principal     |
+| `canManageTeachers` / `canViewTeachers`           | super_admin only     |
 
 Settings editing is **not** driven by these flags: every Settings tab receives
 `canEdit={isSuperAdmin}`, so only a Super Admin can change school configuration.
@@ -31,6 +31,7 @@ routes but are intentionally not linked from the sidebar.
 ---
 
 ## 1. Dashboard — `/dashboard`
+
 **Purpose:** at-a-glance operational summary.
 **Features:** stat cards (students, fees, attendance, exams style counters) and a
 "Claim admin role" banner that appears only for a signed-in user who has no role
@@ -38,8 +39,10 @@ yet and calls `claim_first_admin()`.
 **Permissions:** any authenticated user.
 
 ## 2. Students — `/students`
+
 **Purpose:** the student master and enrolment lifecycle.
 **Screens**
+
 - `/students` — list with free-text search (scholar number, name, father's
   name), session → class → section cascading filters (class disabled until a
   session is chosen, section until a class is chosen), pagination, and Import /
@@ -65,6 +68,7 @@ repair action for records without a structure.
 activity log.
 
 ## 3. Promotion — `/students/promote`
+
 **Purpose:** move a whole class/session cohort to the next session.
 **Features:** source session/class selection, destination session/class/section,
 per-student action (Promote / Retain / Exclude), promotion settings step,
@@ -75,12 +79,14 @@ A single-student `PromoteDialog` is also available from the student profile.
 **Permissions:** admin, principal.
 
 ## 4. Fee Management — `/fees`
+
 **Purpose:** structures, ledgers, collection, receipts and reporting.
 
 Sub-navigation (`components/fees/fees-tabs.tsx`): Dashboard · Fee Structures ·
 Collect Fee · Receipts · Concessions · Opening Balance Migration · Settings.
 
 **Screens**
+
 - `/fees` — dashboard with five KPI cards (Today's Collection, This Month,
   Outstanding, Students with Pending Fee, Receipts Today), each linking to
   `/fees/report/<view>`, plus the 10 most recent receipts with clickable receipt
@@ -112,8 +118,10 @@ viewing = any role.
 academic records.
 
 ## 5. Examinations — `/examinations`
+
 **Purpose:** examination masters (Phase 1 — configuration only).
 **Screens**
+
 - `/examinations` — landing page with cards for Subjects, Exam Patterns and
   Grade Scales, plus a disabled "Marks Entry — Available in Phase 2" card.
 - `/examinations/subjects` — subject master plus class-subject mapping and
@@ -128,6 +136,7 @@ academic records.
 **Not implemented:** marks entry, results and report cards.
 
 ## 6. Teachers — `/teachers`
+
 **Purpose:** teacher/staff HR records (confidential).
 **Screens:** `/teachers` list (search, status filter, archive toggle) and
 `/teachers/:teacherId` with tabs **Profile, Documents, Activity** — basic
@@ -139,6 +148,7 @@ Active/Inactive status, archive.
 everyone else and RLS enforces the same.
 
 ## 7. Activity Center — `/activity`
+
 **Purpose:** global audit trail.
 **Features:** filter by module/action/date, human-readable summaries produced by
 `src/lib/activity-format.ts`, user attribution joined to `profiles`.
@@ -148,18 +158,19 @@ opening-balance edits.
 **Permissions:** role-scoped read; the log is append-only.
 
 ## 8. Settings — `/settings`
+
 Tabbed screen, one component per tab in `src/components/settings/`:
 
-| Tab | Purpose |
-| --- | --- |
-| School Profile | school identity and affiliation details |
-| Academic Sessions | sessions with Draft/Active/Closed lifecycle |
-| Classes | classes per session with ordering |
-| Sections | sections per class |
-| Houses | house master |
-| Fee Heads | global fee heads: frequency, applicable months, applicability, auto-generate, charge trigger, mandatory, active, sort order |
-| Users | user list and role assignment (`user_roles`) |
-| System Health | data-integrity checks (e.g. records missing fee structures) |
+| Tab               | Purpose                                                                                                                     |
+| ----------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| School Profile    | school identity and affiliation details                                                                                     |
+| Academic Sessions | sessions with Draft/Active/Closed lifecycle                                                                                 |
+| Classes           | classes per session with ordering                                                                                           |
+| Sections          | sections per class                                                                                                          |
+| Houses            | house master                                                                                                                |
+| Fee Heads         | global fee heads: frequency, applicable months, applicability, auto-generate, charge trigger, mandatory, active, sort order |
+| Users             | user list and role assignment (`user_roles`)                                                                                |
+| System Health     | data-integrity checks (e.g. records missing fee structures)                                                                 |
 
 Only Super Admins can edit; everyone else sees a "View only" badge and the
 read-only notice (`read-only-notice.tsx`).

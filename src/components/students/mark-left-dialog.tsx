@@ -6,7 +6,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
@@ -20,7 +25,13 @@ interface Props {
   currentRecordId?: string | null;
 }
 
-export function MarkLeftDialog({ open, onOpenChange, studentId, studentName, currentRecordId }: Props) {
+export function MarkLeftDialog({
+  open,
+  onOpenChange,
+  studentId,
+  studentName,
+  currentRecordId,
+}: Props) {
   const qc = useQueryClient();
   const [dateOfLeaving, setDateOfLeaving] = useState(new Date().toISOString().slice(0, 10));
   const [reason, setReason] = useState("");
@@ -67,21 +78,33 @@ export function MarkLeftDialog({ open, onOpenChange, studentId, studentName, cur
         <DialogHeader>
           <DialogTitle>Mark {studentName} as Left</DialogTitle>
           <DialogDescription>
-            The student will remain searchable with complete history, but will not appear in Attendance, Fee Collection or Promotion.
+            The student will remain searchable with complete history, but will not appear in
+            Attendance, Fee Collection or Promotion.
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-3">
           <div className="space-y-1.5">
             <Label>Date of Leaving *</Label>
-            <Input type="date" value={dateOfLeaving} onChange={(e) => setDateOfLeaving(e.target.value)} />
+            <Input
+              type="date"
+              value={dateOfLeaving}
+              onChange={(e) => setDateOfLeaving(e.target.value)}
+            />
           </div>
           <div className="space-y-1.5">
             <Label>Reason for Leaving (optional)</Label>
-            <Textarea rows={3} value={reason} onChange={(e) => setReason(e.target.value)} placeholder="e.g. Transferred, family relocation…" />
+            <Textarea
+              rows={3}
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              placeholder="e.g. Transferred, family relocation…"
+            />
           </div>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
+            Cancel
+          </Button>
           <Button onClick={() => mutation.mutate()} disabled={mutation.isPending}>
             {mutation.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
             Mark as Left

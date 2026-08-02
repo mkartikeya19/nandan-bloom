@@ -5,10 +5,18 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle,
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
 } from "@/components/ui/dialog";
 import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
@@ -22,7 +30,13 @@ interface Props {
   currentRecordId?: string | null;
 }
 
-export function PromoteDialog({ open, onOpenChange, studentId, studentName, currentRecordId }: Props) {
+export function PromoteDialog({
+  open,
+  onOpenChange,
+  studentId,
+  studentName,
+  currentRecordId,
+}: Props) {
   const qc = useQueryClient();
   const [sessionId, setSessionId] = useState("");
   const [classId, setClassId] = useState("");
@@ -35,7 +49,10 @@ export function PromoteDialog({ open, onOpenChange, studentId, studentName, curr
   const { data: sessions } = useQuery({
     queryKey: ["ref-sessions"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("academic_sessions").select("id, name, is_active").order("start_date", { ascending: false });
+      const { data, error } = await supabase
+        .from("academic_sessions")
+        .select("id, name, is_active")
+        .order("start_date", { ascending: false });
       if (error) throw error;
       return data;
     },
@@ -44,7 +61,11 @@ export function PromoteDialog({ open, onOpenChange, studentId, studentName, curr
     queryKey: ["ref-classes", sessionId],
     enabled: !!sessionId,
     queryFn: async () => {
-      const { data, error } = await supabase.from("school_classes").select("id, name, order_index").eq("session_id", sessionId).order("order_index");
+      const { data, error } = await supabase
+        .from("school_classes")
+        .select("id, name, order_index")
+        .eq("session_id", sessionId)
+        .order("order_index");
       if (error) throw error;
       return data;
     },
@@ -53,7 +74,11 @@ export function PromoteDialog({ open, onOpenChange, studentId, studentName, curr
     queryKey: ["ref-sections", classId],
     enabled: !!classId,
     queryFn: async () => {
-      const { data, error } = await supabase.from("school_sections").select("id, name").eq("class_id", classId).order("name");
+      const { data, error } = await supabase
+        .from("school_sections")
+        .select("id, name")
+        .eq("class_id", classId)
+        .order("name");
       if (error) throw error;
       return data;
     },
@@ -69,7 +94,8 @@ export function PromoteDialog({ open, onOpenChange, studentId, studentName, curr
 
   const promote = useMutation({
     mutationFn: async () => {
-      if (!sessionId || !classId || !sectionId) throw new Error("Session, class, and section are required");
+      if (!sessionId || !classId || !sectionId)
+        throw new Error("Session, class, and section are required");
       let feeStructureId: string | null = null;
       if (status === "Active") {
         const { data: matches, error: matchErr } = await supabase
@@ -80,10 +106,14 @@ export function PromoteDialog({ open, onOpenChange, studentId, studentName, curr
           .eq("is_active", true);
         if (matchErr) throw matchErr;
         if (!matches?.length) {
-          throw new Error("No Complete Fee Structure exists for this class and session. Please complete a Fee Structure before admitting the student.");
+          throw new Error(
+            "No Complete Fee Structure exists for this class and session. Please complete a Fee Structure before admitting the student.",
+          );
         }
         if (matches.length > 1) {
-          throw new Error("Multiple active Fee Structures found. Please resolve the duplicate before admitting students.");
+          throw new Error(
+            "Multiple active Fee Structures found. Please resolve the duplicate before admitting students.",
+          );
         }
         feeStructureId = matches[0].id;
       }
@@ -120,37 +150,71 @@ export function PromoteDialog({ open, onOpenChange, studentId, studentName, curr
           <div className="space-y-1.5">
             <Label>Academic Session *</Label>
             <Select value={sessionId} onValueChange={setSessionId}>
-              <SelectTrigger><SelectValue placeholder="Select session" /></SelectTrigger>
+              <SelectTrigger>
+                <SelectValue placeholder="Select session" />
+              </SelectTrigger>
               <SelectContent>
-                {sessions?.map((s) => <SelectItem key={s.id} value={s.id}>{s.name}{s.is_active ? " (active)" : ""}</SelectItem>)}
+                {sessions?.map((s) => (
+                  <SelectItem key={s.id} value={s.id}>
+                    {s.name}
+                    {s.is_active ? " (active)" : ""}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
           <div className="space-y-1.5">
             <Label>Class *</Label>
-            <Select value={classId} onValueChange={(v) => { setClassId(v); setSectionId(""); }}>
-              <SelectTrigger><SelectValue placeholder="Select class" /></SelectTrigger>
+            <Select
+              value={classId}
+              onValueChange={(v) => {
+                setClassId(v);
+                setSectionId("");
+              }}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select class" />
+              </SelectTrigger>
               <SelectContent>
-                {classes?.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
+                {classes?.map((c) => (
+                  <SelectItem key={c.id} value={c.id}>
+                    {c.name}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
           <div className="space-y-1.5">
             <Label>Section *</Label>
             <Select value={sectionId} onValueChange={setSectionId}>
-              <SelectTrigger><SelectValue placeholder="Select section" /></SelectTrigger>
+              <SelectTrigger>
+                <SelectValue placeholder="Select section" />
+              </SelectTrigger>
               <SelectContent>
-                {sections?.map((s) => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
+                {sections?.map((s) => (
+                  <SelectItem key={s.id} value={s.id}>
+                    {s.name}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
           <div className="space-y-1.5">
             <Label>House</Label>
-            <Select value={houseId || "none"} onValueChange={(v) => setHouseId(v === "none" ? "" : v)}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+            <Select
+              value={houseId || "none"}
+              onValueChange={(v) => setHouseId(v === "none" ? "" : v)}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
               <SelectContent>
                 <SelectItem value="none">— None —</SelectItem>
-                {houses?.map((h) => <SelectItem key={h.id} value={h.id}>{h.name}</SelectItem>)}
+                {houses?.map((h) => (
+                  <SelectItem key={h.id} value={h.id}>
+                    {h.name}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
@@ -165,9 +229,15 @@ export function PromoteDialog({ open, onOpenChange, studentId, studentName, curr
           <div className="space-y-1.5 sm:col-span-2">
             <Label>Status</Label>
             <Select value={status} onValueChange={(v) => setStatus(v as StudentStatus)}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
               <SelectContent>
-                {STUDENT_STATUS_VALUES.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+                {STUDENT_STATUS_VALUES.map((s) => (
+                  <SelectItem key={s} value={s}>
+                    {s}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
@@ -176,7 +246,9 @@ export function PromoteDialog({ open, onOpenChange, studentId, studentName, curr
           A new academic record will be created. Previous records are preserved and unchanged.
         </p>
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
+            Cancel
+          </Button>
           <Button onClick={() => promote.mutate()} disabled={promote.isPending}>
             {promote.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
             Promote

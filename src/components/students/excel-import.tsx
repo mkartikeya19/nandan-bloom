@@ -4,7 +4,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Download, Upload, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
@@ -41,7 +48,13 @@ export function ExcelImport() {
   const [invalid, setInvalid] = useState<InvalidRow[]>([]);
   const [validating, setValidating] = useState(false);
   const [imported, setImported] = useState<number | null>(null);
-  const [summary, setSummary] = useState<{ imported: number; highest: string; next: string; duplicates: number; skipped: number } | null>(null);
+  const [summary, setSummary] = useState<{
+    imported: number;
+    highest: string;
+    next: string;
+    duplicates: number;
+    skipped: number;
+  } | null>(null);
 
   const { data: refs } = useQuery({
     queryKey: ["import-refs"],
@@ -83,7 +96,8 @@ export function ExcelImport() {
         const className = cleanStr(r["Class"]);
         const sectionName = cleanStr(r["Section"]);
         const houseName = cleanStr(r["House"]);
-        const joinedOn = cleanStr(r["Joined On (YYYY-MM-DD)"]) ?? doa ?? new Date().toISOString().slice(0, 10);
+        const joinedOn =
+          cleanStr(r["Joined On (YYYY-MM-DD)"]) ?? doa ?? new Date().toISOString().slice(0, 10);
 
         if (!scholar) errors.push("Missing Scholar Number");
         if (!name) errors.push("Missing Full Name");
@@ -101,10 +115,14 @@ export function ExcelImport() {
         const session = refs.sessions.find((s) => s.name === sessionName);
         if (sessionName && !session) errors.push(`Session "${sessionName}" not found`);
 
-        const cls = session ? refs.classes.find((c) => c.name === className && c.session_id === session.id) : undefined;
+        const cls = session
+          ? refs.classes.find((c) => c.name === className && c.session_id === session.id)
+          : undefined;
         if (className && !cls) errors.push(`Class "${className}" not found in session`);
 
-        const sec = cls ? refs.sections.find((s) => s.name === sectionName && s.class_id === cls.id) : undefined;
+        const sec = cls
+          ? refs.sections.find((s) => s.name === sectionName && s.class_id === cls.id)
+          : undefined;
         if (sectionName && !sec) errors.push(`Section "${sectionName}" not found in class`);
 
         const house = houseName ? refs.houses.find((h) => h.name === houseName) : undefined;
@@ -199,7 +217,9 @@ export function ExcelImport() {
       const { data: nextData } = await (supabase as any).rpc("next_scholar_number");
       const next = String(nextData ?? "");
       const highest = next ? String(Number(next) - 1) : "—";
-      const duplicates = invalid.filter((r) => r.errors.some((e) => e.toLowerCase().includes("scholar number"))).length;
+      const duplicates = invalid.filter((r) =>
+        r.errors.some((e) => e.toLowerCase().includes("scholar number")),
+      ).length;
       setSummary({
         imported: count,
         highest,
@@ -215,7 +235,9 @@ export function ExcelImport() {
     <div className="space-y-4">
       {summary && (
         <Card className="border-primary/40 bg-primary/5">
-          <CardHeader><CardTitle className="text-base">Import Summary</CardTitle></CardHeader>
+          <CardHeader>
+            <CardTitle className="text-base">Import Summary</CardTitle>
+          </CardHeader>
           <CardContent className="grid grid-cols-2 md:grid-cols-5 gap-3 text-sm">
             <SummaryStat label="Students Imported" value={summary.imported} />
             <SummaryStat label="Highest Scholar No." value={summary.highest} />
@@ -234,7 +256,8 @@ export function ExcelImport() {
             <Download className="h-4 w-4" /> Download Excel template
           </Button>
           <p className="text-xs text-muted-foreground mt-2">
-            The template has {IMPORT_COLUMNS.length} columns. Values for Academic Session, Class, Section, and House must match existing entries in Settings.
+            The template has {IMPORT_COLUMNS.length} columns. Values for Academic Session, Class,
+            Section, and House must match existing entries in Settings.
           </p>
         </CardContent>
       </Card>
@@ -245,7 +268,11 @@ export function ExcelImport() {
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="flex flex-col sm:flex-row gap-3">
-            <Input type="file" accept=".xlsx,.xls" onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
+            <Input
+              type="file"
+              accept=".xlsx,.xls"
+              onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+            />
             <Button onClick={handleValidate} disabled={!file || validating}>
               {validating && <Loader2 className="h-4 w-4 animate-spin" />}
               Validate
@@ -253,8 +280,12 @@ export function ExcelImport() {
           </div>
           {(valid.length > 0 || invalid.length > 0) && (
             <div className="flex flex-wrap gap-2 pt-2">
-              <Badge variant="default" className="gap-1"><CheckCircle2 className="h-3 w-3" /> {valid.length} valid</Badge>
-              <Badge variant="destructive" className="gap-1"><AlertCircle className="h-3 w-3" /> {invalid.length} invalid</Badge>
+              <Badge variant="default" className="gap-1">
+                <CheckCircle2 className="h-3 w-3" /> {valid.length} valid
+              </Badge>
+              <Badge variant="destructive" className="gap-1">
+                <AlertCircle className="h-3 w-3" /> {invalid.length} invalid
+              </Badge>
             </div>
           )}
         </CardContent>
@@ -281,7 +312,9 @@ export function ExcelImport() {
                     <TableCell>{r.rowNumber}</TableCell>
                     <TableCell className="font-mono text-xs">{r.scholarNumber || "—"}</TableCell>
                     <TableCell>{r.name || "—"}</TableCell>
-                    <TableCell className="text-destructive text-sm">{r.errors.join("; ")}</TableCell>
+                    <TableCell className="text-destructive text-sm">
+                      {r.errors.join("; ")}
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -294,7 +327,10 @@ export function ExcelImport() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-base">Step 3 — Import valid rows</CardTitle>
-            <Button onClick={() => doImport.mutate()} disabled={doImport.isPending || imported !== null}>
+            <Button
+              onClick={() => doImport.mutate()}
+              disabled={doImport.isPending || imported !== null}
+            >
               {doImport.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
               <Upload className="h-4 w-4" />
               {imported !== null ? `Imported ${imported}` : `Import ${valid.length} row(s)`}
@@ -313,14 +349,18 @@ export function ExcelImport() {
                 {valid.slice(0, 50).map((r) => (
                   <TableRow key={r.rowNumber}>
                     <TableCell>{r.rowNumber}</TableCell>
-                    <TableCell className="font-mono text-xs">{String(r.student.scholar_number)}</TableCell>
+                    <TableCell className="font-mono text-xs">
+                      {String(r.student.scholar_number)}
+                    </TableCell>
                     <TableCell>{String(r.student.full_name)}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
             </Table>
             {valid.length > 50 && (
-              <p className="text-xs text-muted-foreground p-3">Showing first 50 of {valid.length} valid rows.</p>
+              <p className="text-xs text-muted-foreground p-3">
+                Showing first 50 of {valid.length} valid rows.
+              </p>
             )}
           </CardContent>
         </Card>
