@@ -3,6 +3,17 @@
 Read this before changing anything. It captures conventions that are not obvious
 from the code and the failure modes this project has already hit.
 
+**Release state: v1.0.0 — Core ERP Foundation, feature-frozen.** Only production
+bug fixes ship in `v1.0.x`; new functionality targets `v1.1.0`
+([ROADMAP.md](./ROADMAP.md)). The `/docs` folder is the single source of truth —
+a change is not complete until the affected doc is updated in the same commit.
+
+Start here: [WORKFLOW.md](./WORKFLOW.md) for how a flow runs end to end,
+[DECISIONS.md](./DECISIONS.md) for *why* the hard constraints exist,
+[PERMISSIONS.md](./PERMISSIONS.md) for who may do what,
+[SECURITY.md](./SECURITY.md) for the enforcement model, and
+[CONTRIBUTING.md](./CONTRIBUTING.md) for process.
+
 ## Coding conventions
 
 - **TypeScript strict.** No `any` unless wrapping an untyped RPC — and then with
