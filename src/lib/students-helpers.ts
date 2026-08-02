@@ -39,8 +39,7 @@ export async function getSignedStudentUrl(path: string, expiresIn = 3600): Promi
 }
 
 export async function fetchNextScholarNumber(): Promise<string> {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data, error } = await (supabase as any).rpc("next_scholar_number");
+  const { data, error } = await supabase.rpc("next_scholar_number");
   if (error) throw error;
   return String(data);
 }

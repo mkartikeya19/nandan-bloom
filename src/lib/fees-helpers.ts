@@ -159,15 +159,13 @@ export function outstandingOf(r: Pick<ScheduleRow, "due_amount" | "concession_am
 }
 
 export async function generateStudentSchedule(recordId: string): Promise<number> {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data, error } = await (supabase as any).rpc("generate_student_fee_schedule", { _record_id: recordId });
+  const { data, error } = await supabase.rpc("generate_student_fee_schedule", { _record_id: recordId });
   if (error) throw error;
   return Number(data ?? 0);
 }
 
 export async function nextReceiptNumber(): Promise<string> {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data, error } = await (supabase as any).rpc("next_receipt_number");
+  const { data, error } = await supabase.rpc("next_receipt_number");
   if (error) throw error;
   return String(data);
 }
