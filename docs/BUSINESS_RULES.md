@@ -178,3 +178,25 @@ Rules:
   skipped and failed rows with reasons.
 - Amounts are formatted with `formatINR()` (₹, en-IN, 2 decimals); receipts also
   render the amount in words via `amountInWords()`.
+
+## User onboarding (invitation-only)
+
+- Public sign-up is **disabled** in Auth configuration; `/auth` renders sign-in only.
+- Super Admins invite staff from **Settings → Users → Invite user**. The account
+  is provisioned immediately with a one-time temporary password shown once.
+- `user_invitations` records email, roles, inviter and expiry. The
+  `handle_new_user()` trigger grants the invited roles on first sign-in.
+- Pending invitations can be revoked; expired and accepted invitations are kept
+  for audit.
+- The first-ever admin is still bootstrapped via `claim_first_admin()`.
+
+## Server-side financial validation
+
+UI validation is now mirrored in the database, so no client path can bypass it:
+
+- Payment amounts must be positive.
+- `receipt_number` and `amount` are immutable after insert — corrections are
+  void-and-repost only.
+- An allocation can never exceed the outstanding balance of its schedule row,
+  and the sum of allocations can never exceed the receipt total (0.01 tolerance
+  for rounding).

@@ -3,12 +3,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle2, AlertCircle } from "lucide-react";
+import type { Database } from "@/integrations/supabase/types";
 
-async function count(table: string, filter?: { column: string; value: string }) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let q: any = (supabase as any).from(table).select("*", { count: "exact", head: true });
-  if (filter) q = q.eq(filter.column, filter.value);
-  const { count: n, error } = await q;
+type CountableTable = keyof Database["public"]["Tables"];
+
+async function count(table: CountableTable, filter?: { column: string; value: string }) {
+  const base = supabase.from(table).select("*", { count: "exact", head: true });
+  const { count: n, error } = await (filter ? base.eq(filter.column, filter.value) : base);
   if (error) return -1;
   return n ?? 0;
 }

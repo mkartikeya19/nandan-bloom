@@ -1685,6 +1685,48 @@ export type Database = {
         }
         Relationships: []
       }
+      user_invitations: {
+        Row: {
+          accepted_at: string | null
+          accepted_user_id: string | null
+          created_at: string
+          email: string
+          expires_at: string
+          full_name: string | null
+          id: string
+          invited_by: string | null
+          revoked_at: string | null
+          roles: Database["public"]["Enums"]["app_role"][]
+          updated_at: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          accepted_user_id?: string | null
+          created_at?: string
+          email: string
+          expires_at?: string
+          full_name?: string | null
+          id?: string
+          invited_by?: string | null
+          revoked_at?: string | null
+          roles?: Database["public"]["Enums"]["app_role"][]
+          updated_at?: string
+        }
+        Update: {
+          accepted_at?: string | null
+          accepted_user_id?: string | null
+          created_at?: string
+          email?: string
+          expires_at?: string
+          full_name?: string | null
+          id?: string
+          invited_by?: string | null
+          revoked_at?: string | null
+          roles?: Database["public"]["Enums"]["app_role"][]
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -1739,6 +1781,14 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      invite_user: {
+        Args: {
+          _email: string
+          _full_name?: string
+          _roles: Database["public"]["Enums"]["app_role"][]
+        }
+        Returns: string
       }
       is_fee_structure_complete: {
         Args: { _structure_id: string }
