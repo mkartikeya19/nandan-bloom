@@ -42,7 +42,7 @@ export const inviteUser = createServerFn({ method: "POST" })
     const { error: rpcErr } = await context.supabase.rpc("invite_user", {
       _email: data.email,
       _roles: data.roles,
-      _full_name: data.fullName ?? null,
+      _full_name: data.fullName,
     });
     if (rpcErr) throw new Error(rpcErr.message);
 
