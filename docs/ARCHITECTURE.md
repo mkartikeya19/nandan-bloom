@@ -21,8 +21,14 @@ and by `SECURITY DEFINER` functions that re-check `has_role(auth.uid(), …)`.
 TanStack Start provides SSR and the file-based router. `src/server.ts` wraps the
 SSR entry to convert catastrophic errors into a rendered error page.
 `src/start.ts` registers `attachSupabaseAuth` as a client `functionMiddleware`
-and an error-capturing `requestMiddleware`. No `createServerFn` server functions
-are currently used by feature code — business logic lives in the database.
+and an error-capturing `requestMiddleware`. Business logic lives in the database;
+the single `createServerFn` in feature code is
+`src/lib/invitations.functions.ts`, which provisions invited accounts through the
+Auth Admin API — an operation the browser must not perform.
+
+Supabase queries are grouped into feature service modules (`src/services/*`),
+pure domain rules into `src/lib/*` (unit tested), and role capabilities into the
+single `src/lib/permissions.ts` used by `useUserRoles()`.
 
 ## Frontend structure
 
