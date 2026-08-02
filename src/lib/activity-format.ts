@@ -38,6 +38,20 @@ export function formatActivityDetails(
       const reason = s(details, "void_reason") ?? s(details, "reason");
       return reason ? `Receipt voided — ${reason}` : "Receipt voided";
     }
+    if (a.includes("opening balance")) {
+      const stu = s(details, "student_name") ?? s(details, "scholar_number");
+      const amt = n(details, "amount");
+      const rowsN = n(details, "breakup_rows");
+      const mode = s(details, "entry_mode");
+      const rem = s(details, "remarks");
+      const bits: string[] = [];
+      if (amt != null) bits.push(`Opening Balance ${formatINR(amt)}`);
+      if (rowsN != null) bits.push(`${rowsN} breakup row${rowsN === 1 ? "" : "s"}`);
+      if (mode) bits.push(mode);
+      if (stu) bits.push(`for ${stu}`);
+      if (rem) bits.push(rem);
+      if (bits.length) return bits.join(" · ");
+    }
     if (a.includes("orphan") || a.includes("linked fee structure") || a.includes("link fee")) {
       return "Linked fee structure and generated fee schedule";
     }
