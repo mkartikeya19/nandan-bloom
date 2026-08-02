@@ -14,7 +14,6 @@ import { UsersTab } from "@/components/settings/users-tab";
 import { SystemHealthTab } from "@/components/settings/system-health-tab";
 import { DataMigrationTab } from "@/components/settings/data-migration-tab";
 
-
 export const Route = createFileRoute("/_authenticated/settings")({
   component: SettingsPage,
   head: () => ({ meta: [{ title: "Settings — School ERP" }] }),
@@ -54,7 +53,6 @@ function SettingsPage() {
           <TabsTrigger value="users">Users</TabsTrigger>
           <TabsTrigger value="health">System Health</TabsTrigger>
           <TabsTrigger value="migration">Data Migration</TabsTrigger>
-
         </TabsList>
 
         <div className="mt-6">
@@ -85,7 +83,6 @@ function SettingsPage() {
           <TabsContent value="migration">
             <DataMigrationTab />
           </TabsContent>
-
         </div>
       </Tabs>
     </div>
