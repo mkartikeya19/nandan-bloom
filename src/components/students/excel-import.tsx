@@ -323,9 +323,13 @@ export function ExcelImport({ batchType }: { batchType?: "students" } = {}) {
 
       {invalid.length > 0 && (
         <Card>
-          <CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-base">Invalid rows (will be skipped)</CardTitle>
+            <Button variant="outline" size="sm" onClick={exportErrorReport}>
+              <FileDown className="h-4 w-4" /> Export error report
+            </Button>
           </CardHeader>
+
           <CardContent className="p-0">
             <Table>
               <TableHeader>
