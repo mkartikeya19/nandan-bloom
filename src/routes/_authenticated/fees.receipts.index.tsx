@@ -117,15 +117,13 @@ function ReceiptsPage() {
       if (to) query = query.lte("payment_date", to);
       const { data, error } = await query;
       if (error) throw error;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      return ((data as any[]) ?? []).map((p): Row => {
+      return ((data as unknown as PaymentRecord[]) ?? []).map((p): Row => {
         const s = p.students;
         const recs = s?.student_academic_records ?? [];
 
         const rec =
-          recs.find((r: any) => r.academic_session_id === p.academic_session_id) ??
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          recs.find((r: any) => r.status === "Active") ??
+          recs.find((r) => r.academic_session_id === p.academic_session_id) ??
+          recs.find((r) => r.status === "Active") ??
           recs[0];
         return {
           id: p.id,
