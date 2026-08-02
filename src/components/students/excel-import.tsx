@@ -202,7 +202,23 @@ export function ExcelImport({ batchType }: { batchType?: "students" } = {}) {
     }
   }
 
+  function exportErrorReport() {
+    if (invalid.length === 0) return;
+    const ws = XLSX.utils.json_to_sheet(
+      invalid.map((r) => ({
+        Row: r.rowNumber,
+        "Scholar Number": r.scholarNumber,
+        "Full Name": r.name,
+        Errors: r.errors.join("; "),
+      })),
+    );
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Errors");
+    XLSX.writeFile(wb, `student-import-errors-${new Date().toISOString().slice(0, 10)}.xlsx`);
+  }
+
   const doImport = useMutation({
+
     mutationFn: async () => {
       let ok = 0;
       const items: MigrationBatchItemInput[] = [];
