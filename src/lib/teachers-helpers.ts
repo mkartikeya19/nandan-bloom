@@ -46,8 +46,7 @@ export async function getSignedTeacherUrl(path: string, expiresIn = 3600): Promi
 }
 
 export async function fetchNextEmployeeCode(): Promise<string> {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data, error } = await (supabase as any).rpc("next_employee_code");
+  const { data, error } = await supabase.rpc("next_employee_code");
   if (error) throw error;
   return String(data);
 }

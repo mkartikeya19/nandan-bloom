@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import type { Json } from "@/integrations/supabase/types";
 
 export type ActivityModule =
   | "Students"
@@ -34,8 +35,7 @@ export async function logActivity({ module, action, entityType, entityId, detail
       action,
       entity_type: entityType ?? null,
       entity_id: entityId ?? null,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      details: (details ?? {}) as any,
+      details: (details ?? {}) as Json,
     });
   } catch {
     // swallow
