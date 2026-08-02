@@ -7,6 +7,10 @@ examination masters, teacher HR records and an audit/activity log.
 > This documentation describes the **current implementation only**. Anything not
 > listed here is not built.
 
+**Current release: v1.0.0 — Core ERP Foundation.** Core modules are
+feature-frozen; see [CHANGELOG.md](./CHANGELOG.md) and
+[RELEASE_NOTES.md](./RELEASE_NOTES.md).
+
 ## Documentation index
 
 | File | Contents |
@@ -15,8 +19,20 @@ examination masters, teacher HR records and an audit/activity log.
 | [DATABASE.md](./DATABASE.md) | Tables, columns, enums, relationships, RPCs, triggers, migrations |
 | [MODULES.md](./MODULES.md) | Every implemented module, screens, permissions |
 | [BUSINESS_RULES.md](./BUSINESS_RULES.md) | Rules enforced in code and in the database |
+| [WORKFLOW.md](./WORKFLOW.md) | End-to-end operational flows across modules |
 | [API.md](./API.md) | RPCs, storage APIs, helper/service utilities |
+| [PERMISSIONS.md](./PERMISSIONS.md) | Roles, capability matrix, database mirror |
+| [SECURITY.md](./SECURITY.md) | Auth, invitations, RLS, financial integrity, storage |
+| [TESTING.md](./TESTING.md) | Test tooling, suites, manual regression path |
+| [DEPLOYMENT.md](./DEPLOYMENT.md) | Hosting, environment, release checklist, rollback |
+| [CONTRIBUTING.md](./CONTRIBUTING.md) | Process, conventions, review checklist |
+| [DECISIONS.md](./DECISIONS.md) | Architecture decision records |
+| [ROADMAP.md](./ROADMAP.md) | Completed vs planned work |
+| [FUTURE_INTEGRATIONS.md](./FUTURE_INTEGRATIONS.md) | How planned modules attach to the foundation |
+| [CHANGELOG.md](./CHANGELOG.md) | Version history |
+| [RELEASE_NOTES.md](./RELEASE_NOTES.md) | v1.0.0 release summary |
 | [AI_CONTEXT.md](./AI_CONTEXT.md) | Conventions, do-not-touch list, contributor workflow |
+
 
 ## Project overview
 
