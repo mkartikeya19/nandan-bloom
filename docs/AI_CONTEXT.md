@@ -47,7 +47,8 @@ Start here: [WORKFLOW.md](./WORKFLOW.md) for how a flow runs end to end,
   promotion, schedule generation, roll numbers) are `SECURITY DEFINER` functions
   so they are atomic and authorization is enforced server-side. Do not
   reimplement them client-side.
-- **Permissions are declared once** in `src/hooks/use-user-role.ts` and mirrored
+- **Permissions are declared once** in `src/lib/permissions.ts` (consumed via
+  `useUserRoles()` in `src/hooks/use-user-role.ts`) and mirrored
   by RLS. When adding a capability, update both.
 - **Roles never live on `profiles` or `students`** — only `user_roles`.
 - **Idempotency:** `generate_student_fee_schedule` relies on the unique key
@@ -68,7 +69,9 @@ Start here: [WORKFLOW.md](./WORKFLOW.md) for how a flow runs end to end,
 | `FeesTabs` (`@/components/fees/fees-tabs`) | duplicating fee sub-navigation |
 | `ReadOnlyNotice` (`@/components/settings/read-only-notice`) | custom permission banners |
 | `StudentFeesTab`, `OpeningBalanceBreakup` | re-querying the ledger |
-| `useUserRoles()` | reading `user_roles` directly in a component |
+| `useUserRoles()` / `buildPermissions()` | reading `user_roles` or hand-rolling role checks in a component |
+| `src/lib/date.ts` helpers | ad-hoc `toLocaleDateString()` / inline date formats |
+| `src/services/*` query modules | new inline Supabase queries inside route files |
 | `formatINR`, `amountInWords`, `formatSalary`, `maskAccount` | manual formatting |
 | `allocatePayment`, `comparePriority`, `outstandingOf` | re-deriving allocation logic |
 | `uploadStudentFile` / `uploadTeacherFile` + signed-URL helpers | direct storage calls |
@@ -99,6 +102,10 @@ Start here: [WORKFLOW.md](./WORKFLOW.md) for how a flow runs end to end,
 14. Do not swap the router, add `react-router-dom`, create `src/pages/`, or add
     an `App.tsx` page switcher.
 15. Do not add Node-only packages — the server runs on a Cloudflare Worker.
+16. **Public sign-up stays disabled.** Accounts are created by invitation only;
+    `claim_first_admin()` is the sole bootstrap path.
+17. **Payment validation triggers stay in the database** — never move these
+    checks to the client alone.
 
 ## Recommended workflow for future contributors
 
