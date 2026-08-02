@@ -12,6 +12,8 @@ import { HousesTab } from "@/components/settings/houses-tab";
 import { FeeHeadsTab } from "@/components/settings/fee-heads-tab";
 import { UsersTab } from "@/components/settings/users-tab";
 import { SystemHealthTab } from "@/components/settings/system-health-tab";
+import { DataMigrationTab } from "@/components/settings/data-migration-tab";
+
 
 export const Route = createFileRoute("/_authenticated/settings")({
   component: SettingsPage,
