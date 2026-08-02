@@ -13,8 +13,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Download, Upload, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
+import { Download, Upload, Loader2, CheckCircle2, AlertCircle, FileDown } from "lucide-react";
 import { toast } from "sonner";
+import * as XLSX from "xlsx";
 import {
   IMPORT_COLUMNS,
   downloadImportTemplate,
@@ -24,6 +25,12 @@ import {
   type StudentStatus,
   type RawRow,
 } from "@/lib/students-helpers";
+import {
+  createMigrationBatch,
+  recordBatchItems,
+  type MigrationBatchItemInput,
+} from "@/services/migration.service";
+
 
 type ValidRow = {
   rowNumber: number;
