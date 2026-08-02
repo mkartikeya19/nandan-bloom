@@ -151,14 +151,10 @@ export function FeeHeadsTab({ canEdit }: { canEdit: boolean }) {
       };
 
       if (editing) {
-        const { error } = await supabase
-          .from("fee_heads")
-          .update(payload as any)
-          .eq("id", editing.id);
+        const { error } = await supabase.from("fee_heads").update(payload).eq("id", editing.id);
         if (error) throw error;
       } else {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const { error } = await supabase.from("fee_heads").insert(payload as any);
+        const { error } = await supabase.from("fee_heads").insert(payload);
         if (error) throw error;
       }
     },
