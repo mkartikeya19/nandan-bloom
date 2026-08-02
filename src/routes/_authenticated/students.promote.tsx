@@ -139,18 +139,24 @@ function PromotionWizardPage() {
         .eq("class_id", currentClassId)
         .eq("status", "Active");
       if (error) throw error;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const filtered = (data as any[]).filter((r) => r.students?.status !== "Left");
+      type PromotionSource = {
+        id: string;
+        student_id: string;
+        class_id: string;
+        section_id: string;
+        house_id: string | null;
+        roll_number: string | null;
+        students: { scholar_number: string; full_name: string; status: string } | null;
+      };
+      const filtered = ((data ?? []) as unknown as PromotionSource[]).filter(
+        (r) => r.students?.status !== "Left",
+      );
 
-      // find next class by order_index
+      // Destination class comes from the shared promotion helper (unit tested).
       const cur = currentClasses?.find((c) => c.id === currentClassId);
-      const sortedNew = (newClasses ?? []).slice().sort((a, b) => a.order_index - b.order_index);
-      const nextClass = cur
-        ? sortedNew.find((c) => c.order_index > cur.order_index) ?? sortedNew.find((c) => c.name === cur.name) ?? sortedNew[0]
-        : sortedNew[0];
+      const nextClass = resolveNextClass(cur, newClasses ?? []);
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const built: StudentRow[] = filtered.map((r: any) => {
+      const built: StudentRow[] = filtered.map((r) => {
         const promoteClass = nextClass?.id ?? "";
         const structure = feeStructures?.find((f) => f.class_id === promoteClass);
         return {
