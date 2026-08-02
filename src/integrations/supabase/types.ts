@@ -964,6 +964,80 @@ export type Database = {
         }
         Relationships: []
       }
+      migration_batch_items: {
+        Row: {
+          batch_id: string
+          created_at: string
+          entity_id: string
+          entity_label: string | null
+          entity_type: string
+          id: string
+        }
+        Insert: {
+          batch_id: string
+          created_at?: string
+          entity_id: string
+          entity_label?: string | null
+          entity_type: string
+          id?: string
+        }
+        Update: {
+          batch_id?: string
+          created_at?: string
+          entity_id?: string
+          entity_label?: string | null
+          entity_type?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "migration_batch_items_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "migration_batches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      migration_batches: {
+        Row: {
+          batch_type: string
+          created_at: string
+          created_by: string | null
+          id: string
+          label: string | null
+          notes: string | null
+          record_count: number
+          rolled_back_at: string | null
+          rolled_back_by: string | null
+          updated_at: string
+        }
+        Insert: {
+          batch_type: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          label?: string | null
+          notes?: string | null
+          record_count?: number
+          rolled_back_at?: string | null
+          rolled_back_by?: string | null
+          updated_at?: string
+        }
+        Update: {
+          batch_type?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          label?: string | null
+          notes?: string | null
+          record_count?: number
+          rolled_back_at?: string | null
+          rolled_back_by?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       opening_balance_details: {
         Row: {
           academic_record_id: string | null
@@ -1775,6 +1849,7 @@ export type Database = {
         Args: { _record_id: string }
         Returns: number
       }
+      go_live_validation: { Args: never; Returns: Json }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -1809,6 +1884,7 @@ export type Database = {
         Args: { _payload: Json }
         Returns: number
       }
+      rollback_migration_batch: { Args: { _batch_id: string }; Returns: Json }
       version_exam_pattern: { Args: { _source_id: string }; Returns: string }
     }
     Enums: {

@@ -20,6 +20,7 @@ import { Route as AuthenticatedAdmissionsRouteImport } from './routes/_authentic
 import { Route as AuthenticatedActivityRouteImport } from './routes/_authenticated/activity'
 import { Route as AuthenticatedTeachersIndexRouteImport } from './routes/_authenticated/teachers.index'
 import { Route as AuthenticatedStudentsIndexRouteImport } from './routes/_authenticated/students.index'
+import { Route as AuthenticatedMigrationIndexRouteImport } from './routes/_authenticated/migration.index'
 import { Route as AuthenticatedFeesIndexRouteImport } from './routes/_authenticated/fees.index'
 import { Route as AuthenticatedExaminationsIndexRouteImport } from './routes/_authenticated/examinations.index'
 import { Route as AuthenticatedTeachersTeacherIdRouteImport } from './routes/_authenticated/teachers.$teacherId'
@@ -27,6 +28,9 @@ import { Route as AuthenticatedStudentsPromoteRouteImport } from './routes/_auth
 import { Route as AuthenticatedStudentsNewRouteImport } from './routes/_authenticated/students.new'
 import { Route as AuthenticatedStudentsImportRouteImport } from './routes/_authenticated/students.import'
 import { Route as AuthenticatedStudentsStudentIdRouteImport } from './routes/_authenticated/students.$studentId'
+import { Route as AuthenticatedMigrationStudentsRouteImport } from './routes/_authenticated/migration.students'
+import { Route as AuthenticatedMigrationGoLiveRouteImport } from './routes/_authenticated/migration.go-live'
+import { Route as AuthenticatedMigrationBatchesRouteImport } from './routes/_authenticated/migration.batches'
 import { Route as AuthenticatedFeesSettingsRouteImport } from './routes/_authenticated/fees.settings'
 import { Route as AuthenticatedFeesImportRouteImport } from './routes/_authenticated/fees.import'
 import { Route as AuthenticatedFeesConcessionsRouteImport } from './routes/_authenticated/fees.concessions'
@@ -99,6 +103,12 @@ const AuthenticatedStudentsIndexRoute =
     path: '/students/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedMigrationIndexRoute =
+  AuthenticatedMigrationIndexRouteImport.update({
+    id: '/migration/',
+    path: '/migration/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedFeesIndexRoute = AuthenticatedFeesIndexRouteImport.update({
   id: '/fees/',
   path: '/fees/',
@@ -138,6 +148,24 @@ const AuthenticatedStudentsStudentIdRoute =
   AuthenticatedStudentsStudentIdRouteImport.update({
     id: '/students/$studentId',
     path: '/students/$studentId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedMigrationStudentsRoute =
+  AuthenticatedMigrationStudentsRouteImport.update({
+    id: '/migration/students',
+    path: '/migration/students',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedMigrationGoLiveRoute =
+  AuthenticatedMigrationGoLiveRouteImport.update({
+    id: '/migration/go-live',
+    path: '/migration/go-live',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedMigrationBatchesRoute =
+  AuthenticatedMigrationBatchesRouteImport.update({
+    id: '/migration/batches',
+    path: '/migration/batches',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedFeesSettingsRoute =
@@ -244,6 +272,9 @@ export interface FileRoutesByFullPath {
   '/fees/concessions': typeof AuthenticatedFeesConcessionsRoute
   '/fees/import': typeof AuthenticatedFeesImportRoute
   '/fees/settings': typeof AuthenticatedFeesSettingsRoute
+  '/migration/batches': typeof AuthenticatedMigrationBatchesRoute
+  '/migration/go-live': typeof AuthenticatedMigrationGoLiveRoute
+  '/migration/students': typeof AuthenticatedMigrationStudentsRoute
   '/students/$studentId': typeof AuthenticatedStudentsStudentIdRouteWithChildren
   '/students/import': typeof AuthenticatedStudentsImportRoute
   '/students/new': typeof AuthenticatedStudentsNewRoute
@@ -251,6 +282,7 @@ export interface FileRoutesByFullPath {
   '/teachers/$teacherId': typeof AuthenticatedTeachersTeacherIdRoute
   '/examinations/': typeof AuthenticatedExaminationsIndexRoute
   '/fees/': typeof AuthenticatedFeesIndexRoute
+  '/migration/': typeof AuthenticatedMigrationIndexRoute
   '/students/': typeof AuthenticatedStudentsIndexRoute
   '/teachers/': typeof AuthenticatedTeachersIndexRoute
   '/examinations/patterns/$patternId': typeof AuthenticatedExaminationsPatternsPatternIdRoute
@@ -278,6 +310,9 @@ export interface FileRoutesByTo {
   '/fees/concessions': typeof AuthenticatedFeesConcessionsRoute
   '/fees/import': typeof AuthenticatedFeesImportRoute
   '/fees/settings': typeof AuthenticatedFeesSettingsRoute
+  '/migration/batches': typeof AuthenticatedMigrationBatchesRoute
+  '/migration/go-live': typeof AuthenticatedMigrationGoLiveRoute
+  '/migration/students': typeof AuthenticatedMigrationStudentsRoute
   '/students/$studentId': typeof AuthenticatedStudentsStudentIdRouteWithChildren
   '/students/import': typeof AuthenticatedStudentsImportRoute
   '/students/new': typeof AuthenticatedStudentsNewRoute
@@ -285,6 +320,7 @@ export interface FileRoutesByTo {
   '/teachers/$teacherId': typeof AuthenticatedTeachersTeacherIdRoute
   '/examinations': typeof AuthenticatedExaminationsIndexRoute
   '/fees': typeof AuthenticatedFeesIndexRoute
+  '/migration': typeof AuthenticatedMigrationIndexRoute
   '/students': typeof AuthenticatedStudentsIndexRoute
   '/teachers': typeof AuthenticatedTeachersIndexRoute
   '/examinations/patterns/$patternId': typeof AuthenticatedExaminationsPatternsPatternIdRoute
@@ -314,6 +350,9 @@ export interface FileRoutesById {
   '/_authenticated/fees/concessions': typeof AuthenticatedFeesConcessionsRoute
   '/_authenticated/fees/import': typeof AuthenticatedFeesImportRoute
   '/_authenticated/fees/settings': typeof AuthenticatedFeesSettingsRoute
+  '/_authenticated/migration/batches': typeof AuthenticatedMigrationBatchesRoute
+  '/_authenticated/migration/go-live': typeof AuthenticatedMigrationGoLiveRoute
+  '/_authenticated/migration/students': typeof AuthenticatedMigrationStudentsRoute
   '/_authenticated/students/$studentId': typeof AuthenticatedStudentsStudentIdRouteWithChildren
   '/_authenticated/students/import': typeof AuthenticatedStudentsImportRoute
   '/_authenticated/students/new': typeof AuthenticatedStudentsNewRoute
@@ -321,6 +360,7 @@ export interface FileRoutesById {
   '/_authenticated/teachers/$teacherId': typeof AuthenticatedTeachersTeacherIdRoute
   '/_authenticated/examinations/': typeof AuthenticatedExaminationsIndexRoute
   '/_authenticated/fees/': typeof AuthenticatedFeesIndexRoute
+  '/_authenticated/migration/': typeof AuthenticatedMigrationIndexRoute
   '/_authenticated/students/': typeof AuthenticatedStudentsIndexRoute
   '/_authenticated/teachers/': typeof AuthenticatedTeachersIndexRoute
   '/_authenticated/examinations/patterns/$patternId': typeof AuthenticatedExaminationsPatternsPatternIdRoute
@@ -350,6 +390,9 @@ export interface FileRouteTypes {
     | '/fees/concessions'
     | '/fees/import'
     | '/fees/settings'
+    | '/migration/batches'
+    | '/migration/go-live'
+    | '/migration/students'
     | '/students/$studentId'
     | '/students/import'
     | '/students/new'
@@ -357,6 +400,7 @@ export interface FileRouteTypes {
     | '/teachers/$teacherId'
     | '/examinations/'
     | '/fees/'
+    | '/migration/'
     | '/students/'
     | '/teachers/'
     | '/examinations/patterns/$patternId'
@@ -384,6 +428,9 @@ export interface FileRouteTypes {
     | '/fees/concessions'
     | '/fees/import'
     | '/fees/settings'
+    | '/migration/batches'
+    | '/migration/go-live'
+    | '/migration/students'
     | '/students/$studentId'
     | '/students/import'
     | '/students/new'
@@ -391,6 +438,7 @@ export interface FileRouteTypes {
     | '/teachers/$teacherId'
     | '/examinations'
     | '/fees'
+    | '/migration'
     | '/students'
     | '/teachers'
     | '/examinations/patterns/$patternId'
@@ -419,6 +467,9 @@ export interface FileRouteTypes {
     | '/_authenticated/fees/concessions'
     | '/_authenticated/fees/import'
     | '/_authenticated/fees/settings'
+    | '/_authenticated/migration/batches'
+    | '/_authenticated/migration/go-live'
+    | '/_authenticated/migration/students'
     | '/_authenticated/students/$studentId'
     | '/_authenticated/students/import'
     | '/_authenticated/students/new'
@@ -426,6 +477,7 @@ export interface FileRouteTypes {
     | '/_authenticated/teachers/$teacherId'
     | '/_authenticated/examinations/'
     | '/_authenticated/fees/'
+    | '/_authenticated/migration/'
     | '/_authenticated/students/'
     | '/_authenticated/teachers/'
     | '/_authenticated/examinations/patterns/$patternId'
@@ -525,6 +577,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStudentsIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/migration/': {
+      id: '/_authenticated/migration/'
+      path: '/migration'
+      fullPath: '/migration/'
+      preLoaderRoute: typeof AuthenticatedMigrationIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/fees/': {
       id: '/_authenticated/fees/'
       path: '/fees'
@@ -572,6 +631,27 @@ declare module '@tanstack/react-router' {
       path: '/students/$studentId'
       fullPath: '/students/$studentId'
       preLoaderRoute: typeof AuthenticatedStudentsStudentIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/migration/students': {
+      id: '/_authenticated/migration/students'
+      path: '/migration/students'
+      fullPath: '/migration/students'
+      preLoaderRoute: typeof AuthenticatedMigrationStudentsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/migration/go-live': {
+      id: '/_authenticated/migration/go-live'
+      path: '/migration/go-live'
+      fullPath: '/migration/go-live'
+      preLoaderRoute: typeof AuthenticatedMigrationGoLiveRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/migration/batches': {
+      id: '/_authenticated/migration/batches'
+      path: '/migration/batches'
+      fullPath: '/migration/batches'
+      preLoaderRoute: typeof AuthenticatedMigrationBatchesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/fees/settings': {
@@ -709,6 +789,9 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedFeesConcessionsRoute: typeof AuthenticatedFeesConcessionsRoute
   AuthenticatedFeesImportRoute: typeof AuthenticatedFeesImportRoute
   AuthenticatedFeesSettingsRoute: typeof AuthenticatedFeesSettingsRoute
+  AuthenticatedMigrationBatchesRoute: typeof AuthenticatedMigrationBatchesRoute
+  AuthenticatedMigrationGoLiveRoute: typeof AuthenticatedMigrationGoLiveRoute
+  AuthenticatedMigrationStudentsRoute: typeof AuthenticatedMigrationStudentsRoute
   AuthenticatedStudentsStudentIdRoute: typeof AuthenticatedStudentsStudentIdRouteWithChildren
   AuthenticatedStudentsImportRoute: typeof AuthenticatedStudentsImportRoute
   AuthenticatedStudentsNewRoute: typeof AuthenticatedStudentsNewRoute
@@ -716,6 +799,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedTeachersTeacherIdRoute: typeof AuthenticatedTeachersTeacherIdRoute
   AuthenticatedExaminationsIndexRoute: typeof AuthenticatedExaminationsIndexRoute
   AuthenticatedFeesIndexRoute: typeof AuthenticatedFeesIndexRoute
+  AuthenticatedMigrationIndexRoute: typeof AuthenticatedMigrationIndexRoute
   AuthenticatedStudentsIndexRoute: typeof AuthenticatedStudentsIndexRoute
   AuthenticatedTeachersIndexRoute: typeof AuthenticatedTeachersIndexRoute
   AuthenticatedExaminationsPatternsPatternIdRoute: typeof AuthenticatedExaminationsPatternsPatternIdRoute
@@ -743,6 +827,9 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedFeesConcessionsRoute: AuthenticatedFeesConcessionsRoute,
   AuthenticatedFeesImportRoute: AuthenticatedFeesImportRoute,
   AuthenticatedFeesSettingsRoute: AuthenticatedFeesSettingsRoute,
+  AuthenticatedMigrationBatchesRoute: AuthenticatedMigrationBatchesRoute,
+  AuthenticatedMigrationGoLiveRoute: AuthenticatedMigrationGoLiveRoute,
+  AuthenticatedMigrationStudentsRoute: AuthenticatedMigrationStudentsRoute,
   AuthenticatedStudentsStudentIdRoute:
     AuthenticatedStudentsStudentIdRouteWithChildren,
   AuthenticatedStudentsImportRoute: AuthenticatedStudentsImportRoute,
@@ -751,6 +838,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedTeachersTeacherIdRoute: AuthenticatedTeachersTeacherIdRoute,
   AuthenticatedExaminationsIndexRoute: AuthenticatedExaminationsIndexRoute,
   AuthenticatedFeesIndexRoute: AuthenticatedFeesIndexRoute,
+  AuthenticatedMigrationIndexRoute: AuthenticatedMigrationIndexRoute,
   AuthenticatedStudentsIndexRoute: AuthenticatedStudentsIndexRoute,
   AuthenticatedTeachersIndexRoute: AuthenticatedTeachersIndexRoute,
   AuthenticatedExaminationsPatternsPatternIdRoute:

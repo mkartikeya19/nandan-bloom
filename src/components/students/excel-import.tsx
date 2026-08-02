@@ -13,8 +13,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Download, Upload, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
+import { Download, Upload, Loader2, CheckCircle2, AlertCircle, FileDown } from "lucide-react";
 import { toast } from "sonner";
+import * as XLSX from "xlsx";
 import {
   IMPORT_COLUMNS,
   downloadImportTemplate,
@@ -24,6 +25,11 @@ import {
   type StudentStatus,
   type RawRow,
 } from "@/lib/students-helpers";
+import {
+  createMigrationBatch,
+  recordBatchItems,
+  type MigrationBatchItemInput,
+} from "@/services/migration.service";
 
 type ValidRow = {
   rowNumber: number;
@@ -41,8 +47,9 @@ type ValidRow = {
 
 type InvalidRow = { rowNumber: number; scholarNumber: string; name: string; errors: string[] };
 
-export function ExcelImport() {
+export function ExcelImport({ batchType }: { batchType?: "students" } = {}) {
   const qc = useQueryClient();
+
   const [file, setFile] = useState<File | null>(null);
   const [valid, setValid] = useState<ValidRow[]>([]);
   const [invalid, setInvalid] = useState<InvalidRow[]>([]);
@@ -194,20 +201,54 @@ export function ExcelImport() {
     }
   }
 
+  function exportErrorReport() {
+    if (invalid.length === 0) return;
+    const ws = XLSX.utils.json_to_sheet(
+      invalid.map((r) => ({
+        Row: r.rowNumber,
+        "Scholar Number": r.scholarNumber,
+        "Full Name": r.name,
+        Errors: r.errors.join("; "),
+      })),
+    );
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Errors");
+    XLSX.writeFile(wb, `student-import-errors-${new Date().toISOString().slice(0, 10)}.xlsx`);
+  }
+
   const doImport = useMutation({
     mutationFn: async () => {
       let ok = 0;
+      const items: MigrationBatchItemInput[] = [];
       for (const row of valid) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const { error } = await (supabase as any).rpc("admit_student_with_fee_structure", {
+        const { data, error } = await (supabase as any).rpc("admit_student_with_fee_structure", {
           _student_payload: row.student,
           _academic_payload: row.academicRecord,
         });
         if (error) throw error;
+        const result = (data ?? {}) as { student_id?: string; academic_record_id?: string };
+        if (result.student_id)
+          items.push({
+            entity_type: "student",
+            entity_id: result.student_id,
+            entity_label: String(row.student.scholar_number),
+          });
+        if (result.academic_record_id)
+          items.push({
+            entity_type: "student_academic_record",
+            entity_id: result.academic_record_id,
+            entity_label: String(row.student.scholar_number),
+          });
         ok += 1;
+      }
+      if (batchType && items.length > 0) {
+        const batchId = await createMigrationBatch(batchType, `Student import — ${ok} student(s)`);
+        if (batchId) await recordBatchItems(batchId, items);
       }
       return ok;
     },
+
     onSuccess: async (count) => {
       toast.success(`Imported ${count} student(s)`);
       setImported(count);
@@ -293,9 +334,13 @@ export function ExcelImport() {
 
       {invalid.length > 0 && (
         <Card>
-          <CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-base">Invalid rows (will be skipped)</CardTitle>
+            <Button variant="outline" size="sm" onClick={exportErrorReport}>
+              <FileDown className="h-4 w-4" /> Export error report
+            </Button>
           </CardHeader>
+
           <CardContent className="p-0">
             <Table>
               <TableHeader>
