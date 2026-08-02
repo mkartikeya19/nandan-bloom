@@ -59,9 +59,7 @@ function AdmissionRegisterPage() {
       const rows = (data ?? []).filter((s) => {
         if (sessionId === "all") return true;
 
-        return (s.student_academic_records ?? []).some(
-          (r) => r.academic_session_id === sessionId,
-        );
+        return (s.student_academic_records ?? []).some((r) => r.academic_session_id === sessionId);
       });
       return rows;
     },

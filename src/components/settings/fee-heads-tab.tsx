@@ -151,10 +151,7 @@ export function FeeHeadsTab({ canEdit }: { canEdit: boolean }) {
       };
 
       if (editing) {
-        const { error } = await supabase
-          .from("fee_heads")
-          .update(payload)
-          .eq("id", editing.id);
+        const { error } = await supabase.from("fee_heads").update(payload).eq("id", editing.id);
         if (error) throw error;
       } else {
         const { error } = await supabase.from("fee_heads").insert(payload);
