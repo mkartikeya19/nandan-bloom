@@ -205,17 +205,39 @@ export function ExcelImport({ batchType }: { batchType?: "students" } = {}) {
   const doImport = useMutation({
     mutationFn: async () => {
       let ok = 0;
+      const items: MigrationBatchItemInput[] = [];
       for (const row of valid) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const { error } = await (supabase as any).rpc("admit_student_with_fee_structure", {
+        const { data, error } = await (supabase as any).rpc("admit_student_with_fee_structure", {
           _student_payload: row.student,
           _academic_payload: row.academicRecord,
         });
         if (error) throw error;
+        const result = (data ?? {}) as { student_id?: string; academic_record_id?: string };
+        if (result.student_id)
+          items.push({
+            entity_type: "student",
+            entity_id: result.student_id,
+            entity_label: String(row.student.scholar_number),
+          });
+        if (result.academic_record_id)
+          items.push({
+            entity_type: "student_academic_record",
+            entity_id: result.academic_record_id,
+            entity_label: String(row.student.scholar_number),
+          });
         ok += 1;
+      }
+      if (batchType && items.length > 0) {
+        const batchId = await createMigrationBatch(
+          batchType,
+          `Student import — ${ok} student(s)`,
+        );
+        if (batchId) await recordBatchItems(batchId, items);
       }
       return ok;
     },
+
     onSuccess: async (count) => {
       toast.success(`Imported ${count} student(s)`);
       setImported(count);
