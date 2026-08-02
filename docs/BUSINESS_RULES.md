@@ -11,6 +11,10 @@ noted so you know what can and cannot be bypassed.
 - The first authenticated user may call `claim_first_admin()` to become
   `admin` + `super_admin` — only while no super admin exists. *(DB)*
 - Teacher records are Super Admin only, in both the sidebar/routes and RLS. *(UI + DB)*
+- **Settings is Super Admin editable only** — every tab receives
+  `canEdit={isSuperAdmin}`; other roles get a "View only" badge. *(UI)*
+- The Dashboard "Claim admin role" banner shows only for a signed-in user with
+  no role, and `claim_first_admin()` refuses once a super admin exists. *(UI + DB)*
 - Permission matrix: see [MODULES.md](./MODULES.md).
 
 ## Academic sessions
