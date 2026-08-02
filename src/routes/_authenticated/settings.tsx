@@ -82,6 +82,10 @@ function SettingsPage() {
           <TabsContent value="health">
             <SystemHealthTab />
           </TabsContent>
+          <TabsContent value="migration">
+            <DataMigrationTab />
+          </TabsContent>
+
         </div>
       </Tabs>
     </div>
