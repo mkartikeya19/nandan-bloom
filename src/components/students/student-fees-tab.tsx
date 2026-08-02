@@ -89,11 +89,12 @@ export function StudentFeesTab({ studentId, activeRecordId, hasFeeStructure = tr
   const linkFeeStructure = useMutation({
     mutationFn: async () => {
       if (!activeRecordId) throw new Error("No active academic record found");
-      const { data, error } = await (supabase as any).rpc("link_academic_record_fee_structure", {
+      const { data, error } = await supabase.rpc("link_academic_record_fee_structure", {
         _record_id: activeRecordId,
       });
       if (error) throw error;
-      return Number(data?.generated_count ?? 0);
+      const result = (data ?? {}) as { generated_count?: number };
+      return Number(result.generated_count ?? 0);
     },
     onSuccess: (count) => {
       toast.success(

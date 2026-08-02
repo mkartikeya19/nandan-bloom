@@ -16,7 +16,7 @@ export async function uploadStudentFile(
   folder: "photos" | "documents",
   file: File,
 ): Promise<string> {
-  const safe = file.name.replace(/[^\w.\-]+/g, "_");
+  const safe = file.name.replace(/[^\w.-]+/g, "_");
   const path = `${folder}/${scholarNumber}/${Date.now()}_${safe}`;
   const { error } = await supabase.storage.from("students").upload(path, file, {
     upsert: true,

@@ -28,7 +28,7 @@ export interface TeacherDocumentRow {
 const BUCKET = "teacher-documents";
 
 export async function uploadTeacherFile(employeeCode: string, file: File): Promise<string> {
-  const safe = file.name.replace(/[^\w.\-]+/g, "_");
+  const safe = file.name.replace(/[^\w.-]+/g, "_");
   const path = `${employeeCode}/${Date.now()}_${safe}`;
   const { error } = await supabase.storage.from(BUCKET).upload(path, file, {
     upsert: true,

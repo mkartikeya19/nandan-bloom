@@ -56,12 +56,11 @@ function AdmissionRegisterPage() {
         );
       const { data, error } = await query;
       if (error) throw error;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const rows = (data as any[]).filter((s) => {
+      const rows = (data ?? []).filter((s) => {
         if (sessionId === "all") return true;
 
         return (s.student_academic_records ?? []).some(
-          (r: any) => r.academic_session_id === sessionId,
+          (r) => r.academic_session_id === sessionId,
         );
       });
       return rows;
