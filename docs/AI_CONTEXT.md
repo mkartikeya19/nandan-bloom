@@ -127,4 +127,5 @@ Start here: [WORKFLOW.md](./WORKFLOW.md) for how a flow runs end to end,
    bun run test && bun run build`, then exercise the affected flow in the preview
    (admission → schedule → collect → receipt is the highest-value regression
    path).
-7. **Document:** update the relevant file in `/docs` in the same change.
+8. **Document:** update the relevant file in `/docs` in the same change, and add
+   a `CHANGELOG.md` entry under *Unreleased*.
