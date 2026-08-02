@@ -92,14 +92,19 @@ VITE_SUPABASE_PROJECT_ID
 ## Running locally
 
 ```bash
-bun run dev        # dev server on http://localhost:8080
-bun run build      # production build
-bun run build:dev  # development-mode build (used for verification)
-bun run lint       # eslint
-bun run format     # prettier
+bun run dev               # dev server on http://localhost:8080
+bun run typecheck         # TypeScript (strict)
+bun run lint              # eslint
+bun run test              # vitest unit tests
+bun run verify:migrations # migration linter (GRANT + RLS + policies)
+bun run build             # production build
+bun run build:dev         # development-mode build (used for verification)
+bun run format            # prettier
 ```
 
-Type checking: `tsgo` / `tsc --noEmit` against `tsconfig.json`.
+Release verification runs all of the above; CI enforces it
+(`.github/workflows/ci.yml`). See [DEPLOYMENT.md](./DEPLOYMENT.md).
+
 
 ## Folder structure
 
