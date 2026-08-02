@@ -53,6 +53,8 @@ function SettingsPage() {
           <TabsTrigger value="fee-heads">Fee Heads</TabsTrigger>
           <TabsTrigger value="users">Users</TabsTrigger>
           <TabsTrigger value="health">System Health</TabsTrigger>
+          <TabsTrigger value="migration">Data Migration</TabsTrigger>
+
         </TabsList>
 
         <div className="mt-6">
