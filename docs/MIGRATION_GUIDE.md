@@ -15,19 +15,19 @@ this in the database, not just in the UI).
 
 Shows the record count and status of every master and transactional entity:
 
-| Module            | Required | Notes                                  |
-| ----------------- | -------- | -------------------------------------- |
-| Academic Sessions | Yes      | Exactly one must be `Active`           |
-| Classes           | Yes      | Scoped to a session                    |
-| Sections          | Yes      | Scoped to a class                      |
-| Houses            | No       | Optional master                        |
-| Fee Heads         | Yes      | Frequency / applicability configured   |
+| Module            | Required | Notes                                   |
+| ----------------- | -------- | --------------------------------------- |
+| Academic Sessions | Yes      | Exactly one must be `Active`            |
+| Classes           | Yes      | Scoped to a session                     |
+| Sections          | Yes      | Scoped to a class                       |
+| Houses            | No       | Optional master                         |
+| Fee Heads         | Yes      | Frequency / applicability configured    |
 | Fee Structures    | Yes      | Must be **Active + Complete** per class |
-| Students          | Yes      | Imported through the wizard            |
-| Academic Records  | Yes      | Created automatically per student      |
-| Fee Schedules     | Yes      | Generated from the fee structure       |
-| Teachers          | No       | Entered in the Teachers module         |
-| Opening Balances  | No       | Migrated separately                    |
+| Students          | Yes      | Imported through the wizard             |
+| Academic Records  | Yes      | Created automatically per student       |
+| Fee Schedules     | Yes      | Generated from the fee structure        |
+| Teachers          | No       | Entered in the Teachers module          |
+| Opening Balances  | No       | Migrated separately                     |
 
 Steps stay **Blocked** until their prerequisites exist — you cannot import
 students before sessions, classes, sections, fee heads and fee structures are

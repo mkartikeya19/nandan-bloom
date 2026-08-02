@@ -54,10 +54,7 @@ export async function recordBatchItems(
       entity_label: i.entity_label ?? null,
     })),
   );
-  await supabase
-    .from("migration_batches")
-    .update({ record_count: items.length })
-    .eq("id", batchId);
+  await supabase.from("migration_batches").update({ record_count: items.length }).eq("id", batchId);
 }
 
 export async function fetchMigrationBatches(): Promise<MigrationBatch[]> {

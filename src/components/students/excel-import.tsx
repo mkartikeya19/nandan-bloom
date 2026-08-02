@@ -31,7 +31,6 @@ import {
   type MigrationBatchItemInput,
 } from "@/services/migration.service";
 
-
 type ValidRow = {
   rowNumber: number;
   student: Record<string, unknown> & { scholar_number: string; full_name: string };
@@ -218,7 +217,6 @@ export function ExcelImport({ batchType }: { batchType?: "students" } = {}) {
   }
 
   const doImport = useMutation({
-
     mutationFn: async () => {
       let ok = 0;
       const items: MigrationBatchItemInput[] = [];
@@ -245,10 +243,7 @@ export function ExcelImport({ batchType }: { batchType?: "students" } = {}) {
         ok += 1;
       }
       if (batchType && items.length > 0) {
-        const batchId = await createMigrationBatch(
-          batchType,
-          `Student import — ${ok} student(s)`,
-        );
+        const batchId = await createMigrationBatch(batchType, `Student import — ${ok} student(s)`);
         if (batchId) await recordBatchItems(batchId, items);
       }
       return ok;

@@ -3,19 +3,19 @@
 Import in this exact order. Every step depends on the ones above it; the
 Migration Dashboard blocks a step until its prerequisites exist.
 
-| #  | Step                       | Where                            | Required | Depends on            |
-| -- | -------------------------- | -------------------------------- | -------- | --------------------- |
-| 1  | Academic Sessions          | Settings → Academic Sessions     | Yes      | —                     |
-| 2  | Classes                    | Settings → Classes               | Yes      | 1                     |
-| 3  | Sections                   | Settings → Sections              | Yes      | 2                     |
-| 4  | Houses                     | Settings → Houses                | Optional | —                     |
-| 5  | Fee Heads                  | Settings → Fee Heads             | Yes      | —                     |
-| 6  | Fee Structures             | Fees → Fee Structures            | Yes      | 1, 2, 5               |
-| 7  | Students                   | Migration → Student Migration    | Yes      | 1, 2, 3, 6            |
-| 8  | Teachers                   | Teachers                         | Optional | —                     |
-| 9  | Opening Balances           | Fees → Opening Balance Migration | Optional | 7                     |
-| 10 | Generate Fee Schedules     | Automatic during step 7          | Yes      | 6, 7                  |
-| 11 | Go-Live Validation         | Migration → Go-Live Validation   | Yes      | all of the above      |
+| #   | Step                   | Where                            | Required | Depends on       |
+| --- | ---------------------- | -------------------------------- | -------- | ---------------- |
+| 1   | Academic Sessions      | Settings → Academic Sessions     | Yes      | —                |
+| 2   | Classes                | Settings → Classes               | Yes      | 1                |
+| 3   | Sections               | Settings → Sections              | Yes      | 2                |
+| 4   | Houses                 | Settings → Houses                | Optional | —                |
+| 5   | Fee Heads              | Settings → Fee Heads             | Yes      | —                |
+| 6   | Fee Structures         | Fees → Fee Structures            | Yes      | 1, 2, 5          |
+| 7   | Students               | Migration → Student Migration    | Yes      | 1, 2, 3, 6       |
+| 8   | Teachers               | Teachers                         | Optional | —                |
+| 9   | Opening Balances       | Fees → Opening Balance Migration | Optional | 7                |
+| 10  | Generate Fee Schedules | Automatic during step 7          | Yes      | 6, 7             |
+| 11  | Go-Live Validation     | Migration → Go-Live Validation   | Yes      | all of the above |
 
 ## Notes per step
 
