@@ -48,8 +48,9 @@ type ValidRow = {
 
 type InvalidRow = { rowNumber: number; scholarNumber: string; name: string; errors: string[] };
 
-export function ExcelImport() {
+export function ExcelImport({ batchType }: { batchType?: "students" } = {}) {
   const qc = useQueryClient();
+
   const [file, setFile] = useState<File | null>(null);
   const [valid, setValid] = useState<ValidRow[]>([]);
   const [invalid, setInvalid] = useState<InvalidRow[]>([]);
