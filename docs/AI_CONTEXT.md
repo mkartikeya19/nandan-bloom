@@ -3,6 +3,17 @@
 Read this before changing anything. It captures conventions that are not obvious
 from the code and the failure modes this project has already hit.
 
+**Release state: v1.0.0 — Core ERP Foundation, feature-frozen.** Only production
+bug fixes ship in `v1.0.x`; new functionality targets `v1.1.0`
+([ROADMAP.md](./ROADMAP.md)). The `/docs` folder is the single source of truth —
+a change is not complete until the affected doc is updated in the same commit.
+
+Start here: [WORKFLOW.md](./WORKFLOW.md) for how a flow runs end to end,
+[DECISIONS.md](./DECISIONS.md) for *why* the hard constraints exist,
+[PERMISSIONS.md](./PERMISSIONS.md) for who may do what,
+[SECURITY.md](./SECURITY.md) for the enforcement model, and
+[CONTRIBUTING.md](./CONTRIBUTING.md) for process.
+
 ## Coding conventions
 
 - **TypeScript strict.** No `any` unless wrapping an untyped RPC — and then with
@@ -36,7 +47,8 @@ from the code and the failure modes this project has already hit.
   promotion, schedule generation, roll numbers) are `SECURITY DEFINER` functions
   so they are atomic and authorization is enforced server-side. Do not
   reimplement them client-side.
-- **Permissions are declared once** in `src/hooks/use-user-role.ts` and mirrored
+- **Permissions are declared once** in `src/lib/permissions.ts` (consumed via
+  `useUserRoles()` in `src/hooks/use-user-role.ts`) and mirrored
   by RLS. When adding a capability, update both.
 - **Roles never live on `profiles` or `students`** — only `user_roles`.
 - **Idempotency:** `generate_student_fee_schedule` relies on the unique key
@@ -57,7 +69,9 @@ from the code and the failure modes this project has already hit.
 | `FeesTabs` (`@/components/fees/fees-tabs`) | duplicating fee sub-navigation |
 | `ReadOnlyNotice` (`@/components/settings/read-only-notice`) | custom permission banners |
 | `StudentFeesTab`, `OpeningBalanceBreakup` | re-querying the ledger |
-| `useUserRoles()` | reading `user_roles` directly in a component |
+| `useUserRoles()` / `buildPermissions()` | reading `user_roles` or hand-rolling role checks in a component |
+| `src/lib/date.ts` helpers | ad-hoc `toLocaleDateString()` / inline date formats |
+| `src/services/*` query modules | new inline Supabase queries inside route files |
 | `formatINR`, `amountInWords`, `formatSalary`, `maskAccount` | manual formatting |
 | `allocatePayment`, `comparePriority`, `outstandingOf` | re-deriving allocation logic |
 | `uploadStudentFile` / `uploadTeacherFile` + signed-URL helpers | direct storage calls |
@@ -88,6 +102,10 @@ from the code and the failure modes this project has already hit.
 14. Do not swap the router, add `react-router-dom`, create `src/pages/`, or add
     an `App.tsx` page switcher.
 15. Do not add Node-only packages — the server runs on a Cloudflare Worker.
+16. **Public sign-up stays disabled.** Accounts are created by invitation only;
+    `claim_first_admin()` is the sole bootstrap path.
+17. **Payment validation triggers stay in the database** — never move these
+    checks to the client alone.
 
 ## Recommended workflow for future contributors
 
@@ -99,11 +117,15 @@ from the code and the failure modes this project has already hit.
 3. **Schema changes** ship as one new migration containing
    `CREATE TABLE` → `GRANT` → `ENABLE ROW LEVEL SECURITY` → policies, plus an
    `updated_at` trigger. Regenerate types afterwards (do not hand-edit them).
-4. **Permissions:** add the flag to `use-user-role.ts` *and* the matching RLS
-   policy / `has_role()` check.
+4. **Permissions:** add the flag to `src/lib/permissions.ts` *and* the matching
+   RLS policy / `has_role()` check, plus a case in `permissions.test.ts`.
 5. **Instrument:** add a `logActivity()` call and, if the payload is new, a
    branch in `formatActivityDetails()`.
-6. **Verify:** typecheck, `bun run lint`, `bun run build`, then exercise the
-   affected flow in the preview (admission → schedule → collect → receipt is the
-   highest-value regression path).
-7. **Document:** update the relevant file in `/docs` in the same change.
+6. **Test:** extend the unit suites in `src/lib/__tests__` for any pure logic you
+   touch ([TESTING.md](./TESTING.md)).
+7. **Verify:** `bun run verify:migrations && bun run typecheck && bun run lint &&
+   bun run test && bun run build`, then exercise the affected flow in the preview
+   (admission → schedule → collect → receipt is the highest-value regression
+   path).
+8. **Document:** update the relevant file in `/docs` in the same change, and add
+   a `CHANGELOG.md` entry under *Unreleased*.

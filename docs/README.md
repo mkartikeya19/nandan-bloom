@@ -7,6 +7,10 @@ examination masters, teacher HR records and an audit/activity log.
 > This documentation describes the **current implementation only**. Anything not
 > listed here is not built.
 
+**Current release: v1.0.0 — Core ERP Foundation.** Core modules are
+feature-frozen; see [CHANGELOG.md](./CHANGELOG.md) and
+[RELEASE_NOTES.md](./RELEASE_NOTES.md).
+
 ## Documentation index
 
 | File | Contents |
@@ -15,8 +19,20 @@ examination masters, teacher HR records and an audit/activity log.
 | [DATABASE.md](./DATABASE.md) | Tables, columns, enums, relationships, RPCs, triggers, migrations |
 | [MODULES.md](./MODULES.md) | Every implemented module, screens, permissions |
 | [BUSINESS_RULES.md](./BUSINESS_RULES.md) | Rules enforced in code and in the database |
+| [WORKFLOW.md](./WORKFLOW.md) | End-to-end operational flows across modules |
 | [API.md](./API.md) | RPCs, storage APIs, helper/service utilities |
+| [PERMISSIONS.md](./PERMISSIONS.md) | Roles, capability matrix, database mirror |
+| [SECURITY.md](./SECURITY.md) | Auth, invitations, RLS, financial integrity, storage |
+| [TESTING.md](./TESTING.md) | Test tooling, suites, manual regression path |
+| [DEPLOYMENT.md](./DEPLOYMENT.md) | Hosting, environment, release checklist, rollback |
+| [CONTRIBUTING.md](./CONTRIBUTING.md) | Process, conventions, review checklist |
+| [DECISIONS.md](./DECISIONS.md) | Architecture decision records |
+| [ROADMAP.md](./ROADMAP.md) | Completed vs planned work |
+| [FUTURE_INTEGRATIONS.md](./FUTURE_INTEGRATIONS.md) | How planned modules attach to the foundation |
+| [CHANGELOG.md](./CHANGELOG.md) | Version history |
+| [RELEASE_NOTES.md](./RELEASE_NOTES.md) | v1.0.0 release summary |
 | [AI_CONTEXT.md](./AI_CONTEXT.md) | Conventions, do-not-touch list, contributor workflow |
+
 
 ## Project overview
 
@@ -76,14 +92,19 @@ VITE_SUPABASE_PROJECT_ID
 ## Running locally
 
 ```bash
-bun run dev        # dev server on http://localhost:8080
-bun run build      # production build
-bun run build:dev  # development-mode build (used for verification)
-bun run lint       # eslint
-bun run format     # prettier
+bun run dev               # dev server on http://localhost:8080
+bun run typecheck         # TypeScript (strict)
+bun run lint              # eslint
+bun run test              # vitest unit tests
+bun run verify:migrations # migration linter (GRANT + RLS + policies)
+bun run build             # production build
+bun run build:dev         # development-mode build (used for verification)
+bun run format            # prettier
 ```
 
-Type checking: `tsgo` / `tsc --noEmit` against `tsconfig.json`.
+Release verification runs all of the above; CI enforces it
+(`.github/workflows/ci.yml`). See [DEPLOYMENT.md](./DEPLOYMENT.md).
+
 
 ## Folder structure
 
@@ -103,17 +124,27 @@ src/
     use-mobile.tsx
   integrations/supabase/  auto-generated client, types, auth middleware
   lib/
+    permissions.ts      single source of truth for role capabilities
+    date.ts             standardized date formatting
     activity.ts         fire-and-forget audit logging
     activity-format.ts  human-readable audit summaries
     fees-helpers.ts     fee constants, allocation priority, formatting
+    opening-balance.ts  opening-balance breakup grouping/validation
+    receipts.ts         receipt/void arithmetic
+    promotion-helpers.ts session + class resolution for promotion
     students-helpers.ts student constants, storage upload, Excel import
     teachers-helpers.ts teacher constants, storage upload, masking
+    invitations.functions.ts  server function for invitation-based onboarding
+    __tests__/          vitest unit tests for the pure logic above
     error-capture.ts / error-page.ts / lovable-error-reporting.ts
     utils.ts            cn()
+  services/             feature-scoped Supabase query modules
+    users / invitations / fees / students
+
   routes/
     __root.tsx          app shell
     index.tsx           redirects to /dashboard
-    auth.tsx            sign in / sign up
+    auth.tsx            sign in (public sign-up disabled)
     _authenticated/     everything behind the auth gate
   router.tsx            router + QueryClient factory
   server.ts             SSR entry wrapper with error page fallback
