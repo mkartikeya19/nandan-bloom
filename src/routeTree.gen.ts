@@ -30,6 +30,7 @@ import { Route as AuthenticatedStudentsImportRouteImport } from './routes/_authe
 import { Route as AuthenticatedStudentsStudentIdRouteImport } from './routes/_authenticated/students.$studentId'
 import { Route as AuthenticatedMigrationStudentsRouteImport } from './routes/_authenticated/migration.students'
 import { Route as AuthenticatedMigrationGoLiveRouteImport } from './routes/_authenticated/migration.go-live'
+import { Route as AuthenticatedMigrationBatchesRouteImport } from './routes/_authenticated/migration.batches'
 import { Route as AuthenticatedFeesSettingsRouteImport } from './routes/_authenticated/fees.settings'
 import { Route as AuthenticatedFeesImportRouteImport } from './routes/_authenticated/fees.import'
 import { Route as AuthenticatedFeesConcessionsRouteImport } from './routes/_authenticated/fees.concessions'
@@ -161,6 +162,12 @@ const AuthenticatedMigrationGoLiveRoute =
     path: '/migration/go-live',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedMigrationBatchesRoute =
+  AuthenticatedMigrationBatchesRouteImport.update({
+    id: '/migration/batches',
+    path: '/migration/batches',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedFeesSettingsRoute =
   AuthenticatedFeesSettingsRouteImport.update({
     id: '/fees/settings',
@@ -265,6 +272,7 @@ export interface FileRoutesByFullPath {
   '/fees/concessions': typeof AuthenticatedFeesConcessionsRoute
   '/fees/import': typeof AuthenticatedFeesImportRoute
   '/fees/settings': typeof AuthenticatedFeesSettingsRoute
+  '/migration/batches': typeof AuthenticatedMigrationBatchesRoute
   '/migration/go-live': typeof AuthenticatedMigrationGoLiveRoute
   '/migration/students': typeof AuthenticatedMigrationStudentsRoute
   '/students/$studentId': typeof AuthenticatedStudentsStudentIdRouteWithChildren
@@ -302,6 +310,7 @@ export interface FileRoutesByTo {
   '/fees/concessions': typeof AuthenticatedFeesConcessionsRoute
   '/fees/import': typeof AuthenticatedFeesImportRoute
   '/fees/settings': typeof AuthenticatedFeesSettingsRoute
+  '/migration/batches': typeof AuthenticatedMigrationBatchesRoute
   '/migration/go-live': typeof AuthenticatedMigrationGoLiveRoute
   '/migration/students': typeof AuthenticatedMigrationStudentsRoute
   '/students/$studentId': typeof AuthenticatedStudentsStudentIdRouteWithChildren
@@ -341,6 +350,7 @@ export interface FileRoutesById {
   '/_authenticated/fees/concessions': typeof AuthenticatedFeesConcessionsRoute
   '/_authenticated/fees/import': typeof AuthenticatedFeesImportRoute
   '/_authenticated/fees/settings': typeof AuthenticatedFeesSettingsRoute
+  '/_authenticated/migration/batches': typeof AuthenticatedMigrationBatchesRoute
   '/_authenticated/migration/go-live': typeof AuthenticatedMigrationGoLiveRoute
   '/_authenticated/migration/students': typeof AuthenticatedMigrationStudentsRoute
   '/_authenticated/students/$studentId': typeof AuthenticatedStudentsStudentIdRouteWithChildren
@@ -380,6 +390,7 @@ export interface FileRouteTypes {
     | '/fees/concessions'
     | '/fees/import'
     | '/fees/settings'
+    | '/migration/batches'
     | '/migration/go-live'
     | '/migration/students'
     | '/students/$studentId'
@@ -417,6 +428,7 @@ export interface FileRouteTypes {
     | '/fees/concessions'
     | '/fees/import'
     | '/fees/settings'
+    | '/migration/batches'
     | '/migration/go-live'
     | '/migration/students'
     | '/students/$studentId'
@@ -455,6 +467,7 @@ export interface FileRouteTypes {
     | '/_authenticated/fees/concessions'
     | '/_authenticated/fees/import'
     | '/_authenticated/fees/settings'
+    | '/_authenticated/migration/batches'
     | '/_authenticated/migration/go-live'
     | '/_authenticated/migration/students'
     | '/_authenticated/students/$studentId'
@@ -634,6 +647,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedMigrationGoLiveRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/migration/batches': {
+      id: '/_authenticated/migration/batches'
+      path: '/migration/batches'
+      fullPath: '/migration/batches'
+      preLoaderRoute: typeof AuthenticatedMigrationBatchesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/fees/settings': {
       id: '/_authenticated/fees/settings'
       path: '/fees/settings'
@@ -769,6 +789,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedFeesConcessionsRoute: typeof AuthenticatedFeesConcessionsRoute
   AuthenticatedFeesImportRoute: typeof AuthenticatedFeesImportRoute
   AuthenticatedFeesSettingsRoute: typeof AuthenticatedFeesSettingsRoute
+  AuthenticatedMigrationBatchesRoute: typeof AuthenticatedMigrationBatchesRoute
   AuthenticatedMigrationGoLiveRoute: typeof AuthenticatedMigrationGoLiveRoute
   AuthenticatedMigrationStudentsRoute: typeof AuthenticatedMigrationStudentsRoute
   AuthenticatedStudentsStudentIdRoute: typeof AuthenticatedStudentsStudentIdRouteWithChildren
@@ -806,6 +827,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedFeesConcessionsRoute: AuthenticatedFeesConcessionsRoute,
   AuthenticatedFeesImportRoute: AuthenticatedFeesImportRoute,
   AuthenticatedFeesSettingsRoute: AuthenticatedFeesSettingsRoute,
+  AuthenticatedMigrationBatchesRoute: AuthenticatedMigrationBatchesRoute,
   AuthenticatedMigrationGoLiveRoute: AuthenticatedMigrationGoLiveRoute,
   AuthenticatedMigrationStudentsRoute: AuthenticatedMigrationStudentsRoute,
   AuthenticatedStudentsStudentIdRoute:
