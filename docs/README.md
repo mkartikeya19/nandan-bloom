@@ -25,6 +25,12 @@ feature-frozen; see [CHANGELOG.md](./CHANGELOG.md) and
 | [SECURITY.md](./SECURITY.md) | Auth, invitations, RLS, financial integrity, storage |
 | [TESTING.md](./TESTING.md) | Test tooling, suites, manual regression path |
 | [DEPLOYMENT.md](./DEPLOYMENT.md) | Hosting, environment, release checklist, rollback |
+| [BOOTSTRAP.md](./BOOTSTRAP.md) | First-time deployment and first Super Admin bootstrap |
+| [PRODUCTION_CONFIGURATION.md](./PRODUCTION_CONFIGURATION.md) | Required production settings: auth, database, storage, env, password policy |
+| [GO_LIVE_CHECKLIST.md](./GO_LIVE_CHECKLIST.md) | Pre-production checklist and sign-off |
+| [SECURITY_VERIFICATION.md](./SECURITY_VERIFICATION.md) | What is verified in code vs pending manual checks |
+| [ROLE_VERIFICATION.md](./ROLE_VERIFICATION.md) | Role capability matrix and production verification log |
+| [UAT_REPORT_v1.0.0.md](./UAT_REPORT_v1.0.0.md) | Automated gate results and manual regression record |
 | [CONTRIBUTING.md](./CONTRIBUTING.md) | Process, conventions, review checklist |
 | [DECISIONS.md](./DECISIONS.md) | Architecture decision records |
 | [ROADMAP.md](./ROADMAP.md) | Completed vs planned work |
