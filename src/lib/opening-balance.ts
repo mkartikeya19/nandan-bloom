@@ -50,23 +50,23 @@ export interface ImportedBreakupRow extends BreakupRow {
   scholar: string;
 }
 
-export interface ScholarGroup {
+export interface ScholarGroup<T extends ImportedBreakupRow = ImportedBreakupRow> {
   scholar: string;
   total: number;
   count: number;
-  rows: ImportedBreakupRow[];
+  rows: T[];
 }
 
 /**
  * Group imported Excel rows by scholar number. Multiple rows per scholar are
  * combined — their sum becomes that student's single Opening Balance.
  */
-export function groupByScholar(rows: readonly ImportedBreakupRow[]): ScholarGroup[] {
-  const map = new Map<string, ScholarGroup>();
+export function groupByScholar<T extends ImportedBreakupRow>(rows: readonly T[]): ScholarGroup<T>[] {
+  const map = new Map<string, ScholarGroup<T>>();
   for (const r of rows) {
     const key = String(r.scholar ?? "").trim();
     if (!key) continue;
-    const g = map.get(key) ?? { scholar: key, total: 0, count: 0, rows: [] };
+    const g: ScholarGroup<T> = map.get(key) ?? { scholar: key, total: 0, count: 0, rows: [] };
     g.rows.push(r);
     g.count += 1;
     g.total = roundMoney(g.total + (Number(r.amount) || 0));
