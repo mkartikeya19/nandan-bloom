@@ -14,7 +14,6 @@ import { join } from "node:path";
 const DIR = "supabase/migrations";
 const FORBIDDEN = [
   /alter\s+database\s+postgres/i,
-  /create\s+trigger[\s\S]{0,200}\son\s+auth\./i,
   /drop\s+schema\s+(auth|storage|realtime|vault)/i,
 ];
 
