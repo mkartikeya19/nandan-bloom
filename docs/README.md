@@ -144,7 +144,7 @@ src/
   routes/
     __root.tsx          app shell
     index.tsx           redirects to /dashboard
-    auth.tsx            sign in / sign up
+    auth.tsx            sign in (public sign-up disabled)
     _authenticated/     everything behind the auth gate
   router.tsx            router + QueryClient factory
   server.ts             SSR entry wrapper with error page fallback

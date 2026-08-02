@@ -93,7 +93,8 @@ caused past regressions in Students and Fees). Never reintroduce
 
 ## Authentication
 
-- Supabase email/password auth. `/auth` offers sign-in and sign-up tabs.
+- Supabase email/password auth. `/auth` offers sign-in only — public sign-up is
+  disabled; accounts are created by invitation (see [SECURITY.md](./SECURITY.md)).
 - `_authenticated/route.tsx` has `ssr: false` and a `beforeLoad` that calls
   `supabase.auth.getUser()`, redirecting to `/auth` when there is no session.
 - `/auth` redirects an existing session to `/dashboard` and listens to
