@@ -65,6 +65,32 @@ interface Row {
   section_name: string;
 }
 
+interface AcademicRecord {
+  status: string | null;
+  academic_session_id: string | null;
+  school_classes: { name: string } | null;
+  school_sections: { name: string } | null;
+}
+
+interface PaymentRecord {
+  id: string;
+  receipt_number: string;
+  amount: number | string | null;
+  payment_mode: string;
+  payment_date: string;
+  is_void: boolean | null;
+  academic_session_id: string | null;
+  collected_by: string | null;
+  students: {
+    scholar_number: string | null;
+    full_name: string | null;
+    father_mobile: string | null;
+    mother_mobile: string | null;
+    guardian_phone: string | null;
+    student_academic_records: AcademicRecord[] | null;
+  } | null;
+}
+
 function ReceiptsPage() {
   const [q, setQ] = useState("");
   const [session, setSession] = useState(ALL);
