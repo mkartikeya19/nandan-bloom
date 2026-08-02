@@ -155,3 +155,46 @@ Paths: `photos/<scholar>/<ts>_<name>`, `documents/<scholar>/<ts>_<name>`,
 ### Error handling
 `src/lib/error-capture.ts`, `src/lib/error-page.ts` and `src/server.ts` convert
 SSR failures (including h3-swallowed errors) into a rendered error page.
+
+---
+
+## RC-3.5 additions
+
+### RPCs
+- `invite_user(_email text, _roles app_role[], _full_name text) → uuid`
+  (`SECURITY DEFINER`, Super Admin only). Upserts a row in `user_invitations`
+  and returns the invitation id.
+
+### Triggers (server-side financial validation)
+- `validate_fee_payment()` on `fee_payments` — rejects non-positive amounts and
+  blocks edits to `receipt_number` / `amount` after insert (void-and-repost only).
+- `validate_fee_payment_allocation()` on `fee_payment_allocations` — rejects
+  allocations that exceed the schedule row's outstanding balance or the receipt
+  total (0.01 rounding tolerance).
+
+### Server functions
+- `src/lib/invitations.functions.ts` → `inviteUser({ email, fullName?, roles })`
+  (POST, `requireSupabaseAuth`, Super Admin only). Records the invitation and
+  provisions the account through the Auth Admin API, returning
+  `{ created, tempPassword }`. The temporary password is returned once and never
+  stored.
+
+### Permissions service — `src/lib/permissions.ts`
+- `APP_ROLES`, `ROLE_LABELS`, `ROLE_DESCRIPTIONS`, `AppRole`.
+- `resolvePermissions(roles)` → the single source of truth for every capability
+  flag (`canEditStudent`, `canVoidReceipt`, `canManageTeachers`, …).
+  `useUserRoles()` is a thin wrapper over it.
+
+### Date service — `src/lib/date.ts`
+- `formatDate`, `formatDateTime`, `formatDateInput` — house format `02 Aug 2026`,
+  SSR-safe (no locale drift / hydration mismatch).
+
+### Pure logic modules (unit-tested in `src/lib/__tests__/`)
+- `src/lib/promotion-helpers.ts` — `resolveNextClass`, `eligibleDestinationSessions`.
+- `src/lib/opening-balance.ts` — `groupByScholar`, `validateBreakup`.
+- `src/lib/receipts.ts` — void arithmetic and receipt status helpers.
+
+### Service modules (`src/services/`)
+`users.service.ts`, `invitations.service.ts`, `fees.service.ts`,
+`students.service.ts` — feature-scoped wrappers around Supabase queries. New
+data access should go here rather than inline in route components.
