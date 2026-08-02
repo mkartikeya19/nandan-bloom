@@ -79,11 +79,22 @@ export function StudentFeesTab({ studentId, activeRecordId, hasFeeStructure = tr
   return (
     <div className="space-y-4">
       <div className="grid gap-3 sm:grid-cols-4">
-        <Stat label="Opening Balance" value={formatINR(opening)} />
+        <Stat
+          label="Opening Balance"
+          value={formatINR(opening)}
+          action={
+            <button type="button" className="mt-1 text-xs text-primary hover:underline" onClick={() => setBreakupOpen(true)}>
+              View Breakup
+            </button>
+          }
+        />
         <Stat label="Total Due" value={formatINR(totalDue)} />
         <Stat label="Total Paid" value={formatINR(totalPaid)} />
         <Stat label="Outstanding" value={formatINR(outstanding)} tone={outstanding > 0 ? "danger" : "default"} />
       </div>
+
+      <OpeningBalanceBreakupDialog studentId={studentId} open={breakupOpen} onOpenChange={setBreakupOpen} />
+
 
       {!hasFeeStructure && activeRecordId && (
         <Card className="border-destructive/40 bg-destructive/5">
