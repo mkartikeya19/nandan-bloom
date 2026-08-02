@@ -37,8 +37,10 @@ Core capabilities that exist today:
   grade scales, versioned exam patterns)
 - Teacher records + private document storage (Super Admin only)
 - Global Activity Center (audit log) with human-readable summaries
-- Settings: school profile, sessions, classes, sections, houses, fee heads,
-  users/roles, system health
+- Settings (Super Admin editable): school profile, sessions, classes, sections,
+  houses, fee heads, users/roles, system health
+- Not linked in the sidebar: `/admissions` (Admission Register), `/attendance`
+  (read-only viewer) and `/reports` (static list of planned reports)
 
 ## Tech stack
 

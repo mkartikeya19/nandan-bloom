@@ -118,7 +118,7 @@ Rules:
 
 - Recorded per student + session, optionally per fee head, as an amount or a
   percentage, with an approver and approval date.
-- Approval is limited to admin / principal. *(UI)*
+- Approval is limited to admin / principal (`canApproveConcession`). *(UI)*
 - All concession changes are written to the activity log.
 
 ## Opening balances

@@ -79,7 +79,9 @@ File-based, flat convention under `src/routes`:
 | `_authenticated/teachers.index.tsx` / `.$teacherId.tsx` | `/teachers`, `/teachers/:id` |
 | `_authenticated/activity.tsx` | `/activity` |
 | `_authenticated/settings.tsx` | `/settings` |
-| `_authenticated/admissions.tsx`, `attendance.tsx`, `reports.tsx` | placeholder/secondary screens, hidden from the sidebar |
+| `_authenticated/admissions.tsx` | `/admissions` — Admission Register, not linked in the sidebar |
+| `_authenticated/attendance.tsx` | `/attendance` — read-only daily viewer, not linked in the sidebar |
+| `_authenticated/reports.tsx` | `/reports` — static list of planned reports, not linked in the sidebar |
 
 **Critical routing convention:** a module with child routes must use
 `module.index.tsx` for its landing page. A bare `module.tsx` becomes a *layout*
