@@ -1,64 +1,25 @@
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { fetchCurrentUserRoles } from "@/services/users.service";
+import { buildPermissions, type Permissions } from "@/lib/permissions";
 
-export type AppRole =
-  | "super_admin"
-  | "admin"
-  | "teacher"
-  | "staff"
-  | "reception"
-  | "principal";
+export type { AppRole } from "@/lib/permissions";
 
-export function useUserRoles() {
+/**
+ * Current user's roles + the derived permission set.
+ * All permission logic lives in `@/lib/permissions` — do not add role checks here.
+ */
+export function useUserRoles(): ReturnType<typeof useQuery<{ userId: string | null; roles: string[] }>> &
+  Permissions & { userId: string | null } {
   const query = useQuery({
     queryKey: ["current-user-roles"],
-    queryFn: async () => {
-      const { data: userData } = await supabase.auth.getUser();
-      const user = userData.user;
-      if (!user) return { userId: null as string | null, roles: [] as AppRole[] };
-      const { data, error } = await supabase.from("user_roles").select("role").eq("user_id", user.id);
-      if (error) throw error;
-      return { userId: user.id, roles: (data ?? []).map((r) => r.role as AppRole) };
-    },
+    queryFn: fetchCurrentUserRoles,
     staleTime: 60_000,
   });
-
-  const roles = query.data?.roles ?? [];
-  const isSuperAdmin = roles.includes("super_admin");
-  const isAdmin = roles.includes("admin") || isSuperAdmin;
-  const isReception = roles.includes("reception");
-  const isPrincipal = roles.includes("principal");
-  const isTeacher = roles.includes("teacher");
 
   return {
     ...query,
     userId: query.data?.userId ?? null,
-    roles,
-    isSuperAdmin,
-    isAdmin,
-    isReception,
-    isPrincipal,
-    isTeacher,
-    // Student module permissions
-    // RC-1: Reception can admit students but cannot edit them afterwards.
-    // Only Admin / Super Admin may edit an existing student record.
-    canCreateStudent: isAdmin || isReception,
-    canEditStudent: isAdmin,
-    canPromoteStudent: isAdmin || isPrincipal,
-    canArchiveStudent: isAdmin,
-    canViewStudent: roles.length > 0,
-    // Fee module permissions
-    canManageFeeStructures: isAdmin,
-    canCollectFee: isAdmin || isReception,
-    canVoidReceipt: isAdmin,
-    canApproveConcession: isAdmin || isPrincipal,
-    canViewFees: roles.length > 0,
-    // Exam module permissions
-    canManageExams: isAdmin || isPrincipal,
-    canViewExams: roles.length > 0,
-    // Teacher module (RC-3 Phase 1): Super Admin only — confidential HR data.
-    canManageTeachers: isSuperAdmin,
-    canViewTeachers: isSuperAdmin,
-  };
+    ...buildPermissions(query.data?.roles),
+  } as ReturnType<typeof useQuery<{ userId: string | null; roles: string[] }>> &
+    Permissions & { userId: string | null };
 }
-
