@@ -1,3 +1,4 @@
+import { resolveNextClass } from "@/lib/promotion-helpers";
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useState, useMemo } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
@@ -146,7 +147,7 @@ function PromotionWizardPage() {
         section_id: string;
         house_id: string | null;
         roll_number: string | null;
-        students: { scholar_number: string; full_name: string; status: string } | null;
+        students: { scholar_number: string; full_name: string; status: string };
       };
       const filtered = ((data ?? []) as unknown as PromotionSource[]).filter(
         (r) => r.students?.status !== "Left",
@@ -189,9 +190,7 @@ function PromotionWizardPage() {
       if (patch.action === "retain") next[idx].new_class_id = next[idx].current_class_id;
       if (patch.action === "promote") {
         const cur = currentClasses?.find((c) => c.id === next[idx].current_class_id);
-        const sortedNew = (newClasses ?? []).slice().sort((a, b) => a.order_index - b.order_index);
-        const nextClass = cur ? sortedNew.find((c) => c.order_index > cur.order_index) : undefined;
-        next[idx].new_class_id = nextClass?.id ?? "";
+        next[idx].new_class_id = resolveNextClass(cur, newClasses ?? [])?.id ?? "";
       }
       // auto-assign fee structure
       if (settings.applyFeeAuto) {
