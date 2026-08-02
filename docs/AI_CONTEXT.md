@@ -117,11 +117,14 @@ Start here: [WORKFLOW.md](./WORKFLOW.md) for how a flow runs end to end,
 3. **Schema changes** ship as one new migration containing
    `CREATE TABLE` → `GRANT` → `ENABLE ROW LEVEL SECURITY` → policies, plus an
    `updated_at` trigger. Regenerate types afterwards (do not hand-edit them).
-4. **Permissions:** add the flag to `use-user-role.ts` *and* the matching RLS
-   policy / `has_role()` check.
+4. **Permissions:** add the flag to `src/lib/permissions.ts` *and* the matching
+   RLS policy / `has_role()` check, plus a case in `permissions.test.ts`.
 5. **Instrument:** add a `logActivity()` call and, if the payload is new, a
    branch in `formatActivityDetails()`.
-6. **Verify:** typecheck, `bun run lint`, `bun run build`, then exercise the
-   affected flow in the preview (admission → schedule → collect → receipt is the
-   highest-value regression path).
+6. **Test:** extend the unit suites in `src/lib/__tests__` for any pure logic you
+   touch ([TESTING.md](./TESTING.md)).
+7. **Verify:** `bun run verify:migrations && bun run typecheck && bun run lint &&
+   bun run test && bun run build`, then exercise the affected flow in the preview
+   (admission → schedule → collect → receipt is the highest-value regression
+   path).
 7. **Document:** update the relevant file in `/docs` in the same change.
