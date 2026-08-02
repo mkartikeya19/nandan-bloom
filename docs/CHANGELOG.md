@@ -4,7 +4,7 @@ All notable changes to the Nandan Kids School ERP are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/) and the
 project adheres to [Semantic Versioning](https://semver.org/).
 
-## [1.0.0] — 2026-08-02 — *Core ERP Foundation*
+## [1.0.0] — 2026-08-02 — _Core ERP Foundation_
 
 First production release. Everything below is implemented and verified
 (typecheck, unit tests, migration verification, production build).
@@ -12,10 +12,12 @@ First production release. Everything below is implemented and verified
 ### Added — Modules
 
 **Dashboard (`/dashboard`)**
+
 - Operational stat cards and a one-time "Claim admin role" bootstrap banner
   backed by `claim_first_admin()`.
 
 **Student Management (`/students`)**
+
 - Student master with search (scholar number, name, father's name), cascading
   session → class → section filters and pagination.
 - Admission workflow (`/students/new`) with mandatory-field validation, disabled
@@ -35,6 +37,7 @@ First production release. Everything below is implemented and verified
 - "Link Fee Structure" repair action for academic records without a structure.
 
 **Promotion (`/students/promote`)**
+
 - Bulk promotion wizard: source selection, promotion settings, per-student
   Promote / Retain / Exclude, preview, and single-transaction commit via
   `bulk_promote_students()`.
@@ -43,6 +46,7 @@ First production release. Everything below is implemented and verified
 - Single-student promote dialog from the student profile.
 
 **Fee Management (`/fees`)**
+
 - Global fee heads with frequency, applicable months, applicability,
   auto-generate, charge trigger, mandatory and active flags.
 - Fee structures per session + class with a per-head editor, summary card,
@@ -67,6 +71,7 @@ First production release. Everything below is implemented and verified
 - Fee settings: late fee configuration and default collection mode.
 
 **Teacher Management (`/teachers`)** — Super Admin only
+
 - Teacher records: basic details, government IDs, bank details (masked account
   number), salary and effective date, experience and previous school.
 - Auto employee code `NKS-0001…` via `next_employee_code()`.
@@ -74,15 +79,18 @@ First production release. Everything below is implemented and verified
 - Documents in the private `teacher-documents` bucket via signed URLs.
 
 **Examinations (`/examinations`)** — configuration only (Phase 1)
+
 - Subject master, class-subject mapping with assessment components, grade scales
   with non-overlapping bands, and versioned exam patterns (terms, weightage,
   applicable classes, clone, new version, lock).
 
 **Activity Center (`/activity`)**
+
 - Global append-only audit log with module/action/date filters, user attribution
   and human-readable summaries.
 
 **Settings (`/settings`)** — Super Admin editable
+
 - School profile, academic sessions (Draft/Active/Closed), classes, sections,
   houses, fee heads, users & roles, invitations and system health checks.
 

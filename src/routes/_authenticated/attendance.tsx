@@ -7,7 +7,14 @@ import { EmptyState } from "@/components/empty-state";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { CalendarCheck } from "lucide-react";
 
@@ -49,14 +56,18 @@ function AttendancePage() {
       <Card className="mb-4">
         <CardContent className="p-3 flex items-end gap-3">
           <div className="max-w-xs w-full">
-            <Label htmlFor="date" className="mb-1.5 block">Date</Label>
+            <Label htmlFor="date" className="mb-1.5 block">
+              Date
+            </Label>
             <Input id="date" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
           </div>
         </CardContent>
       </Card>
 
       {isLoading ? (
-        <Card><CardContent className="p-6 text-sm text-muted-foreground">Loading…</CardContent></Card>
+        <Card>
+          <CardContent className="p-6 text-sm text-muted-foreground">Loading…</CardContent>
+        </Card>
       ) : !data || data.length === 0 ? (
         <EmptyState
           icon={CalendarCheck}
@@ -78,10 +89,14 @@ function AttendancePage() {
               <TableBody>
                 {data.map((r) => (
                   <TableRow key={r.id}>
-                    <TableCell className="font-mono text-xs">{r.students?.admission_number}</TableCell>
+                    <TableCell className="font-mono text-xs">
+                      {r.students?.admission_number}
+                    </TableCell>
                     <TableCell className="font-medium">{r.students?.full_name}</TableCell>
                     <TableCell>
-                      <Badge variant={badge[r.status] ?? "secondary"} className="capitalize">{r.status}</Badge>
+                      <Badge variant={badge[r.status] ?? "secondary"} className="capitalize">
+                        {r.status}
+                      </Badge>
                     </TableCell>
                     <TableCell className="text-muted-foreground">{r.remarks ?? "—"}</TableCell>
                   </TableRow>

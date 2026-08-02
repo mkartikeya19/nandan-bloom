@@ -13,11 +13,7 @@ function n(d: Details, k: string): number | undefined {
   return v == null || v === "" ? undefined : Number(v);
 }
 
-export function formatActivityDetails(
-  module: string,
-  action: string,
-  details: Details,
-): string {
+export function formatActivityDetails(module: string, action: string, details: Details): string {
   if (!details || Object.keys(details).length === 0) return "—";
 
   const a = action.toLowerCase();
@@ -83,7 +79,6 @@ export function formatActivityDetails(
     if (bits.length) return bits.join(" · ");
   }
 
-
   // Teachers (RC-3)
   if (module === "Teachers") {
     const code = s(details, "employee_code");
@@ -103,7 +98,6 @@ export function formatActivityDetails(
     if (a.includes("create")) return `Teacher created${suffix ? ` — ${suffix}` : ""}`;
     if (a.includes("update")) return `Teacher updated${suffix ? ` — ${suffix}` : ""}`;
   }
-
 
   // Students / Admissions
   if (module === "Students" || module === "Admissions") {

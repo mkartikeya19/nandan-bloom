@@ -4,7 +4,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { z } from "zod";
 import {
-  Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
 } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
@@ -44,22 +49,56 @@ export interface TeacherRecord {
 type FormState = Record<string, string>;
 
 const EMPTY: FormState = {
-  employee_code: "", full_name: "", date_of_joining: "", phone: "", email: "",
-  designation: "", qualification: "", subject_specialization: "", gender: "",
-  date_of_birth: "", address: "", aadhaar_number: "", pan_number: "",
-  bank_name: "", account_holder_name: "", account_number: "", ifsc_code: "",
-  monthly_salary: "", salary_effective_from: "", total_experience_years: "",
-  previous_school: "", status: "Active",
+  employee_code: "",
+  full_name: "",
+  date_of_joining: "",
+  phone: "",
+  email: "",
+  designation: "",
+  qualification: "",
+  subject_specialization: "",
+  gender: "",
+  date_of_birth: "",
+  address: "",
+  aadhaar_number: "",
+  pan_number: "",
+  bank_name: "",
+  account_holder_name: "",
+  account_number: "",
+  ifsc_code: "",
+  monthly_salary: "",
+  salary_effective_from: "",
+  total_experience_years: "",
+  previous_school: "",
+  status: "Active",
 };
 
 const schema = z.object({
   full_name: z.string().trim().min(2, "Full name is required").max(120),
   date_of_joining: z.string().min(1, "Date of joining is required"),
-  phone: z.string().trim().regex(/^[0-9]{10}$/, "Enter a valid 10-digit mobile number"),
+  phone: z
+    .string()
+    .trim()
+    .regex(/^[0-9]{10}$/, "Enter a valid 10-digit mobile number"),
   email: z.string().trim().email("Invalid email").max(255).optional().or(z.literal("")),
-  aadhaar_number: z.string().trim().regex(/^[0-9]{12}$/, "Aadhaar must be 12 digits").optional().or(z.literal("")),
-  pan_number: z.string().trim().regex(/^[A-Z]{5}[0-9]{4}[A-Z]$/, "PAN format: ABCDE1234F").optional().or(z.literal("")),
-  ifsc_code: z.string().trim().regex(/^[A-Z]{4}0[A-Z0-9]{6}$/, "IFSC format: ABCD0123456").optional().or(z.literal("")),
+  aadhaar_number: z
+    .string()
+    .trim()
+    .regex(/^[0-9]{12}$/, "Aadhaar must be 12 digits")
+    .optional()
+    .or(z.literal("")),
+  pan_number: z
+    .string()
+    .trim()
+    .regex(/^[A-Z]{5}[0-9]{4}[A-Z]$/, "PAN format: ABCDE1234F")
+    .optional()
+    .or(z.literal("")),
+  ifsc_code: z
+    .string()
+    .trim()
+    .regex(/^[A-Z]{4}0[A-Z0-9]{6}$/, "IFSC format: ABCD0123456")
+    .optional()
+    .or(z.literal("")),
 });
 
 function nullish(v: string) {
@@ -105,15 +144,19 @@ export function TeacherForm({ open, onOpenChange, teacher }: Props) {
     }
   }, [open, teacher]);
 
-  const set = (k: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
-    setForm((f) => ({ ...f, [k]: e.target.value }));
+  const set =
+    (k: string) =>
+    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
+      setForm((f) => ({ ...f, [k]: e.target.value }));
 
   const save = useMutation({
     mutationFn: async () => {
       const parsed = schema.safeParse(form);
       if (!parsed.success) {
         const e: Record<string, string> = {};
-        parsed.error.issues.forEach((i) => { e[String(i.path[0])] = i.message; });
+        parsed.error.issues.forEach((i) => {
+          e[String(i.path[0])] = i.message;
+        });
         setErrors(e);
         throw new Error("Please fix the highlighted fields");
       }
@@ -147,7 +190,10 @@ export function TeacherForm({ open, onOpenChange, teacher }: Props) {
         const { error } = await supabase.from("teachers").update(payload).eq("id", teacher.id);
         if (error) throw error;
         await logActivity({
-          module: "Teachers", action: "Teacher Updated", entityType: "teacher", entityId: teacher.id,
+          module: "Teachers",
+          action: "Teacher Updated",
+          entityType: "teacher",
+          entityId: teacher.id,
           details: { employee_code: teacher.employee_code, full_name: payload.full_name },
         });
         return teacher.id;
@@ -161,7 +207,10 @@ export function TeacherForm({ open, onOpenChange, teacher }: Props) {
         .single();
       if (error) throw error;
       await logActivity({
-        module: "Teachers", action: "Teacher Created", entityType: "teacher", entityId: data.id,
+        module: "Teachers",
+        action: "Teacher Created",
+        entityType: "teacher",
+        entityId: data.id,
         details: { employee_code: code, full_name: payload.full_name },
       });
       return data.id;
@@ -178,7 +227,8 @@ export function TeacherForm({ open, onOpenChange, teacher }: Props) {
   const field = (key: string, label: string, type = "text", required = false) => (
     <div className="space-y-1.5">
       <Label htmlFor={key}>
-        {label}{required && <span className="text-destructive"> *</span>}
+        {label}
+        {required && <span className="text-destructive"> *</span>}
       </Label>
       <Input id={key} type={type} value={form[key]} onChange={set(key)} />
       {errors[key] && <p className="text-xs text-destructive">{errors[key]}</p>}
@@ -208,7 +258,9 @@ export function TeacherForm({ open, onOpenChange, teacher }: Props) {
               <div className="space-y-1.5">
                 <Label>Employee ID</Label>
                 <Input value={form.employee_code} readOnly className="font-mono bg-muted" />
-                <p className="text-xs text-muted-foreground">Auto-generated, permanent identifier.</p>
+                <p className="text-xs text-muted-foreground">
+                  Auto-generated, permanent identifier.
+                </p>
               </div>
               {field("full_name", "Full name", "text", true)}
               {field("date_of_joining", "Date of joining", "date", true)}
@@ -219,8 +271,12 @@ export function TeacherForm({ open, onOpenChange, teacher }: Props) {
               {field("subject_specialization", "Subject specialisation")}
               <div className="space-y-1.5">
                 <Label htmlFor="gender">Gender</Label>
-                <select id="gender" className="w-full border rounded-md px-3 py-2 bg-background text-sm"
-                  value={form.gender} onChange={set("gender")}>
+                <select
+                  id="gender"
+                  className="w-full border rounded-md px-3 py-2 bg-background text-sm"
+                  value={form.gender}
+                  onChange={set("gender")}
+                >
                   <option value="">Select</option>
                   <option value="Male">Male</option>
                   <option value="Female">Female</option>
@@ -230,11 +286,21 @@ export function TeacherForm({ open, onOpenChange, teacher }: Props) {
               {field("date_of_birth", "Date of birth", "date")}
               <div className="space-y-1.5">
                 <Label htmlFor="status">Status</Label>
-                <select id="status" className="w-full border rounded-md px-3 py-2 bg-background text-sm"
-                  value={form.status} onChange={set("status")}>
-                  {TEACHER_STATUS_VALUES.map((s) => <option key={s} value={s}>{s}</option>)}
+                <select
+                  id="status"
+                  className="w-full border rounded-md px-3 py-2 bg-background text-sm"
+                  value={form.status}
+                  onChange={set("status")}
+                >
+                  {TEACHER_STATUS_VALUES.map((s) => (
+                    <option key={s} value={s}>
+                      {s}
+                    </option>
+                  ))}
                 </select>
-                <p className="text-xs text-muted-foreground">Inactive staff are excluded from future assignments.</p>
+                <p className="text-xs text-muted-foreground">
+                  Inactive staff are excluded from future assignments.
+                </p>
               </div>
               <div className="space-y-1.5 sm:col-span-2">
                 <Label htmlFor="address">Address</Label>
@@ -255,7 +321,8 @@ export function TeacherForm({ open, onOpenChange, teacher }: Props) {
               {field("monthly_salary", "Monthly salary (₹)", "number")}
               {field("salary_effective_from", "Effective from", "date")}
               <p className="sm:col-span-2 text-xs text-muted-foreground">
-                Salary is stored for future Payroll only — no calculations are performed in this release.
+                Salary is stored for future Payroll only — no calculations are performed in this
+                release.
               </p>
             </TabsContent>
 
@@ -267,8 +334,18 @@ export function TeacherForm({ open, onOpenChange, teacher }: Props) {
         </Tabs>
 
         <DialogFooter className="border-t pt-3">
-          <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-          <Button onClick={() => save.mutate()} disabled={save.isPending || !form.full_name.trim() || !form.date_of_joining || !form.phone.trim()}>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
+            Cancel
+          </Button>
+          <Button
+            onClick={() => save.mutate()}
+            disabled={
+              save.isPending ||
+              !form.full_name.trim() ||
+              !form.date_of_joining ||
+              !form.phone.trim()
+            }
+          >
             {save.isPending ? "Saving…" : isEdit ? "Save changes" : "Create teacher"}
           </Button>
         </DialogFooter>

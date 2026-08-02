@@ -67,24 +67,24 @@ refuses once any `super_admin` exists.
 
 ## Financial integrity (database-enforced)
 
-| Guard | Enforcement |
-| --- | --- |
-| Positive payment amounts | `validate_fee_payment` trigger |
-| `receipt_number` and `amount` immutable after insert | `validate_fee_payment` trigger |
-| Allocation ≤ outstanding of the schedule row | `validate_fee_payment_allocation` trigger (0.01 rounding tolerance) |
-| Σ allocations ≤ receipt total | `validate_fee_payment_allocation` trigger |
-| `paid_amount` / `status` never client-written | `recompute_schedule_paid` trigger |
-| Void reverses the ledger atomically | `recompute_on_payment_void` trigger |
-| Corrections only by void-and-repost | `DELETE` denied on `fee_payments` |
+| Guard                                                    | Enforcement                                                                            |
+| -------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| Positive payment amounts                                 | `validate_fee_payment` trigger                                                         |
+| `receipt_number` and `amount` immutable after insert     | `validate_fee_payment` trigger                                                         |
+| Allocation ≤ outstanding of the schedule row             | `validate_fee_payment_allocation` trigger (0.01 rounding tolerance)                    |
+| Σ allocations ≤ receipt total                            | `validate_fee_payment_allocation` trigger                                              |
+| `paid_amount` / `status` never client-written            | `recompute_schedule_paid` trigger                                                      |
+| Void reverses the ledger atomically                      | `recompute_on_payment_void` trigger                                                    |
+| Corrections only by void-and-repost                      | `DELETE` denied on `fee_payments`                                                      |
 | Exactly one Active + Complete fee structure at admission | `admit_student_with_fee_structure()` + `validate_active_academic_record_fee_structure` |
-| One Active academic session | partial unique index + `validate_academic_session_transition` |
+| One Active academic session                              | partial unique index + `validate_academic_session_transition`                          |
 
 ## Storage policies
 
-| Bucket | Public | Contents | Access |
-| --- | --- | --- | --- |
-| `students` | No | `photos/<scholar>/…`, `documents/<scholar>/…` | Authenticated staff via helpers in `students-helpers.ts` |
-| `teacher-documents` | No | `<employee_code>/…` | Super Admin only |
+| Bucket              | Public | Contents                                      | Access                                                   |
+| ------------------- | ------ | --------------------------------------------- | -------------------------------------------------------- |
+| `students`          | No     | `photos/<scholar>/…`, `documents/<scholar>/…` | Authenticated staff via helpers in `students-helpers.ts` |
+| `teacher-documents` | No     | `<employee_code>/…`                           | Super Admin only                                         |
 
 Both buckets are private. Files are **never** linked directly — the UI requests a
 short-lived signed URL each time. Do not make a bucket public.

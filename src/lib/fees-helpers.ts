@@ -14,8 +14,16 @@ export const FEE_APPLICABILITY_LABELS: Record<FeeApplicability, string> = {
 };
 
 export const PAYMENT_MODES = [
-  "Cash", "Cheque", "UPI", "NEFT", "RTGS", "IMPS", "Bank Transfer",
-  "Debit Card", "Credit Card", "QR Code",
+  "Cash",
+  "Cheque",
+  "UPI",
+  "NEFT",
+  "RTGS",
+  "IMPS",
+  "Bank Transfer",
+  "Debit Card",
+  "Credit Card",
+  "QR Code",
 ] as const;
 export type PaymentMode = (typeof PAYMENT_MODES)[number];
 
@@ -23,14 +31,23 @@ export const SCHEDULE_STATUSES = ["Pending", "Partial", "Paid", "Waived"] as con
 export type ScheduleStatus = (typeof SCHEDULE_STATUSES)[number];
 
 export const MONTH_NAMES = [
-  "January", "February", "March", "April", "May", "June",
-  "July", "August", "September", "October", "November", "December",
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
 ];
 
 // Tuition is generated July-April (never May/June)
 export const DEFAULT_TUITION_MONTHS = [7, 8, 9, 10, 11, 12, 1, 2, 3, 4];
 export const BLOCKED_TUITION_MONTHS = [5, 6];
-
 
 export function formatINR(n: number | string | null | undefined): string {
   const v = Number(n ?? 0);
@@ -42,15 +59,33 @@ export function amountInWords(num: number): string {
   const n = Math.round(num);
   if (n === 0) return "Zero Rupees Only";
   const a = [
-    "", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine",
-    "Ten", "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen",
-    "Seventeen", "Eighteen", "Nineteen",
+    "",
+    "One",
+    "Two",
+    "Three",
+    "Four",
+    "Five",
+    "Six",
+    "Seven",
+    "Eight",
+    "Nine",
+    "Ten",
+    "Eleven",
+    "Twelve",
+    "Thirteen",
+    "Fourteen",
+    "Fifteen",
+    "Sixteen",
+    "Seventeen",
+    "Eighteen",
+    "Nineteen",
   ];
   const b = ["", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"];
   const inWords = (x: number): string => {
     if (x < 20) return a[x];
     if (x < 100) return b[Math.floor(x / 10)] + (x % 10 ? " " + a[x % 10] : "");
-    if (x < 1000) return a[Math.floor(x / 100)] + " Hundred" + (x % 100 ? " " + inWords(x % 100) : "");
+    if (x < 1000)
+      return a[Math.floor(x / 100)] + " Hundred" + (x % 100 ? " " + inWords(x % 100) : "");
     return "";
   };
   const parts: string[] = [];
@@ -145,7 +180,10 @@ export function allocatePayment(amount: number, rows: ScheduleRow[]): Allocation
   const result: AllocationDraft[] = [];
   for (const r of sorted) {
     if (remaining <= 0) break;
-    const outstanding = Math.max(0, Number(r.due_amount) - Number(r.concession_amount) - Number(r.paid_amount));
+    const outstanding = Math.max(
+      0,
+      Number(r.due_amount) - Number(r.concession_amount) - Number(r.paid_amount),
+    );
     if (outstanding <= 0) continue;
     const alloc = Math.min(outstanding, remaining);
     result.push({ scheduleId: r.id, amount: Math.round(alloc * 100) / 100 });
@@ -154,12 +192,16 @@ export function allocatePayment(amount: number, rows: ScheduleRow[]): Allocation
   return result;
 }
 
-export function outstandingOf(r: Pick<ScheduleRow, "due_amount" | "concession_amount" | "paid_amount">) {
+export function outstandingOf(
+  r: Pick<ScheduleRow, "due_amount" | "concession_amount" | "paid_amount">,
+) {
   return Math.max(0, Number(r.due_amount) - Number(r.concession_amount) - Number(r.paid_amount));
 }
 
 export async function generateStudentSchedule(recordId: string): Promise<number> {
-  const { data, error } = await supabase.rpc("generate_student_fee_schedule", { _record_id: recordId });
+  const { data, error } = await supabase.rpc("generate_student_fee_schedule", {
+    _record_id: recordId,
+  });
   if (error) throw error;
   return Number(data ?? 0);
 }

@@ -2,13 +2,13 @@
 
 ## Tooling
 
-| Concern | Tool | Command |
-| --- | --- | --- |
-| Unit tests | Vitest (`vitest.config.ts`) | `bun run test` |
-| Type checking | TypeScript (strict) | `bun run typecheck` |
-| Lint | ESLint (`eslint.config.js`) | `bun run lint` |
+| Concern           | Tool                            | Command                     |
+| ----------------- | ------------------------------- | --------------------------- |
+| Unit tests        | Vitest (`vitest.config.ts`)     | `bun run test`              |
+| Type checking     | TypeScript (strict)             | `bun run typecheck`         |
+| Lint              | ESLint (`eslint.config.js`)     | `bun run lint`              |
 | Migration hygiene | `scripts/verify-migrations.mjs` | `bun run verify:migrations` |
-| Production build | Vite / TanStack Start | `bun run build` |
+| Production build  | Vite / TanStack Start           | `bun run build`             |
 
 CI (`.github/workflows/ci.yml`) runs migration verification → typecheck → lint →
 tests → build on every push and pull request.
@@ -37,13 +37,13 @@ The app talks to Postgres directly, so the test pyramid is deliberately shaped:
 
 `src/lib/__tests__/`:
 
-| File | Covers |
-| --- | --- |
-| `fees-helpers.test.ts` | Allocation priority order (opening → admission → activities → monthly chronological → other → optional), full/partial allocation maths, currency and words formatting |
-| `opening-balance.test.ts` | Grouping breakup rows by scholar number, totals, row validation |
-| `receipts.test.ts` | Void reversal arithmetic, receipt status derivation |
-| `promotion-helpers.test.ts` | Eligible destination sessions (chronologically later only), next-class resolution |
-| `permissions.test.ts` | Every role's capability set, `super_admin ⇒ admin`, no-role user |
+| File                        | Covers                                                                                                                                                                |
+| --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `fees-helpers.test.ts`      | Allocation priority order (opening → admission → activities → monthly chronological → other → optional), full/partial allocation maths, currency and words formatting |
+| `opening-balance.test.ts`   | Grouping breakup rows by scholar number, totals, row validation                                                                                                       |
+| `receipts.test.ts`          | Void reversal arithmetic, receipt status derivation                                                                                                                   |
+| `promotion-helpers.test.ts` | Eligible destination sessions (chronologically later only), next-class resolution                                                                                     |
+| `permissions.test.ts`       | Every role's capability set, `super_admin ⇒ admin`, no-role user                                                                                                      |
 
 Run a single file: `bunx vitest run src/lib/__tests__/fees-helpers.test.ts`.
 

@@ -2,8 +2,14 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import {
-  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
-  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 
@@ -15,7 +21,13 @@ interface Props {
   currentRecordId?: string | null;
 }
 
-export function ArchiveDialog({ open, onOpenChange, studentId, studentName, currentRecordId }: Props) {
+export function ArchiveDialog({
+  open,
+  onOpenChange,
+  studentId,
+  studentName,
+  currentRecordId,
+}: Props) {
   const qc = useQueryClient();
   const archive = useMutation({
     mutationFn: async () => {
@@ -43,13 +55,17 @@ export function ArchiveDialog({ open, onOpenChange, studentId, studentName, curr
         <AlertDialogHeader>
           <AlertDialogTitle>Archive {studentName}?</AlertDialogTitle>
           <AlertDialogDescription>
-            The student's profile and academic history are preserved. Their current academic record will be set to <strong>Inactive</strong>. You can re-activate them later by promoting to a new record.
+            The student's profile and academic history are preserved. Their current academic record
+            will be set to <strong>Inactive</strong>. You can re-activate them later by promoting to
+            a new record.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
           <AlertDialogAction asChild>
-            <Button onClick={() => archive.mutate()} disabled={archive.isPending}>Archive</Button>
+            <Button onClick={() => archive.mutate()} disabled={archive.isPending}>
+              Archive
+            </Button>
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

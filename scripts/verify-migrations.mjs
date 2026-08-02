@@ -20,7 +20,9 @@ const FORBIDDEN = [
 let failures = [];
 let files;
 try {
-  files = readdirSync(DIR).filter((f) => f.endsWith(".sql")).sort();
+  files = readdirSync(DIR)
+    .filter((f) => f.endsWith(".sql"))
+    .sort();
 } catch {
   console.error(`No ${DIR} directory found.`);
   process.exit(1);
@@ -31,7 +33,8 @@ if (files.length === 0) failures.push("No migration files found.");
 const seenTimestamps = new Set();
 for (const file of files) {
   const ts = file.split("_")[0];
-  if (!/^\d{14}$/.test(ts)) failures.push(`${file}: filename must start with a 14-digit timestamp.`);
+  if (!/^\d{14}$/.test(ts))
+    failures.push(`${file}: filename must start with a 14-digit timestamp.`);
   if (seenTimestamps.has(ts)) failures.push(`${file}: duplicate migration timestamp ${ts}.`);
   seenTimestamps.add(ts);
 
@@ -41,14 +44,19 @@ for (const file of files) {
     if (pattern.test(sql)) failures.push(`${file}: contains a forbidden statement (${pattern}).`);
   }
 
-  const created = [...sql.matchAll(/create\s+table\s+(?:if\s+not\s+exists\s+)?public\.([a-z0-9_]+)/gi)].map(
-    (m) => m[1],
-  );
+  const created = [
+    ...sql.matchAll(/create\s+table\s+(?:if\s+not\s+exists\s+)?public\.([a-z0-9_]+)/gi),
+  ].map((m) => m[1]);
   for (const table of new Set(created)) {
     const grantRe = new RegExp(`grant[\\s\\S]{0,120}on\\s+(table\\s+)?public\\.${table}\\b`, "i");
-    const rlsRe = new RegExp(`alter\\s+table\\s+public\\.${table}\\s+enable\\s+row\\s+level\\s+security`, "i");
-    if (!grantRe.test(sql)) failures.push(`${file}: public.${table} created without GRANT statements.`);
-    if (!rlsRe.test(sql)) failures.push(`${file}: public.${table} created without ENABLE ROW LEVEL SECURITY.`);
+    const rlsRe = new RegExp(
+      `alter\\s+table\\s+public\\.${table}\\s+enable\\s+row\\s+level\\s+security`,
+      "i",
+    );
+    if (!grantRe.test(sql))
+      failures.push(`${file}: public.${table} created without GRANT statements.`);
+    if (!rlsRe.test(sql))
+      failures.push(`${file}: public.${table} created without ENABLE ROW LEVEL SECURITY.`);
   }
 }
 

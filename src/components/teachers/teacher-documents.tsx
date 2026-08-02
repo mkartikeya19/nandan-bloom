@@ -8,7 +8,10 @@ import { Badge } from "@/components/ui/badge";
 import { Download, Eye, Upload } from "lucide-react";
 import { logActivity } from "@/lib/activity";
 import {
-  TEACHER_DOC_TYPES, type TeacherDocumentRow, getSignedTeacherUrl, uploadTeacherFile,
+  TEACHER_DOC_TYPES,
+  type TeacherDocumentRow,
+  getSignedTeacherUrl,
+  uploadTeacherFile,
 } from "@/lib/teachers-helpers";
 
 interface Props {
@@ -39,11 +42,15 @@ export function TeacherDocuments({ teacherId, employeeCode, canEdit }: Props) {
     enabled: (docs ?? []).length > 0,
     queryKey: ["teacher-doc-uploaders", (docs ?? []).map((d) => d.uploaded_by).join(",")],
     queryFn: async () => {
-      const ids = Array.from(new Set((docs ?? []).map((d) => d.uploaded_by).filter(Boolean) as string[]));
+      const ids = Array.from(
+        new Set((docs ?? []).map((d) => d.uploaded_by).filter(Boolean) as string[]),
+      );
       if (ids.length === 0) return {} as Record<string, string>;
       const { data } = await supabase.from("profiles").select("id, full_name, email").in("id", ids);
       const map: Record<string, string> = {};
-      (data ?? []).forEach((p) => { map[p.id] = p.full_name ?? p.email ?? "—"; });
+      (data ?? []).forEach((p) => {
+        map[p.id] = p.full_name ?? p.email ?? "—";
+      });
       return map;
     },
   });
@@ -64,9 +71,13 @@ export function TeacherDocuments({ teacherId, employeeCode, canEdit }: Props) {
           .eq("id", existing.id);
         if (error) throw error;
       } else {
-        const { error } = await supabase
-          .from("teacher_documents")
-          .insert({ teacher_id: teacherId, doc_type: type, file_path: path, uploaded_by: uid, label: file.name });
+        const { error } = await supabase.from("teacher_documents").insert({
+          teacher_id: teacherId,
+          doc_type: type,
+          file_path: path,
+          uploaded_by: uid,
+          label: file.name,
+        });
         if (error) throw error;
       }
 
@@ -99,7 +110,9 @@ export function TeacherDocuments({ teacherId, employeeCode, canEdit }: Props) {
 
   return (
     <Card>
-      <CardHeader><CardTitle className="text-base">Documents</CardTitle></CardHeader>
+      <CardHeader>
+        <CardTitle className="text-base">Documents</CardTitle>
+      </CardHeader>
       <CardContent className="divide-y">
         {TEACHER_DOC_TYPES.map((type) => {
           const doc = latestFor(type);
@@ -117,12 +130,20 @@ export function TeacherDocuments({ teacherId, employeeCode, canEdit }: Props) {
                   <p className="text-xs text-muted-foreground">Not uploaded</p>
                 )}
               </div>
-              {doc ? <Badge variant="secondary">Uploaded</Badge> : <Badge variant="outline">Missing</Badge>}
+              {doc ? (
+                <Badge variant="secondary">Uploaded</Badge>
+              ) : (
+                <Badge variant="outline">Missing</Badge>
+              )}
               <div className="flex items-center gap-1">
                 {doc && (
                   <>
-                    <Button size="sm" variant="ghost" onClick={() => open(doc.file_path)}><Eye className="h-4 w-4" /></Button>
-                    <Button size="sm" variant="ghost" onClick={() => open(doc.file_path, true)}><Download className="h-4 w-4" /></Button>
+                    <Button size="sm" variant="ghost" onClick={() => open(doc.file_path)}>
+                      <Eye className="h-4 w-4" />
+                    </Button>
+                    <Button size="sm" variant="ghost" onClick={() => open(doc.file_path, true)}>
+                      <Download className="h-4 w-4" />
+                    </Button>
                   </>
                 )}
                 {canEdit && (
@@ -130,7 +151,9 @@ export function TeacherDocuments({ teacherId, employeeCode, canEdit }: Props) {
                     <input
                       type="file"
                       hidden
-                      ref={(el) => { inputs.current[type] = el; }}
+                      ref={(el) => {
+                        inputs.current[type] = el;
+                      }}
                       onChange={(e) => {
                         const file = e.target.files?.[0];
                         e.target.value = "";
@@ -139,8 +162,12 @@ export function TeacherDocuments({ teacherId, employeeCode, canEdit }: Props) {
                         upload.mutate({ type, file });
                       }}
                     />
-                    <Button size="sm" variant="outline" disabled={busy === type}
-                      onClick={() => inputs.current[type]?.click()}>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      disabled={busy === type}
+                      onClick={() => inputs.current[type]?.click()}
+                    >
                       <Upload className="h-4 w-4" />
                       {busy === type ? "Uploading…" : doc ? "Replace" : "Upload"}
                     </Button>

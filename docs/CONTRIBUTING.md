@@ -23,9 +23,9 @@ do-not-change list. This file covers process.
 3. **Implement** using the existing helpers, services and UI primitives.
 4. **Test.** Add or extend a unit test for any pure logic you touch.
 5. **Verify.** `bun run verify:migrations && bun run typecheck && bun run lint &&
-   bun run test && bun run build`.
+bun run test && bun run build`.
 6. **Document.** Update every affected file in `/docs`, plus
-   [CHANGELOG.md](./CHANGELOG.md) under *Unreleased*.
+   [CHANGELOG.md](./CHANGELOG.md) under _Unreleased_.
 
 ## Commit and branch conventions
 

@@ -23,16 +23,28 @@ describe("receipt voiding", () => {
   });
 
   it("recomputes status exactly like the database trigger", () => {
-    expect(computeScheduleStatus({ id: "x", due_amount: 500, concession_amount: 500, paid_amount: 0 })).toBe("Waived");
-    expect(computeScheduleStatus({ id: "x", due_amount: 500, concession_amount: 0, paid_amount: 500 })).toBe("Paid");
-    expect(computeScheduleStatus({ id: "x", due_amount: 500, concession_amount: 0, paid_amount: 200 })).toBe("Partial");
-    expect(computeScheduleStatus({ id: "x", due_amount: 500, concession_amount: 0, paid_amount: 0 })).toBe("Pending");
-    expect(outstanding({ id: "x", due_amount: 500, concession_amount: 100, paid_amount: 200 })).toBe(200);
+    expect(
+      computeScheduleStatus({ id: "x", due_amount: 500, concession_amount: 500, paid_amount: 0 }),
+    ).toBe("Waived");
+    expect(
+      computeScheduleStatus({ id: "x", due_amount: 500, concession_amount: 0, paid_amount: 500 }),
+    ).toBe("Paid");
+    expect(
+      computeScheduleStatus({ id: "x", due_amount: 500, concession_amount: 0, paid_amount: 200 }),
+    ).toBe("Partial");
+    expect(
+      computeScheduleStatus({ id: "x", due_amount: 500, concession_amount: 0, paid_amount: 0 }),
+    ).toBe("Pending");
+    expect(
+      outstanding({ id: "x", due_amount: 500, concession_amount: 100, paid_amount: 200 }),
+    ).toBe(200);
   });
 
   it("guards the void action", () => {
     const perms = { canVoidReceipt: true };
-    expect(canVoidReceipt({ is_void: false }, { canVoidReceipt: false }, "wrong amount").allowed).toBe(false);
+    expect(
+      canVoidReceipt({ is_void: false }, { canVoidReceipt: false }, "wrong amount").allowed,
+    ).toBe(false);
     expect(canVoidReceipt({ is_void: true }, perms, "wrong amount").allowed).toBe(false);
     expect(canVoidReceipt({ is_void: false }, perms, "typo").allowed).toBe(false);
     expect(canVoidReceipt({ is_void: false }, perms, "wrong amount").allowed).toBe(true);

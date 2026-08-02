@@ -25,7 +25,13 @@ export interface LogArgs {
  * Fire-and-forget activity log. Never throws — failures are swallowed so a
  * logging outage never blocks the primary operation.
  */
-export async function logActivity({ module, action, entityType, entityId, details }: LogArgs): Promise<void> {
+export async function logActivity({
+  module,
+  action,
+  entityType,
+  entityId,
+  details,
+}: LogArgs): Promise<void> {
   try {
     const { data: userData } = await supabase.auth.getUser();
     const userId = userData.user?.id ?? null;

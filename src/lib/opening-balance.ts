@@ -42,7 +42,8 @@ export function validateBreakup(rows: readonly BreakupRow[]): BreakupValidation 
     }
   });
   const total = sumBreakup(rows);
-  if (rows.length > 0 && total <= 0) errors.push("Total opening balance must be greater than zero.");
+  if (rows.length > 0 && total <= 0)
+    errors.push("Total opening balance must be greater than zero.");
   return { valid: errors.length === 0, errors };
 }
 
@@ -61,7 +62,9 @@ export interface ScholarGroup<T extends ImportedBreakupRow = ImportedBreakupRow>
  * Group imported Excel rows by scholar number. Multiple rows per scholar are
  * combined — their sum becomes that student's single Opening Balance.
  */
-export function groupByScholar<T extends ImportedBreakupRow>(rows: readonly T[]): ScholarGroup<T>[] {
+export function groupByScholar<T extends ImportedBreakupRow>(
+  rows: readonly T[],
+): ScholarGroup<T>[] {
   const map = new Map<string, ScholarGroup<T>>();
   for (const r of rows) {
     const key = String(r.scholar ?? "").trim();

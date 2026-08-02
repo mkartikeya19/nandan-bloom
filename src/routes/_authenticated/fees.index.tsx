@@ -4,7 +4,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { PageHeader } from "@/components/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { FeesTabs } from "@/components/fees/fees-tabs";
 import { formatINR } from "@/lib/fees-helpers";
@@ -25,17 +32,39 @@ function FeesDashboard() {
       const monthStartStr = monthStart.toISOString().slice(0, 10);
 
       const [todayRes, monthRes, outstandingRes, pendingRes, todayCountRes] = await Promise.all([
-        supabase.from("fee_payments").select("amount").eq("payment_date", today).eq("is_void", false),
-        supabase.from("fee_payments").select("amount").gte("payment_date", monthStartStr).eq("is_void", false),
+        supabase
+          .from("fee_payments")
+          .select("amount")
+          .eq("payment_date", today)
+          .eq("is_void", false),
+        supabase
+          .from("fee_payments")
+          .select("amount")
+          .gte("payment_date", monthStartStr)
+          .eq("is_void", false),
         supabase.from("student_fee_schedule").select("due_amount, concession_amount, paid_amount"),
-        supabase.from("student_fee_schedule").select("student_id").in("status", ["Pending", "Partial"]),
-        supabase.from("fee_payments").select("id", { count: "exact", head: true }).eq("payment_date", today).eq("is_void", false),
+        supabase
+          .from("student_fee_schedule")
+          .select("student_id")
+          .in("status", ["Pending", "Partial"]),
+        supabase
+          .from("fee_payments")
+          .select("id", { count: "exact", head: true })
+          .eq("payment_date", today)
+          .eq("is_void", false),
       ]);
 
       const todaySum = (todayRes.data ?? []).reduce((s, r) => s + Number(r.amount ?? 0), 0);
       const monthSum = (monthRes.data ?? []).reduce((s, r) => s + Number(r.amount ?? 0), 0);
       const outstanding = (outstandingRes.data ?? []).reduce(
-        (s, r) => s + Math.max(0, Number(r.due_amount ?? 0) - Number(r.concession_amount ?? 0) - Number(r.paid_amount ?? 0)),
+        (s, r) =>
+          s +
+          Math.max(
+            0,
+            Number(r.due_amount ?? 0) -
+              Number(r.concession_amount ?? 0) -
+              Number(r.paid_amount ?? 0),
+          ),
         0,
       );
       const pendingStudents = new Set((pendingRes.data ?? []).map((r) => r.student_id)).size;
@@ -54,7 +83,9 @@ function FeesDashboard() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("fee_payments")
-        .select("id, receipt_number, amount, payment_mode, payment_date, is_void, students(full_name, scholar_number)")
+        .select(
+          "id, receipt_number, amount, payment_mode, payment_date, is_void, students(full_name, scholar_number)",
+        )
         .order("created_at", { ascending: false })
         .limit(10);
       if (error) throw error;
@@ -62,12 +93,42 @@ function FeesDashboard() {
     },
   });
 
-  const cards: Array<{ label: string; value: string; icon: typeof Wallet; view: "today" | "month" | "outstanding" | "pending" | "receipts" }> = [
-    { label: "Today's Collection", value: formatINR(stats.data?.todayCollection ?? 0), icon: Wallet, view: "today" },
-    { label: "This Month", value: formatINR(stats.data?.monthCollection ?? 0), icon: Calendar, view: "month" },
-    { label: "Outstanding", value: formatINR(stats.data?.outstanding ?? 0), icon: AlertCircle, view: "outstanding" },
-    { label: "Students with Pending Fee", value: String(stats.data?.pendingStudents ?? 0), icon: Users, view: "pending" },
-    { label: "Receipts Today", value: String(stats.data?.receiptsToday ?? 0), icon: Receipt, view: "receipts" },
+  const cards: Array<{
+    label: string;
+    value: string;
+    icon: typeof Wallet;
+    view: "today" | "month" | "outstanding" | "pending" | "receipts";
+  }> = [
+    {
+      label: "Today's Collection",
+      value: formatINR(stats.data?.todayCollection ?? 0),
+      icon: Wallet,
+      view: "today",
+    },
+    {
+      label: "This Month",
+      value: formatINR(stats.data?.monthCollection ?? 0),
+      icon: Calendar,
+      view: "month",
+    },
+    {
+      label: "Outstanding",
+      value: formatINR(stats.data?.outstanding ?? 0),
+      icon: AlertCircle,
+      view: "outstanding",
+    },
+    {
+      label: "Students with Pending Fee",
+      value: String(stats.data?.pendingStudents ?? 0),
+      icon: Users,
+      view: "pending",
+    },
+    {
+      label: "Receipts Today",
+      value: String(stats.data?.receiptsToday ?? 0),
+      icon: Receipt,
+      view: "receipts",
+    },
   ];
 
   return (
@@ -75,7 +136,11 @@ function FeesDashboard() {
       <PageHeader
         title="Fee Management"
         description="Fee structures, collections and concessions."
-        actions={<Button asChild><Link to="/fees/collect">Collect Fee</Link></Button>}
+        actions={
+          <Button asChild>
+            <Link to="/fees/collect">Collect Fee</Link>
+          </Button>
+        }
       />
       <FeesTabs />
 
@@ -98,7 +163,9 @@ function FeesDashboard() {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="text-base">Recent Receipts</CardTitle>
-          <Button asChild variant="outline" size="sm"><Link to="/fees/receipts">View all receipts</Link></Button>
+          <Button asChild variant="outline" size="sm">
+            <Link to="/fees/receipts">View all receipts</Link>
+          </Button>
         </CardHeader>
         <CardContent className="p-0">
           <Table>
@@ -114,30 +181,46 @@ function FeesDashboard() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {recent.data?.length ? recent.data.map((p) => (
-                <TableRow key={p.id}>
-                  <TableCell className="font-mono">
-                    <Link to="/fees/receipts/$paymentId" params={{ paymentId: p.id }} className="text-primary hover:underline">
-                      {p.receipt_number}
-                    </Link>
-                  </TableCell>
-                  <TableCell>{p.students?.full_name ?? "—"} <span className="text-xs text-muted-foreground">({p.students?.scholar_number})</span></TableCell>
-                  <TableCell className="font-semibold">{formatINR(Number(p.amount))}</TableCell>
-                  <TableCell>{p.payment_mode}</TableCell>
-                  <TableCell>{new Date(p.payment_date).toLocaleDateString("en-IN")}</TableCell>
-                  <TableCell>{p.is_void ? <Badge variant="destructive">Void</Badge> : <Badge>Paid</Badge>}</TableCell>
-                  <TableCell className="text-right">
-                    <Button asChild size="sm" variant="outline">
-                      <Link to="/fees/receipts/$paymentId" params={{ paymentId: p.id }}>
-                        <Eye className="h-4 w-4" /> View
+              {recent.data?.length ? (
+                recent.data.map((p) => (
+                  <TableRow key={p.id}>
+                    <TableCell className="font-mono">
+                      <Link
+                        to="/fees/receipts/$paymentId"
+                        params={{ paymentId: p.id }}
+                        className="text-primary hover:underline"
+                      >
+                        {p.receipt_number}
                       </Link>
-                    </Button>
+                    </TableCell>
+                    <TableCell>
+                      {p.students?.full_name ?? "—"}{" "}
+                      <span className="text-xs text-muted-foreground">
+                        ({p.students?.scholar_number})
+                      </span>
+                    </TableCell>
+                    <TableCell className="font-semibold">{formatINR(Number(p.amount))}</TableCell>
+                    <TableCell>{p.payment_mode}</TableCell>
+                    <TableCell>{new Date(p.payment_date).toLocaleDateString("en-IN")}</TableCell>
+                    <TableCell>
+                      {p.is_void ? <Badge variant="destructive">Void</Badge> : <Badge>Paid</Badge>}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Button asChild size="sm" variant="outline">
+                        <Link to="/fees/receipts/$paymentId" params={{ paymentId: p.id }}>
+                          <Eye className="h-4 w-4" /> View
+                        </Link>
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={7} className="text-center py-6 text-muted-foreground">
+                    No receipts yet
                   </TableCell>
                 </TableRow>
-              )) : (
-                <TableRow><TableCell colSpan={7} className="text-center py-6 text-muted-foreground">No receipts yet</TableCell></TableRow>
               )}
-
             </TableBody>
           </Table>
         </CardContent>

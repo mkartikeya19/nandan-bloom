@@ -2,11 +2,11 @@
 
 ## Where it runs
 
-| Layer | Host |
-| --- | --- |
+| Layer                         | Host                                                            |
+| ----------------------------- | --------------------------------------------------------------- |
 | Web app (SSR + static assets) | Lovable hosting, Cloudflare Worker runtime (nitro build target) |
-| Database, Auth, Storage | Lovable Cloud managed Postgres (Supabase) |
-| Secrets / environment | Managed by the platform, injected at build/runtime |
+| Database, Auth, Storage       | Lovable Cloud managed Postgres (Supabase)                       |
+| Secrets / environment         | Managed by the platform, injected at build/runtime              |
 
 There is **no separate backend service**. The browser talks to Postgres through
 the Supabase JS client under RLS; multi-step logic runs as `SECURITY DEFINER`

@@ -1,12 +1,7 @@
 import { supabase } from "@/integrations/supabase/client";
 import * as XLSX from "xlsx";
 
-export const STUDENT_STATUS_VALUES = [
-  "Active",
-  "Left",
-  "Passed Out",
-  "Inactive",
-] as const;
+export const STUDENT_STATUS_VALUES = ["Active", "Left", "Passed Out", "Inactive"] as const;
 export type StudentStatus = (typeof STUDENT_STATUS_VALUES)[number];
 
 export const ADMISSION_TYPE_VALUES = [

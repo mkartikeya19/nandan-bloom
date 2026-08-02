@@ -13,32 +13,31 @@ feature-frozen; see [CHANGELOG.md](./CHANGELOG.md) and
 
 ## Documentation index
 
-| File | Contents |
-| --- | --- |
-| [ARCHITECTURE.md](./ARCHITECTURE.md) | App architecture, routing, auth, state, component layout |
-| [DATABASE.md](./DATABASE.md) | Tables, columns, enums, relationships, RPCs, triggers, migrations |
-| [MODULES.md](./MODULES.md) | Every implemented module, screens, permissions |
-| [BUSINESS_RULES.md](./BUSINESS_RULES.md) | Rules enforced in code and in the database |
-| [WORKFLOW.md](./WORKFLOW.md) | End-to-end operational flows across modules |
-| [API.md](./API.md) | RPCs, storage APIs, helper/service utilities |
-| [PERMISSIONS.md](./PERMISSIONS.md) | Roles, capability matrix, database mirror |
-| [SECURITY.md](./SECURITY.md) | Auth, invitations, RLS, financial integrity, storage |
-| [TESTING.md](./TESTING.md) | Test tooling, suites, manual regression path |
-| [DEPLOYMENT.md](./DEPLOYMENT.md) | Hosting, environment, release checklist, rollback |
-| [BOOTSTRAP.md](./BOOTSTRAP.md) | First-time deployment and first Super Admin bootstrap |
+| File                                                         | Contents                                                                    |
+| ------------------------------------------------------------ | --------------------------------------------------------------------------- |
+| [ARCHITECTURE.md](./ARCHITECTURE.md)                         | App architecture, routing, auth, state, component layout                    |
+| [DATABASE.md](./DATABASE.md)                                 | Tables, columns, enums, relationships, RPCs, triggers, migrations           |
+| [MODULES.md](./MODULES.md)                                   | Every implemented module, screens, permissions                              |
+| [BUSINESS_RULES.md](./BUSINESS_RULES.md)                     | Rules enforced in code and in the database                                  |
+| [WORKFLOW.md](./WORKFLOW.md)                                 | End-to-end operational flows across modules                                 |
+| [API.md](./API.md)                                           | RPCs, storage APIs, helper/service utilities                                |
+| [PERMISSIONS.md](./PERMISSIONS.md)                           | Roles, capability matrix, database mirror                                   |
+| [SECURITY.md](./SECURITY.md)                                 | Auth, invitations, RLS, financial integrity, storage                        |
+| [TESTING.md](./TESTING.md)                                   | Test tooling, suites, manual regression path                                |
+| [DEPLOYMENT.md](./DEPLOYMENT.md)                             | Hosting, environment, release checklist, rollback                           |
+| [BOOTSTRAP.md](./BOOTSTRAP.md)                               | First-time deployment and first Super Admin bootstrap                       |
 | [PRODUCTION_CONFIGURATION.md](./PRODUCTION_CONFIGURATION.md) | Required production settings: auth, database, storage, env, password policy |
-| [GO_LIVE_CHECKLIST.md](./GO_LIVE_CHECKLIST.md) | Pre-production checklist and sign-off |
-| [SECURITY_VERIFICATION.md](./SECURITY_VERIFICATION.md) | What is verified in code vs pending manual checks |
-| [ROLE_VERIFICATION.md](./ROLE_VERIFICATION.md) | Role capability matrix and production verification log |
-| [UAT_REPORT_v1.0.0.md](./UAT_REPORT_v1.0.0.md) | Automated gate results and manual regression record |
-| [CONTRIBUTING.md](./CONTRIBUTING.md) | Process, conventions, review checklist |
-| [DECISIONS.md](./DECISIONS.md) | Architecture decision records |
-| [ROADMAP.md](./ROADMAP.md) | Completed vs planned work |
-| [FUTURE_INTEGRATIONS.md](./FUTURE_INTEGRATIONS.md) | How planned modules attach to the foundation |
-| [CHANGELOG.md](./CHANGELOG.md) | Version history |
-| [RELEASE_NOTES.md](./RELEASE_NOTES.md) | v1.0.0 release summary |
-| [AI_CONTEXT.md](./AI_CONTEXT.md) | Conventions, do-not-touch list, contributor workflow |
-
+| [GO_LIVE_CHECKLIST.md](./GO_LIVE_CHECKLIST.md)               | Pre-production checklist and sign-off                                       |
+| [SECURITY_VERIFICATION.md](./SECURITY_VERIFICATION.md)       | What is verified in code vs pending manual checks                           |
+| [ROLE_VERIFICATION.md](./ROLE_VERIFICATION.md)               | Role capability matrix and production verification log                      |
+| [UAT_REPORT_v1.0.0.md](./UAT_REPORT_v1.0.0.md)               | Automated gate results and manual regression record                         |
+| [CONTRIBUTING.md](./CONTRIBUTING.md)                         | Process, conventions, review checklist                                      |
+| [DECISIONS.md](./DECISIONS.md)                               | Architecture decision records                                               |
+| [ROADMAP.md](./ROADMAP.md)                                   | Completed vs planned work                                                   |
+| [FUTURE_INTEGRATIONS.md](./FUTURE_INTEGRATIONS.md)           | How planned modules attach to the foundation                                |
+| [CHANGELOG.md](./CHANGELOG.md)                               | Version history                                                             |
+| [RELEASE_NOTES.md](./RELEASE_NOTES.md)                       | v1.0.0 release summary                                                      |
+| [AI_CONTEXT.md](./AI_CONTEXT.md)                             | Conventions, do-not-touch list, contributor workflow                        |
 
 ## Project overview
 
@@ -66,20 +65,20 @@ Core capabilities that exist today:
 
 ## Tech stack
 
-| Layer | Technology |
-| --- | --- |
-| Framework | TanStack Start v1 (React 19, SSR on Cloudflare Workers via nitro) |
-| Router | TanStack Router (file-based, `src/routes`) |
-| Build | Vite 8 via `@lovable.dev/vite-tanstack-config` |
-| Language | TypeScript 5.8 (strict) |
-| Styling | Tailwind CSS v4 (`src/styles.css`, CSS variables / design tokens) |
-| UI kit | shadcn/ui (new-york) + Radix primitives + lucide-react icons |
-| Data/state | TanStack Query v5 |
-| Forms | react-hook-form + zod (where used) |
-| Backend | Supabase (Postgres, Auth, Storage, RLS) |
-| Spreadsheets | `xlsx` (SheetJS) for import/template/export |
-| Notifications | `sonner` toasts |
-| Charts | `recharts` |
+| Layer         | Technology                                                        |
+| ------------- | ----------------------------------------------------------------- |
+| Framework     | TanStack Start v1 (React 19, SSR on Cloudflare Workers via nitro) |
+| Router        | TanStack Router (file-based, `src/routes`)                        |
+| Build         | Vite 8 via `@lovable.dev/vite-tanstack-config`                    |
+| Language      | TypeScript 5.8 (strict)                                           |
+| Styling       | Tailwind CSS v4 (`src/styles.css`, CSS variables / design tokens) |
+| UI kit        | shadcn/ui (new-york) + Radix primitives + lucide-react icons      |
+| Data/state    | TanStack Query v5                                                 |
+| Forms         | react-hook-form + zod (where used)                                |
+| Backend       | Supabase (Postgres, Auth, Storage, RLS)                           |
+| Spreadsheets  | `xlsx` (SheetJS) for import/template/export                       |
+| Notifications | `sonner` toasts                                                   |
+| Charts        | `recharts`                                                        |
 
 ## Installation
 
@@ -110,7 +109,6 @@ bun run format            # prettier
 
 Release verification runs all of the above; CI enforces it
 (`.github/workflows/ci.yml`). See [DEPLOYMENT.md](./DEPLOYMENT.md).
-
 
 ## Folder structure
 

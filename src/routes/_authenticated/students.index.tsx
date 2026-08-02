@@ -7,15 +7,40 @@ import { EmptyState } from "@/components/empty-state";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import {
-  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Users, Plus, Search, Upload, MoreHorizontal, Eye, Pencil, ArrowUp, Archive, UserX } from "lucide-react";
+import {
+  Users,
+  Plus,
+  Search,
+  Upload,
+  MoreHorizontal,
+  Eye,
+  Pencil,
+  ArrowUp,
+  Archive,
+  UserX,
+} from "lucide-react";
 import { useUserRoles } from "@/hooks/use-user-role";
 import { STUDENT_STATUS_VALUES } from "@/lib/students-helpers";
 import { PromoteDialog } from "@/components/students/promote-dialog";
@@ -38,14 +63,29 @@ function StudentsPage() {
   const [sectionId, setSectionId] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [page, setPage] = useState(0);
-  const [promote, setPromote] = useState<{ id: string; name: string; recordId: string | null } | null>(null);
-  const [archive, setArchive] = useState<{ id: string; name: string; recordId: string | null } | null>(null);
-  const [markLeft, setMarkLeft] = useState<{ id: string; name: string; recordId: string | null } | null>(null);
+  const [promote, setPromote] = useState<{
+    id: string;
+    name: string;
+    recordId: string | null;
+  } | null>(null);
+  const [archive, setArchive] = useState<{
+    id: string;
+    name: string;
+    recordId: string | null;
+  } | null>(null);
+  const [markLeft, setMarkLeft] = useState<{
+    id: string;
+    name: string;
+    recordId: string | null;
+  } | null>(null);
 
   const { data: sessions } = useQuery({
     queryKey: ["ref-sessions"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("academic_sessions").select("id, name, is_active").order("start_date", { ascending: false });
+      const { data, error } = await supabase
+        .from("academic_sessions")
+        .select("id, name, is_active")
+        .order("start_date", { ascending: false });
       if (error) throw error;
       return data;
     },
@@ -54,7 +94,11 @@ function StudentsPage() {
     queryKey: ["ref-classes-filter", sessionId],
     enabled: sessionId !== "all",
     queryFn: async () => {
-      const { data, error } = await supabase.from("school_classes").select("id, name, order_index").eq("session_id", sessionId).order("order_index");
+      const { data, error } = await supabase
+        .from("school_classes")
+        .select("id, name, order_index")
+        .eq("session_id", sessionId)
+        .order("order_index");
       if (error) throw error;
       return data;
     },
@@ -63,7 +107,11 @@ function StudentsPage() {
     queryKey: ["ref-sections-filter", classId],
     enabled: classId !== "all",
     queryFn: async () => {
-      const { data, error } = await supabase.from("school_sections").select("id, name").eq("class_id", classId).order("name");
+      const { data, error } = await supabase
+        .from("school_sections")
+        .select("id, name")
+        .eq("class_id", classId)
+        .order("name");
       if (error) throw error;
       return data;
     },
@@ -128,10 +176,14 @@ function StudentsPage() {
             {perms.canCreateStudent && (
               <>
                 <Button variant="outline" asChild>
-                  <Link to="/students/import"><Upload className="h-4 w-4" /> Import</Link>
+                  <Link to="/students/import">
+                    <Upload className="h-4 w-4" /> Import
+                  </Link>
                 </Button>
                 <Button asChild>
-                  <Link to="/students/new"><Plus className="h-4 w-4" /> New Admission</Link>
+                  <Link to="/students/new">
+                    <Plus className="h-4 w-4" /> New Admission
+                  </Link>
                 </Button>
               </>
             )}
@@ -147,42 +199,100 @@ function StudentsPage() {
               placeholder="Search scholar no., name, father's name"
               className="pl-9"
               value={q}
-              onChange={(e) => { setQ(e.target.value); setPage(0); }}
+              onChange={(e) => {
+                setQ(e.target.value);
+                setPage(0);
+              }}
             />
           </div>
-          <Select value={sessionId} onValueChange={(v) => { setSessionId(v); setClassId("all"); setSectionId("all"); setPage(0); }}>
-            <SelectTrigger><SelectValue placeholder="Session" /></SelectTrigger>
+          <Select
+            value={sessionId}
+            onValueChange={(v) => {
+              setSessionId(v);
+              setClassId("all");
+              setSectionId("all");
+              setPage(0);
+            }}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Session" />
+            </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All sessions</SelectItem>
-              {sessions?.map((s) => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
+              {sessions?.map((s) => (
+                <SelectItem key={s.id} value={s.id}>
+                  {s.name}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
-          <Select value={classId} onValueChange={(v) => { setClassId(v); setSectionId("all"); setPage(0); }} disabled={sessionId === "all"}>
-            <SelectTrigger><SelectValue placeholder="Class" /></SelectTrigger>
+          <Select
+            value={classId}
+            onValueChange={(v) => {
+              setClassId(v);
+              setSectionId("all");
+              setPage(0);
+            }}
+            disabled={sessionId === "all"}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Class" />
+            </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All classes</SelectItem>
-              {classes?.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
+              {classes?.map((c) => (
+                <SelectItem key={c.id} value={c.id}>
+                  {c.name}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
-          <Select value={sectionId} onValueChange={(v) => { setSectionId(v); setPage(0); }} disabled={classId === "all"}>
-            <SelectTrigger><SelectValue placeholder="Section" /></SelectTrigger>
+          <Select
+            value={sectionId}
+            onValueChange={(v) => {
+              setSectionId(v);
+              setPage(0);
+            }}
+            disabled={classId === "all"}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Section" />
+            </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All sections</SelectItem>
-              {sections?.map((s) => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
+              {sections?.map((s) => (
+                <SelectItem key={s.id} value={s.id}>
+                  {s.name}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
-          <Select value={statusFilter} onValueChange={(v) => { setStatusFilter(v); setPage(0); }}>
-            <SelectTrigger><SelectValue placeholder="Status" /></SelectTrigger>
+          <Select
+            value={statusFilter}
+            onValueChange={(v) => {
+              setStatusFilter(v);
+              setPage(0);
+            }}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All statuses</SelectItem>
-              {STUDENT_STATUS_VALUES.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+              {STUDENT_STATUS_VALUES.map((s) => (
+                <SelectItem key={s} value={s}>
+                  {s}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </CardContent>
       </Card>
 
       {isLoading ? (
-        <Card><CardContent className="p-6 text-sm text-muted-foreground">Loading…</CardContent></Card>
+        <Card>
+          <CardContent className="p-6 text-sm text-muted-foreground">Loading…</CardContent>
+        </Card>
       ) : rows.length === 0 ? (
         <EmptyState
           icon={Users}
@@ -212,7 +322,11 @@ function StudentsPage() {
                   <TableRow key={s.id}>
                     <TableCell className="font-mono text-xs">{s.scholar_number}</TableCell>
                     <TableCell className="font-medium">
-                      <Link to="/students/$studentId" params={{ studentId: s.id }} className="hover:underline">
+                      <Link
+                        to="/students/$studentId"
+                        params={{ studentId: s.id }}
+                        className="hover:underline"
+                      >
                         {s.full_name}
                       </Link>
                     </TableCell>
@@ -221,7 +335,11 @@ function StudentsPage() {
                     <TableCell>{s.current?.school_classes?.name ?? "—"}</TableCell>
                     <TableCell>{s.current?.school_sections?.name ?? "—"}</TableCell>
                     <TableCell>{s.current?.roll_number ?? "—"}</TableCell>
-                    <TableCell>{s.date_of_admission ? new Date(s.date_of_admission).toLocaleDateString("en-IN") : "—"}</TableCell>
+                    <TableCell>
+                      {s.date_of_admission
+                        ? new Date(s.date_of_admission).toLocaleDateString("en-IN")
+                        : "—"}
+                    </TableCell>
                     <TableCell>
                       <Badge variant={s.current?.status === "Active" ? "default" : "secondary"}>
                         {s.current?.status ?? "—"}
@@ -230,29 +348,66 @@ function StudentsPage() {
                     <TableCell>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-8 w-8"><MoreHorizontal className="h-4 w-4" /></Button>
+                          <Button variant="ghost" size="icon" className="h-8 w-8">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => nav({ to: "/students/$studentId", params: { studentId: s.id } })}>
+                          <DropdownMenuItem
+                            onClick={() =>
+                              nav({ to: "/students/$studentId", params: { studentId: s.id } })
+                            }
+                          >
                             <Eye className="h-4 w-4" /> View
                           </DropdownMenuItem>
                           {perms.canEditStudent && (
-                            <DropdownMenuItem onClick={() => nav({ to: "/students/$studentId/edit", params: { studentId: s.id } })}>
+                            <DropdownMenuItem
+                              onClick={() =>
+                                nav({
+                                  to: "/students/$studentId/edit",
+                                  params: { studentId: s.id },
+                                })
+                              }
+                            >
                               <Pencil className="h-4 w-4" /> Edit
                             </DropdownMenuItem>
                           )}
                           {perms.canPromoteStudent && (
-                            <DropdownMenuItem onClick={() => setPromote({ id: s.id, name: s.full_name, recordId: s.current?.id ?? null })}>
+                            <DropdownMenuItem
+                              onClick={() =>
+                                setPromote({
+                                  id: s.id,
+                                  name: s.full_name,
+                                  recordId: s.current?.id ?? null,
+                                })
+                              }
+                            >
                               <ArrowUp className="h-4 w-4" /> Promote
                             </DropdownMenuItem>
                           )}
                           {perms.canEditStudent && (
-                            <DropdownMenuItem onClick={() => setMarkLeft({ id: s.id, name: s.full_name, recordId: s.current?.id ?? null })}>
+                            <DropdownMenuItem
+                              onClick={() =>
+                                setMarkLeft({
+                                  id: s.id,
+                                  name: s.full_name,
+                                  recordId: s.current?.id ?? null,
+                                })
+                              }
+                            >
                               <UserX className="h-4 w-4" /> Mark as Left
                             </DropdownMenuItem>
                           )}
                           {perms.canArchiveStudent && (
-                            <DropdownMenuItem onClick={() => setArchive({ id: s.id, name: s.full_name, recordId: s.current?.id ?? null })}>
+                            <DropdownMenuItem
+                              onClick={() =>
+                                setArchive({
+                                  id: s.id,
+                                  name: s.full_name,
+                                  recordId: s.current?.id ?? null,
+                                })
+                              }
+                            >
                               <Archive className="h-4 w-4" /> Archive
                             </DropdownMenuItem>
                           )}
@@ -269,10 +424,26 @@ function StudentsPage() {
 
       {total > PAGE_SIZE && (
         <div className="flex items-center justify-between mt-4 text-sm">
-          <span className="text-muted-foreground">Page {page + 1} of {pageCount} — {total} student(s)</span>
+          <span className="text-muted-foreground">
+            Page {page + 1} of {pageCount} — {total} student(s)
+          </span>
           <div className="flex gap-2">
-            <Button variant="outline" size="sm" disabled={page === 0} onClick={() => setPage((p) => p - 1)}>Previous</Button>
-            <Button variant="outline" size="sm" disabled={page + 1 >= pageCount} onClick={() => setPage((p) => p + 1)}>Next</Button>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={page === 0}
+              onClick={() => setPage((p) => p - 1)}
+            >
+              Previous
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={page + 1 >= pageCount}
+              onClick={() => setPage((p) => p + 1)}
+            >
+              Next
+            </Button>
           </div>
         </div>
       )}

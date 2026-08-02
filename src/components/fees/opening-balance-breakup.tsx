@@ -1,7 +1,20 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { formatINR } from "@/lib/fees-helpers";
 import { Loader2 } from "lucide-react";
 
@@ -22,7 +35,9 @@ export function useOpeningBalanceBreakup(studentId: string | null | undefined, e
     queryFn: async () => {
       const { data, error } = await supabase
         .from("opening_balance_details")
-        .select("id, session_label, fee_head_label, amount, remarks, academic_sessions(name), fee_heads(name)")
+        .select(
+          "id, session_label, fee_head_label, amount, remarks, academic_sessions(name), fee_heads(name)",
+        )
         .eq("student_id", studentId!)
         .order("session_label", { ascending: true })
         .order("created_at", { ascending: true });
@@ -64,12 +79,15 @@ export function OpeningBalanceBreakupDialog({ studentId, studentName, open, onOp
           <DialogTitle>Opening Balance Breakup</DialogTitle>
           <DialogDescription>
             Session-wise and fee-head-wise details of migrated dues
-            {studentName ? ` for ${studentName}` : ""}. Reference only — this does not affect any calculation.
+            {studentName ? ` for ${studentName}` : ""}. Reference only — this does not affect any
+            calculation.
           </DialogDescription>
         </DialogHeader>
 
         {q.isLoading ? (
-          <div className="flex justify-center py-8"><Loader2 className="h-5 w-5 animate-spin" /></div>
+          <div className="flex justify-center py-8">
+            <Loader2 className="h-5 w-5 animate-spin" />
+          </div>
         ) : rows.length === 0 ? (
           <p className="py-6 text-center text-sm text-muted-foreground">
             No migration breakup recorded for this student.
@@ -77,19 +95,23 @@ export function OpeningBalanceBreakupDialog({ studentId, studentName, open, onOp
         ) : (
           <div className="max-h-[60vh] overflow-y-auto">
             <Table>
-              <TableHeader><TableRow>
-                <TableHead>Session</TableHead>
-                <TableHead>Fee Head</TableHead>
-                <TableHead className="text-right">Amount</TableHead>
-                <TableHead>Remarks</TableHead>
-              </TableRow></TableHeader>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Session</TableHead>
+                  <TableHead>Fee Head</TableHead>
+                  <TableHead className="text-right">Amount</TableHead>
+                  <TableHead>Remarks</TableHead>
+                </TableRow>
+              </TableHeader>
               <TableBody>
                 {rows.map((r) => (
                   <TableRow key={r.id}>
                     <TableCell>{sessionOf(r)}</TableCell>
                     <TableCell>{headOf(r)}</TableCell>
                     <TableCell className="text-right">{formatINR(Number(r.amount))}</TableCell>
-                    <TableCell className="text-muted-foreground text-sm">{r.remarks ?? "—"}</TableCell>
+                    <TableCell className="text-muted-foreground text-sm">
+                      {r.remarks ?? "—"}
+                    </TableCell>
                   </TableRow>
                 ))}
                 <TableRow className="font-semibold">
