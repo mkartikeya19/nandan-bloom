@@ -124,13 +124,23 @@ src/
     use-mobile.tsx
   integrations/supabase/  auto-generated client, types, auth middleware
   lib/
+    permissions.ts      single source of truth for role capabilities
+    date.ts             standardized date formatting
     activity.ts         fire-and-forget audit logging
     activity-format.ts  human-readable audit summaries
     fees-helpers.ts     fee constants, allocation priority, formatting
+    opening-balance.ts  opening-balance breakup grouping/validation
+    receipts.ts         receipt/void arithmetic
+    promotion-helpers.ts session + class resolution for promotion
     students-helpers.ts student constants, storage upload, Excel import
     teachers-helpers.ts teacher constants, storage upload, masking
+    invitations.functions.ts  server function for invitation-based onboarding
+    __tests__/          vitest unit tests for the pure logic above
     error-capture.ts / error-page.ts / lovable-error-reporting.ts
     utils.ts            cn()
+  services/             feature-scoped Supabase query modules
+    users / invitations / fees / students
+
   routes/
     __root.tsx          app shell
     index.tsx           redirects to /dashboard
