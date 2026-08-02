@@ -1,3 +1,4 @@
+import { groupByScholar, sumBreakup } from "@/lib/opening-balance";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -162,7 +163,7 @@ function ManualEntry({ canEdit }: { canEdit: boolean }) {
     );
   };
 
-  const total = rows.reduce((s, r) => s + (Number(r.amount) || 0), 0);
+  const total = sumBreakup(rows);
 
   const save = async () => {
     if (!selected) return;
@@ -381,16 +382,19 @@ function BulkImport({ canEdit }: { canEdit: boolean }) {
   };
 
   const valid = rows.filter((r) => !r.error && r.recordId);
-  const grouped = useMemo(() => {
-    const m = new Map<string, { scholar: string; studentId: string; recordId: string; total: number; count: number }>();
-    for (const r of valid) {
-      const g = m.get(r.scholar) ?? { scholar: r.scholar, studentId: r.studentId!, recordId: r.recordId!, total: 0, count: 0 };
-      g.total += Number(r.amount) || 0;
-      g.count += 1;
-      m.set(r.scholar, g);
-    }
-    return [...m.values()];
-  }, [rows]);
+  const grouped = useMemo(
+    () =>
+      groupByScholar(valid).map((g) => ({
+        scholar: g.scholar,
+        studentId: g.rows[0].studentId as string,
+        recordId: g.rows[0].recordId as string,
+        total: g.total,
+        count: g.count,
+      })),
+    // `valid` is derived from `rows` on every render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [rows],
+  );
 
   const commit = async () => {
     setBusy(true);
