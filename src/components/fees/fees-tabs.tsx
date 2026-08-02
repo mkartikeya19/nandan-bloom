@@ -9,7 +9,7 @@ const tabs: Array<{ to: string; label: string; icon: typeof LayoutDashboard; exa
   { to: "/fees/collect", label: "Collect Fee", icon: Wallet },
   { to: "/fees/receipts", label: "Receipts", icon: Receipt },
   { to: "/fees/concessions", label: "Concessions", icon: Gift },
-  { to: "/fees/import", label: "Opening Balance", icon: Upload },
+  { to: "/fees/import", label: "Opening Balance Migration", icon: Upload },
   { to: "/fees/settings", label: "Settings", icon: Settings2 },
 ];
 

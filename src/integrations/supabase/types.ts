@@ -964,6 +964,83 @@ export type Database = {
         }
         Relationships: []
       }
+      opening_balance_details: {
+        Row: {
+          academic_record_id: string | null
+          academic_session_id: string | null
+          amount: number
+          created_at: string
+          created_by: string | null
+          fee_head_id: string | null
+          fee_head_label: string | null
+          id: string
+          remarks: string | null
+          session_label: string | null
+          source: string
+          student_id: string
+          updated_at: string
+        }
+        Insert: {
+          academic_record_id?: string | null
+          academic_session_id?: string | null
+          amount?: number
+          created_at?: string
+          created_by?: string | null
+          fee_head_id?: string | null
+          fee_head_label?: string | null
+          id?: string
+          remarks?: string | null
+          session_label?: string | null
+          source?: string
+          student_id: string
+          updated_at?: string
+        }
+        Update: {
+          academic_record_id?: string | null
+          academic_session_id?: string | null
+          amount?: number
+          created_at?: string
+          created_by?: string | null
+          fee_head_id?: string | null
+          fee_head_label?: string | null
+          id?: string
+          remarks?: string | null
+          session_label?: string | null
+          source?: string
+          student_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "opening_balance_details_academic_record_id_fkey"
+            columns: ["academic_record_id"]
+            isOneToOne: false
+            referencedRelation: "student_academic_records"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "opening_balance_details_academic_session_id_fkey"
+            columns: ["academic_session_id"]
+            isOneToOne: false
+            referencedRelation: "academic_sessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "opening_balance_details_fee_head_id_fkey"
+            columns: ["fee_head_id"]
+            isOneToOne: false
+            referencedRelation: "fee_heads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "opening_balance_details_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null

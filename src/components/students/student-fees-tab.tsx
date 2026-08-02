@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -10,6 +11,7 @@ import { Loader2, LinkIcon, Wallet } from "lucide-react";
 import { formatINR, outstandingOf, ScheduleRow } from "@/lib/fees-helpers";
 import { useUserRoles } from "@/hooks/use-user-role";
 import { toast } from "sonner";
+import { OpeningBalanceBreakupDialog } from "@/components/fees/opening-balance-breakup";
 
 interface Props {
   studentId: string;
@@ -19,6 +21,7 @@ interface Props {
 
 export function StudentFeesTab({ studentId, activeRecordId, hasFeeStructure = true }: Props) {
   const qc = useQueryClient();
+  const [breakupOpen, setBreakupOpen] = useState(false);
   const { canCollectFee, isAdmin, isSuperAdmin } = useUserRoles();
   const canRepairFeeStructure = !!activeRecordId && !hasFeeStructure && (isAdmin || isSuperAdmin);
 
@@ -79,11 +82,22 @@ export function StudentFeesTab({ studentId, activeRecordId, hasFeeStructure = tr
   return (
     <div className="space-y-4">
       <div className="grid gap-3 sm:grid-cols-4">
-        <Stat label="Opening Balance" value={formatINR(opening)} />
+        <Stat
+          label="Opening Balance"
+          value={formatINR(opening)}
+          action={
+            <button type="button" className="mt-1 text-xs text-primary hover:underline" onClick={() => setBreakupOpen(true)}>
+              View Breakup
+            </button>
+          }
+        />
         <Stat label="Total Due" value={formatINR(totalDue)} />
         <Stat label="Total Paid" value={formatINR(totalPaid)} />
         <Stat label="Outstanding" value={formatINR(outstanding)} tone={outstanding > 0 ? "danger" : "default"} />
       </div>
+
+      <OpeningBalanceBreakupDialog studentId={studentId} open={breakupOpen} onOpenChange={setBreakupOpen} />
+
 
       {!hasFeeStructure && activeRecordId && (
         <Card className="border-destructive/40 bg-destructive/5">
@@ -190,11 +204,12 @@ export function StudentFeesTab({ studentId, activeRecordId, hasFeeStructure = tr
   );
 }
 
-function Stat({ label, value, tone }: { label: string; value: string; tone?: "default" | "danger" }) {
+function Stat({ label, value, tone, action }: { label: string; value: string; tone?: "default" | "danger"; action?: React.ReactNode }) {
   return (
     <Card><CardContent className="p-4">
       <p className="text-xs text-muted-foreground">{label}</p>
       <p className={"text-lg font-semibold mt-1 " + (tone === "danger" ? "text-destructive" : "")}>{value}</p>
+      {action}
     </CardContent></Card>
   );
 }
