@@ -4,6 +4,62 @@ All notable changes to the Nandan Kids School ERP are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/) and the
 project adheres to [Semantic Versioning](https://semver.org/).
 
+## [Unreleased] — 2026-08-03 — _Migration Toolkit & Security Hardening_
+
+### Added — School Migration & Go-Live Toolkit (RC-3.8)
+
+- **Migration Dashboard (`/migration`)** — live record counts for every master
+  and transactional entity, recommended import order and prerequisite guidance.
+- **Student Migration Wizard (`/migration/students`)** — download template →
+  upload Excel → validate → preview → commit. Academic records and the current
+  fee schedule are generated automatically for every imported student.
+  Invalid rows can be exported as an Excel error report.
+- **Go-Live Validation (`/migration/go-live`)** — one-click readiness check
+  (`go_live_validation()` RPC): active session, complete fee structures, active
+  students, generated schedules, unique scholar numbers.
+- **Migration Batches (`/migration/batches`)** — batch history and rollback of
+  the most recent batch (`rollback_migration_batch()`), blocked once
+  operational transactions exist.
+- **Settings → Data Migration** tab linking the whole toolkit.
+- New tables `migration_batches` and `migration_batch_items` (Admin /
+  Super Admin RLS, GRANTs, append-only semantics).
+- New service `src/services/migration.service.ts`; new components
+  `migration-tabs.tsx`, `migration-progress.tsx`.
+- New docs: `MIGRATION_GUIDE.md`, `DATA_IMPORT_ORDER.md`.
+
+### Changed — Security hardening
+
+- **Least-privilege reads.** `USING (true)` SELECT policies removed from
+  `students`, `student_academic_records`, `student_fee_schedule`, `admissions`,
+  `fee_payments`, `fee_payment_allocations`, `fee_concessions` and
+  `opening_balance_details`. Financial tables are now readable by
+  `super_admin`, `admin`, `reception`, `principal`; student and academic
+  records additionally by `teacher`.
+- **Storage.** `students` bucket UPDATE/DELETE policies now verify that the
+  scholar number in the object path matches a real student record.
+- **Function lockdown.** `EXECUTE` revoked from `PUBLIC` and `anon` on all
+  `SECURITY DEFINER` functions in `public`; 17 staff RPCs explicitly granted to
+  `authenticated`.
+- **RPC guards.** `bulk_promote_students` and `generate_student_fee_schedule`
+  now enforce role checks inside the function body.
+
+### Fixed — Quality gates (RC-3.7)
+
+- Repository-wide Prettier/ESLint formatting remediation (91 files, whitespace
+  and wrapping only — no behavioural change).
+- Regex escaping fixed in `src/lib/students-helpers.ts` and
+  `src/lib/teachers-helpers.ts`.
+- `any` types removed from `fee-heads-tab.tsx`, `student-fees-tab.tsx`,
+  `student-form.tsx`, `admissions.tsx`, `fees.receipts.index.tsx`.
+- `src/integrations/supabase/types.ts` added to `.prettierignore`.
+- **Lint gate is now green:** 0 errors, 9 accepted
+  `react-refresh/only-export-components` warnings.
+
+### Verification (local, 3 August 2026)
+
+`verify:migrations` PASS (30 migrations) · `typecheck` PASS · `lint` 0 errors /
+9 warnings · `test` 30/30 PASS · `build` PASS.
+
 ## [1.0.0] — 2026-08-02 — _Core ERP Foundation_
 
 First production release. Everything below is implemented and verified
