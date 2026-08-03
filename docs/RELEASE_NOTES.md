@@ -28,7 +28,22 @@ Go-live readiness is tracked in
 [GO_LIVE_CHECKLIST.md](./GO_LIVE_CHECKLIST.md); first-time setup is documented
 in [BOOTSTRAP.md](./BOOTSTRAP.md).
 
+## Post-1.0.0 changes (3 August 2026)
+
+- **School Migration & Go-Live Toolkit** — `/migration` dashboard, student
+  migration wizard, go-live validation, batch history with rollback, plus
+  [MIGRATION_GUIDE.md](./MIGRATION_GUIDE.md) and
+  [DATA_IMPORT_ORDER.md](./DATA_IMPORT_ORDER.md).
+- **Security hardening** — least-privilege SELECT policies on student,
+  admission and financial tables; path-validated `students` storage writes;
+  `EXECUTE` on `SECURITY DEFINER` functions revoked from `anon`/`PUBLIC`.
+- **Lint gate cleared** — formatting remediation plus seven approved manual
+  fixes; 0 errors, 9 accepted warnings.
+
+Details in [CHANGELOG.md](./CHANGELOG.md#unreleased--2026-08-03--migration-toolkit--security-hardening).
+
 ## Features
+
 
 | Area              | What you can do                                                                                   |
 | ----------------- | ------------------------------------------------------------------------------------------------- |
