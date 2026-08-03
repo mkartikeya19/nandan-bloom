@@ -4,8 +4,9 @@ This report separates what is **verified from the repository and the live
 schema** from what **must be checked manually in production settings**. Nothing
 here is inferred.
 
-Verification date: **2 August 2026**. Verified against the current repository
-state and a live read of the database catalogue.
+Verification date: **3 August 2026**. Verified against the current repository
+state, a live read of the database catalogue and a platform security re-scan.
+
 
 ---
 
