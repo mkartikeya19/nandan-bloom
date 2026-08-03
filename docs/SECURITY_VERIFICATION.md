@@ -48,7 +48,7 @@ Do not treat any of these as verified until an operator records a result.
 | 3   | Leaked-password (HIBP) protection enabled            | Backend auth settings                          | **Pending** |
 | 4   | Provider minimum password length                     | Backend auth settings                          | **Pending** |
 | 5   | Both storage buckets actually private in production  | Backend storage settings                       | **Pending** |
-| 6   | All 27 migrations applied to the production database | Backend migration history                      | **Pending** |
+| 6   | All 30 migrations applied to the production database | Backend migration history                      | **Pending** |
 | 7   | Backup / point-in-time recovery window               | Platform settings                              | **Pending** |
 | 8   | Per-role behaviour observed in the running app       | [ROLE_VERIFICATION.md](./ROLE_VERIFICATION.md) | **Pending** |
 | 9   | Automated security scan on the release build         | Platform security scan                         | **Pending** |
@@ -60,7 +60,7 @@ Do not treat any of these as verified until an operator records a result.
 | No forced password change at first login | A temporary password may remain in use    | Issue invitations individually; deliver out of band; see [PRODUCTION_CONFIGURATION.md](./PRODUCTION_CONFIGURATION.md#5-password-policy) |
 | No self-service password change or reset | Resets require a platform administrator   | Documented operational procedure                                                                                                        |
 | No SMTP / email delivery                 | Invitations and resets are manual         | By design in v1.0.0                                                                                                                     |
-| Lint gate failing (formatting only)      | No security impact; blocks a green CI run | Fix pending approval — see [GO_LIVE_CHECKLIST.md](./GO_LIVE_CHECKLIST.md#open-blocker--lint-gate)                                       |
+| Authenticated-staff reads on config tables | Any invited staff account can read institutional config (sessions, classes, fee heads/structures, school profile) | Accepted: every account is invited staff; no external sign-up exists |
 
 ## 4. Conclusion
 
