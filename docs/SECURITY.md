@@ -55,15 +55,35 @@ refuses once any `super_admin` exists.
 
 - RLS is enabled on **every** table in `public`, with explicit `GRANT`s — the
   Data API grants nothing by default.
-- Read access is generally granted to authenticated users with a role; writes are
-  restricted per module by `has_role()`.
+- Reads follow least privilege. Sensitive tables no longer use `USING (true)`:
+
+| Table group                                                                                              | Readable by                                                |
+| --------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
+| `students`, `student_academic_records`, `student_fee_schedule`                                           | `super_admin`, `admin`, `reception`, `principal`, `teacher` |
+| `admissions`, `fee_payments`, `fee_payment_allocations`, `fee_concessions`, `opening_balance_details`     | `super_admin`, `admin`, `reception`, `principal`            |
+| Institutional config (sessions, classes, sections, houses, fee heads/structures, school profile)          | any authenticated staff account                             |
+
+- Writes are restricted per module by `has_role()`.
 - Hard restrictions:
   - `teachers` / `teacher_documents` — Super Admin only.
   - `activity_log` — insert + role-scoped read; UPDATE and DELETE denied.
   - `fee_payments` — DELETE denied.
   - `profiles` — DELETE denied.
+  - `migration_batches` / `migration_batch_items` — Admin and Super Admin only;
+    DELETE denied on batches, UPDATE denied on items.
 - `scripts/verify-migrations.mjs` fails CI if a new migration creates a
   `public` table without `GRANT`s, RLS and policies.
+
+## Database function privileges
+
+- `EXECUTE` on every `SECURITY DEFINER` function in `public` is revoked from
+  `PUBLIC` and from `anon`.
+- Only the 17 RPCs the app actually calls are granted to `authenticated`
+  (`has_role`, `admit_student_with_fee_structure`, `bulk_promote_students`,
+  `generate_student_fee_schedule`, `go_live_validation`,
+  `rollback_migration_batch`, `invite_user`, …). Each one re-checks
+  `auth.uid()` and the caller's roles inside the function body.
+
 
 ## Financial integrity (database-enforced)
 
