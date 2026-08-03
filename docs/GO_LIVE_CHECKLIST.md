@@ -65,13 +65,13 @@ None of these can be proven from source. Record results in
 Run from the repository root. Results below are from a **local** run on
 3 August 2026 — they are not a substitute for CI on the release commit.
 
-| Gate                   | Command                     | Local result                                                                      |
-| ---------------------- | --------------------------- | ----------------------------------------------------------------------------------- |
-| Migration verification | `bun run verify:migrations` | **PASS** — 30 migrations                                                          |
-| Typecheck              | `bun run typecheck`         | **PASS** — no errors                                                              |
-| Lint                   | `bun run lint`              | **PASS** — 0 errors, 9 accepted `react-refresh/only-export-components` warnings   |
-| Tests                  | `bun run test`              | **PASS** — 30/30 in 5 files                                                       |
-| Build                  | `bun run build`             | **PASS** — production build succeeded                                             |
+| Gate                   | Command                     | Local result                                                                    |
+| ---------------------- | --------------------------- | ------------------------------------------------------------------------------- |
+| Migration verification | `bun run verify:migrations` | **PASS** — 30 migrations                                                        |
+| Typecheck              | `bun run typecheck`         | **PASS** — no errors                                                            |
+| Lint                   | `bun run lint`              | **PASS** — 0 errors, 9 accepted `react-refresh/only-export-components` warnings |
+| Tests                  | `bun run test`              | **PASS** — 30/30 in 5 files                                                     |
+| Build                  | `bun run build`             | **PASS** — production build succeeded                                           |
 
 **CI:** the workflow `.github/workflows/ci.yml` runs all five gates.
 _Verification pending. Requires successful CI execution against the release
@@ -86,7 +86,6 @@ fixes: regex escaping in `students-helpers.ts` / `teachers-helpers.ts` and
 removal of `any` in five UI components. No business logic, API, migration, RLS
 policy or component behaviour was changed. The nine remaining
 `react-refresh/only-export-components` warnings are accepted for this release.
-
 
 ---
 

@@ -180,12 +180,12 @@ read-only notice (`read-only-notice.tsx`).
 
 Admin / Super Admin only (enforced by RLS and the migration RPCs).
 
-| Route                  | Purpose                                                                                                  |
-| ---------------------- | -------------------------------------------------------------------------------------------------------- |
-| `/migration`           | dashboard: record counts per entity, recommended import order                                            |
-| `/migration/students`  | student migration wizard — template → upload → validate → preview → commit, with Excel error report      |
-| `/migration/go-live`   | one-click readiness check (`go_live_validation()`)                                                       |
-| `/migration/batches`   | batch history; rollback of the most recent batch only, blocked once operational transactions exist       |
+| Route                 | Purpose                                                                                             |
+| --------------------- | --------------------------------------------------------------------------------------------------- |
+| `/migration`          | dashboard: record counts per entity, recommended import order                                       |
+| `/migration/students` | student migration wizard — template → upload → validate → preview → commit, with Excel error report |
+| `/migration/go-live`  | one-click readiness check (`go_live_validation()`)                                                  |
+| `/migration/batches`  | batch history; rollback of the most recent batch only, blocked once operational transactions exist  |
 
 Committed students automatically receive an academic record and a generated fee
 schedule from the matching Active + Complete fee structure. Batches are tracked
@@ -194,7 +194,6 @@ in `migration_batches` / `migration_batch_items`. Full procedure:
 [DATA_IMPORT_ORDER.md](./DATA_IMPORT_ORDER.md).
 
 ## 10. Routes not linked in the sidebar
-
 
 - `/admissions` — "Admission Register" screen with tabs **Admissions**,
   **Import Students** and **Reports**, covering admissions handled directly by

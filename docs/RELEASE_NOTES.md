@@ -44,7 +44,6 @@ Details in [CHANGELOG.md](./CHANGELOG.md#unreleased--2026-08-03--migration-toolk
 
 ## Features
 
-
 | Area              | What you can do                                                                                   |
 | ----------------- | ------------------------------------------------------------------------------------------------- |
 | Dashboard         | See operational counters; the very first user claims the admin role                               |

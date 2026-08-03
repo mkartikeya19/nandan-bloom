@@ -62,8 +62,6 @@ project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [1.0.0] — 2026-08-02 — _Core ERP Foundation_
 
-
-
 First production release. Everything below is implemented and verified
 (typecheck, unit tests, migration verification, production build).
 

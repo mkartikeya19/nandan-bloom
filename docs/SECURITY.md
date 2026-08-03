@@ -57,11 +57,11 @@ refuses once any `super_admin` exists.
   Data API grants nothing by default.
 - Reads follow least privilege. Sensitive tables no longer use `USING (true)`:
 
-| Table group                                                                                              | Readable by                                                |
-| --------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
-| `students`, `student_academic_records`, `student_fee_schedule`                                           | `super_admin`, `admin`, `reception`, `principal`, `teacher` |
-| `admissions`, `fee_payments`, `fee_payment_allocations`, `fee_concessions`, `opening_balance_details`     | `super_admin`, `admin`, `reception`, `principal`            |
-| Institutional config (sessions, classes, sections, houses, fee heads/structures, school profile)          | any authenticated staff account                             |
+| Table group                                                                                           | Readable by                                                 |
+| ----------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- |
+| `students`, `student_academic_records`, `student_fee_schedule`                                        | `super_admin`, `admin`, `reception`, `principal`, `teacher` |
+| `admissions`, `fee_payments`, `fee_payment_allocations`, `fee_concessions`, `opening_balance_details` | `super_admin`, `admin`, `reception`, `principal`            |
+| Institutional config (sessions, classes, sections, houses, fee heads/structures, school profile)      | any authenticated staff account                             |
 
 - Writes are restricted per module by `has_role()`.
 - Hard restrictions:
@@ -84,7 +84,6 @@ refuses once any `super_admin` exists.
   `rollback_migration_batch`, `invite_user`, …). Each one re-checks
   `auth.uid()` and the caller's roles inside the function body.
 
-
 ## Financial integrity (database-enforced)
 
 | Guard                                                    | Enforcement                                                                            |
@@ -101,10 +100,10 @@ refuses once any `super_admin` exists.
 
 ## Storage policies
 
-| Bucket              | Public | Contents                                      | Access                                                   |
-| ------------------- | ------ | --------------------------------------------- | -------------------------------------------------------- |
+| Bucket              | Public | Contents                                      | Access                                                                                                                                                     |
+| ------------------- | ------ | --------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `students`          | No     | `photos/<scholar>/…`, `documents/<scholar>/…` | Authenticated staff via helpers in `students-helpers.ts`; UPDATE/DELETE additionally require the scholar number in the path to match a real student record |
-| `teacher-documents` | No     | `<employee_code>/…`                           | Super Admin only                                         |
+| `teacher-documents` | No     | `<employee_code>/…`                           | Super Admin only                                                                                                                                           |
 
 Both buckets are private. Files are **never** linked directly — the UI requests a
 short-lived signed URL each time. Do not make a bucket public.
