@@ -103,7 +103,7 @@ refuses once any `super_admin` exists.
 
 | Bucket              | Public | Contents                                      | Access                                                   |
 | ------------------- | ------ | --------------------------------------------- | -------------------------------------------------------- |
-| `students`          | No     | `photos/<scholar>/…`, `documents/<scholar>/…` | Authenticated staff via helpers in `students-helpers.ts` |
+| `students`          | No     | `photos/<scholar>/…`, `documents/<scholar>/…` | Authenticated staff via helpers in `students-helpers.ts`; UPDATE/DELETE additionally require the scholar number in the path to match a real student record |
 | `teacher-documents` | No     | `<employee_code>/…`                           | Super Admin only                                         |
 
 Both buckets are private. Files are **never** linked directly — the UI requests a
