@@ -10,16 +10,13 @@ security model and operational workflows that every future module will build on.
 
 ## Release status
 
-The build is functionally complete and its automated correctness gates pass
-(migration verification 27/27, typecheck clean, 30/30 unit tests, production
-build succeeds). It is **not** labelled Production Ready because the following
-evidence does not yet exist:
+The build is functionally complete and every automated gate now passes locally
+(migration verification 30/30, typecheck clean, lint 0 errors, 30/30 unit tests,
+production build succeeds). It is **not** labelled Production Ready because the
+following evidence does not yet exist:
 
-- `bun run lint` fails on 3,828 Prettier formatting errors and 9
-  `react-refresh` warnings (no type, test or runtime impact). Fix proposed,
-  awaiting approval — see
-  [GO_LIVE_CHECKLIST.md](./GO_LIVE_CHECKLIST.md#open-blocker--lint-gate).
 - No CI run has been observed against the release commit.
+
 - No manual regression scenario has been executed —
   [UAT_REPORT_v1.0.0.md](./UAT_REPORT_v1.0.0.md).
 - Production auth/storage/backup settings are unverified —
