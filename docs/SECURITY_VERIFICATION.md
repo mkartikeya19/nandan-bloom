@@ -31,6 +31,11 @@ state, a live read of the database catalogue and a platform security re-scan.
 | 14  | Append-only audit trail                              | `activity_log` with insert-only policy; `logActivity()` never throws                                                                                                                                                        | **Verified**            |
 | 15  | Secrets not in client code                           | Only `VITE_*` publishable values reach the browser; `process.env` reads occur inside server-function handlers; `supabaseAdmin` is imported dynamically inside a handler after authorisation                                 | **Verified**            |
 | 16  | Type safety                                          | `bun run typecheck` clean                                                                                                                                                                                                   | **Verified**            |
+| 17  | Least-privilege reads on sensitive tables            | No `USING (true)` SELECT policy remains on `students`, `student_academic_records`, `student_fee_schedule`, `admissions`, `fee_payments`, `fee_payment_allocations`, `fee_concessions`, `opening_balance_details`            | **Verified**            |
+| 18  | Student storage writes bound to real records         | `students` bucket UPDATE/DELETE policies match the scholar number in the object path against `public.students`                                                                                                              | **Verified**            |
+| 19  | `SECURITY DEFINER` functions not anon-callable       | `EXECUTE` revoked from `PUBLIC` and `anon` on all `public` definer functions; 17 staff RPCs granted to `authenticated`, each re-checking `auth.uid()` and roles                                                             | **Verified**            |
+| 20  | Migration toolkit restricted                         | `migration_batches` / `migration_batch_items` RLS limited to admin and super_admin; `rollback_migration_batch()` refuses non-latest batches and batches with subsequent transactions                                        | **Verified**            |
+
 
 ## 2. Requires manual verification in production
 
