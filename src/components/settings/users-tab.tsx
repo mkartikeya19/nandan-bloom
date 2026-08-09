@@ -54,6 +54,13 @@ import {
   type DeleteEligibility,
 } from "@/lib/user-lifecycle.functions";
 import { useUserRoles } from "@/hooks/use-user-role";
+import {
+  canAttemptDelete,
+  canDeactivate,
+  canRemoveSuperAdmin,
+  countActiveSuperAdmins,
+  type LifecycleUser,
+} from "@/lib/user-lifecycle";
 import { formatDate } from "@/lib/date";
 
 export function UsersTab({ canEdit }: { canEdit: boolean }) {
@@ -95,13 +102,24 @@ export function UsersTab({ canEdit }: { canEdit: boolean }) {
     return m;
   }, [rolesQ.data]);
 
-  const activeSuperAdmins = useMemo(
+  const lifecycleUsers = useMemo<LifecycleUser[]>(
     () =>
-      (profilesQ.data ?? []).filter(
-        (p) => p.is_active && (rolesByUser[p.id] ?? []).includes("super_admin"),
-      ).length,
+      (profilesQ.data ?? []).map((p) => ({
+        id: p.id,
+        isActive: p.is_active,
+        roles: rolesByUser[p.id] ?? [],
+      })),
     [profilesQ.data, rolesByUser],
   );
+  const activeSuperAdmins = useMemo(
+    () => countActiveSuperAdmins(lifecycleUsers),
+    [lifecycleUsers],
+  );
+  const asLifecycle = (u: ProfileRow): LifecycleUser => ({
+    id: u.id,
+    isActive: u.is_active,
+    roles: rolesByUser[u.id] ?? [],
+  });
 
   const refreshUsers = () => {
     qc.invalidateQueries({ queryKey: ["profiles-all"] });
@@ -212,10 +230,13 @@ export function UsersTab({ canEdit }: { canEdit: boolean }) {
 
   const isLoading = profilesQ.isLoading || rolesQ.isLoading;
 
-  /** Mirrors the database guards so the UI never offers a call that must fail. */
-  const lastActiveSuperAdmin = (u: ProfileRow) =>
-    u.is_active && (rolesByUser[u.id] ?? []).includes("super_admin") && activeSuperAdmins <= 1;
+  // Mirrors the database guards so the UI never offers a call that must fail.
   const isSelf = (u: ProfileRow) => u.id === currentUserId;
+  const mayDeactivate = (u: ProfileRow) =>
+    canDeactivate(asLifecycle(u), currentUserId, activeSuperAdmins);
+  const maySwapSuperAdmin = (u: ProfileRow) =>
+    canRemoveSuperAdmin(asLifecycle(u), currentUserId, activeSuperAdmins);
+  const mayDelete = (u: ProfileRow) => canAttemptDelete(asLifecycle(u), currentUserId);
 
   return (
     <div className="space-y-6">
@@ -329,17 +350,15 @@ export function UsersTab({ canEdit }: { canEdit: boolean }) {
                                 size="icon"
                                 variant="ghost"
                                 title={
-                                  isSelf(u)
-                                    ? "You cannot deactivate your own account"
-                                    : lastActiveSuperAdmin(u)
-                                      ? "At least one active Super Admin must remain"
-                                      : u.is_active
-                                        ? "Deactivate"
-                                        : "Reactivate"
+                                  !u.is_active
+                                    ? "Reactivate"
+                                    : isSelf(u)
+                                      ? "You cannot deactivate your own account"
+                                      : !mayDeactivate(u)
+                                        ? "At least one active Super Admin must remain"
+                                        : "Deactivate"
                                 }
-                                disabled={
-                                  u.is_active && (isSelf(u) || lastActiveSuperAdmin(u))
-                                }
+                                disabled={u.is_active && !mayDeactivate(u)}
                                 onClick={() => {
                                   setStatusReason("");
                                   setStatusUser(u);
@@ -355,7 +374,7 @@ export function UsersTab({ canEdit }: { canEdit: boolean }) {
                                 size="icon"
                                 variant="ghost"
                                 title="Delete permanently"
-                                disabled={isSelf(u) || openDelete.isPending}
+                                disabled={!mayDelete(u) || openDelete.isPending}
                                 onClick={() => openDelete.mutate(u)}
                               >
                                 <Trash2 className="h-4 w-4 text-destructive" />
@@ -675,7 +694,7 @@ export function UsersTab({ canEdit }: { canEdit: boolean }) {
                 role === "super_admin" &&
                 !!editingUser &&
                 selectedRoles.has("super_admin") &&
-                (isSelf(editingUser) || lastActiveSuperAdmin(editingUser));
+                !maySwapSuperAdmin(editingUser);
               return (
                 <label
                   key={role}
