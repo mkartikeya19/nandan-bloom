@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -24,31 +25,55 @@ import {
 } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
-import { Search, Pencil, Loader2, ShieldCheck, UserPlus, Ban, Copy } from "lucide-react";
+import {
+  Search,
+  Pencil,
+  Loader2,
+  ShieldCheck,
+  UserPlus,
+  Ban,
+  Copy,
+  UserX,
+  UserCheck,
+  Trash2,
+} from "lucide-react";
 import { ReadOnlyNotice } from "./read-only-notice";
 import { APP_ROLES, ROLE_DESCRIPTIONS, ROLE_LABELS, type AppRole } from "@/lib/permissions";
-import {
-  addUserRoles,
-  fetchAllUserRoles,
-  fetchProfiles,
-  removeUserRoles,
-  type ProfileRow,
-} from "@/services/users.service";
+import { fetchAllUserRoles, fetchProfiles, type ProfileRow } from "@/services/users.service";
 import {
   fetchInvitations,
   invitationStatus,
   revokeInvitation,
 } from "@/services/invitations.service";
 import { inviteUser } from "@/lib/invitations.functions";
+import {
+  checkUserDeletable,
+  deleteUser,
+  setUserActive,
+  setUserRoles,
+  type DeleteEligibility,
+} from "@/lib/user-lifecycle.functions";
+import { useUserRoles } from "@/hooks/use-user-role";
 import { formatDate } from "@/lib/date";
 
 export function UsersTab({ canEdit }: { canEdit: boolean }) {
   const qc = useQueryClient();
   const invite = useServerFn(inviteUser);
+  const saveRoles = useServerFn(setUserRoles);
+  const toggleActive = useServerFn(setUserActive);
+  const checkDeletable = useServerFn(checkUserDeletable);
+  const hardDelete = useServerFn(deleteUser);
+  const { userId: currentUserId } = useUserRoles();
 
   const [search, setSearch] = useState("");
   const [editingUser, setEditingUser] = useState<ProfileRow | null>(null);
   const [selectedRoles, setSelectedRoles] = useState<Set<AppRole>>(new Set());
+
+  const [statusUser, setStatusUser] = useState<ProfileRow | null>(null);
+  const [statusReason, setStatusReason] = useState("");
+
+  const [deleteTarget, setDeleteTarget] = useState<ProfileRow | null>(null);
+  const [eligibility, setEligibility] = useState<DeleteEligibility | null>(null);
 
   const [inviteOpen, setInviteOpen] = useState(false);
   const [inviteEmail, setInviteEmail] = useState("");
@@ -70,6 +95,21 @@ export function UsersTab({ canEdit }: { canEdit: boolean }) {
     return m;
   }, [rolesQ.data]);
 
+  const activeSuperAdmins = useMemo(
+    () =>
+      (profilesQ.data ?? []).filter(
+        (p) => p.is_active && (rolesByUser[p.id] ?? []).includes("super_admin"),
+      ).length,
+    [profilesQ.data, rolesByUser],
+  );
+
+  const refreshUsers = () => {
+    qc.invalidateQueries({ queryKey: ["profiles-all"] });
+    qc.invalidateQueries({ queryKey: ["user_roles-all"] });
+    qc.invalidateQueries({ queryKey: ["current-user-roles"] });
+    qc.invalidateQueries({ queryKey: ["activity-log"] });
+  };
+
   const openEdit = (u: ProfileRow) => {
     setEditingUser(u);
     setSelectedRoles(new Set(rolesByUser[u.id] ?? []));
@@ -78,21 +118,53 @@ export function UsersTab({ canEdit }: { canEdit: boolean }) {
   const save = useMutation({
     mutationFn: async () => {
       if (!editingUser) return;
-      const existing = new Set(rolesByUser[editingUser.id] ?? []);
-      await addUserRoles(
-        editingUser.id,
-        [...selectedRoles].filter((r) => !existing.has(r)),
-      );
-      await removeUserRoles(
-        editingUser.id,
-        [...existing].filter((r) => !selectedRoles.has(r)),
-      );
+      await saveRoles({ data: { userId: editingUser.id, roles: [...selectedRoles] } });
     },
     onSuccess: () => {
       toast.success("Roles updated");
       setEditingUser(null);
-      qc.invalidateQueries({ queryKey: ["user_roles-all"] });
-      qc.invalidateQueries({ queryKey: ["current-user-roles"] });
+      refreshUsers();
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const changeStatus = useMutation({
+    mutationFn: async ({ user, active }: { user: ProfileRow; active: boolean }) =>
+      toggleActive({
+        data: { userId: user.id, active, reason: statusReason.trim() || undefined },
+      }),
+    onSuccess: (_res, vars) => {
+      toast.success(vars.active ? "Account reactivated" : "Account deactivated");
+      setStatusUser(null);
+      setStatusReason("");
+      refreshUsers();
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const openDelete = useMutation({
+    mutationFn: async (user: ProfileRow) => {
+      setDeleteTarget(user);
+      setEligibility(null);
+      return checkDeletable({ data: { userId: user.id } });
+    },
+    onSuccess: (res) => setEligibility(res),
+    onError: (e: Error) => {
+      setDeleteTarget(null);
+      toast.error(e.message);
+    },
+  });
+
+  const confirmDelete = useMutation({
+    mutationFn: async () => {
+      if (!deleteTarget) return;
+      await hardDelete({ data: { userId: deleteTarget.id } });
+    },
+    onSuccess: () => {
+      toast.success("Account permanently deleted");
+      setDeleteTarget(null);
+      setEligibility(null);
+      refreshUsers();
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -117,8 +189,7 @@ export function UsersTab({ canEdit }: { canEdit: boolean }) {
       setInviteName("");
       setInviteRoles(new Set(["staff"]));
       qc.invalidateQueries({ queryKey: ["user-invitations"] });
-      qc.invalidateQueries({ queryKey: ["profiles-all"] });
-      qc.invalidateQueries({ queryKey: ["user_roles-all"] });
+      refreshUsers();
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -141,6 +212,11 @@ export function UsersTab({ canEdit }: { canEdit: boolean }) {
 
   const isLoading = profilesQ.isLoading || rolesQ.isLoading;
 
+  /** Mirrors the database guards so the UI never offers a call that must fail. */
+  const lastActiveSuperAdmin = (u: ProfileRow) =>
+    u.is_active && (rolesByUser[u.id] ?? []).includes("super_admin") && activeSuperAdmins <= 1;
+  const isSelf = (u: ProfileRow) => u.id === currentUserId;
+
   return (
     <div className="space-y-6">
       <Card>
@@ -149,6 +225,7 @@ export function UsersTab({ canEdit }: { canEdit: boolean }) {
             <CardTitle>User management</CardTitle>
             <CardDescription>
               Public sign-up is disabled. Staff accounts are created here by invitation only.
+              Deactivated accounts lose all access immediately and keep their history.
             </CardDescription>
           </div>
           {canEdit && (
@@ -185,14 +262,15 @@ export function UsersTab({ canEdit }: { canEdit: boolean }) {
                     <TableHead>Name</TableHead>
                     <TableHead>Email</TableHead>
                     <TableHead>Roles</TableHead>
-                    {canEdit && <TableHead className="w-[110px] text-right">Actions</TableHead>}
+                    <TableHead>Status</TableHead>
+                    {canEdit && <TableHead className="w-[190px] text-right">Actions</TableHead>}
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {filtered.length === 0 ? (
                     <TableRow>
                       <TableCell
-                        colSpan={canEdit ? 4 : 3}
+                        colSpan={canEdit ? 5 : 4}
                         className="text-center text-sm text-muted-foreground py-8"
                       >
                         No users found
@@ -200,7 +278,7 @@ export function UsersTab({ canEdit }: { canEdit: boolean }) {
                     </TableRow>
                   ) : (
                     filtered.map((u) => (
-                      <TableRow key={u.id}>
+                      <TableRow key={u.id} className={u.is_active ? undefined : "opacity-70"}>
                         <TableCell className="font-medium">{u.full_name || "—"}</TableCell>
                         <TableCell>{u.email ?? "—"}</TableCell>
                         <TableCell>
@@ -221,11 +299,68 @@ export function UsersTab({ canEdit }: { canEdit: boolean }) {
                             )}
                           </div>
                         </TableCell>
+                        <TableCell>
+                          {u.is_active ? (
+                            <Badge variant="secondary">Active</Badge>
+                          ) : (
+                            <div className="space-y-1">
+                              <Badge variant="outline">Deactivated</Badge>
+                              {u.deactivated_at && (
+                                <p className="text-xs text-muted-foreground">
+                                  {formatDate(u.deactivated_at)}
+                                  {u.deactivation_reason ? ` — ${u.deactivation_reason}` : ""}
+                                </p>
+                              )}
+                            </div>
+                          )}
+                        </TableCell>
                         {canEdit && (
                           <TableCell className="text-right">
-                            <Button size="icon" variant="ghost" onClick={() => openEdit(u)}>
-                              <Pencil className="h-4 w-4" />
-                            </Button>
+                            <div className="flex justify-end gap-1">
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                title="Edit roles"
+                                onClick={() => openEdit(u)}
+                              >
+                                <Pencil className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                title={
+                                  isSelf(u)
+                                    ? "You cannot deactivate your own account"
+                                    : lastActiveSuperAdmin(u)
+                                      ? "At least one active Super Admin must remain"
+                                      : u.is_active
+                                        ? "Deactivate"
+                                        : "Reactivate"
+                                }
+                                disabled={
+                                  u.is_active && (isSelf(u) || lastActiveSuperAdmin(u))
+                                }
+                                onClick={() => {
+                                  setStatusReason("");
+                                  setStatusUser(u);
+                                }}
+                              >
+                                {u.is_active ? (
+                                  <UserX className="h-4 w-4" />
+                                ) : (
+                                  <UserCheck className="h-4 w-4" />
+                                )}
+                              </Button>
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                title="Delete permanently"
+                                disabled={isSelf(u) || openDelete.isPending}
+                                onClick={() => openDelete.mutate(u)}
+                              >
+                                <Trash2 className="h-4 w-4 text-destructive" />
+                              </Button>
+                            </div>
                           </TableCell>
                         )}
                       </TableRow>
@@ -324,6 +459,103 @@ export function UsersTab({ canEdit }: { canEdit: boolean }) {
           </CardContent>
         </Card>
       )}
+
+      {/* Deactivate / reactivate dialog */}
+      <Dialog open={!!statusUser} onOpenChange={(o) => !o && setStatusUser(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {statusUser?.is_active ? "Deactivate account" : "Reactivate account"}
+            </DialogTitle>
+            <DialogDescription>
+              {statusUser?.full_name || statusUser?.email}
+              {statusUser?.is_active
+                ? " will lose access immediately, including any open session. All of their history is kept."
+                : " will regain access with their existing roles."}
+            </DialogDescription>
+          </DialogHeader>
+          {statusUser?.is_active && (
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Reason (optional)</label>
+              <Textarea
+                value={statusReason}
+                onChange={(e) => setStatusReason(e.target.value)}
+                maxLength={300}
+                placeholder="e.g. Left the school"
+              />
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setStatusUser(null)}>
+              Cancel
+            </Button>
+            <Button
+              variant={statusUser?.is_active ? "destructive" : "default"}
+              disabled={changeStatus.isPending}
+              onClick={() =>
+                statusUser &&
+                changeStatus.mutate({ user: statusUser, active: !statusUser.is_active })
+              }
+            >
+              {changeStatus.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
+              {statusUser?.is_active ? "Deactivate" : "Reactivate"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Hard delete dialog */}
+      <Dialog
+        open={!!deleteTarget}
+        onOpenChange={(o) => {
+          if (!o) {
+            setDeleteTarget(null);
+            setEligibility(null);
+          }
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete account permanently</DialogTitle>
+            <DialogDescription>{deleteTarget?.full_name || deleteTarget?.email}</DialogDescription>
+          </DialogHeader>
+          {openDelete.isPending || !eligibility ? (
+            <Skeleton className="h-20 w-full" />
+          ) : eligibility.deletable ? (
+            <p className="text-sm">
+              This account has no operational history. Deleting removes the login, the profile and
+              all role assignments. Activity-log entries are kept for audit. This cannot be undone.
+            </p>
+          ) : (
+            <div className="space-y-2">
+              <p className="text-sm">
+                This account cannot be deleted because it is referenced by school records.
+                Deactivate it instead — access is revoked and history stays intact.
+              </p>
+              <ul className="list-disc pl-5 text-sm text-muted-foreground">
+                {eligibility.blockers.map((b) => (
+                  <li key={b.label}>
+                    {b.label} ({b.count})
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteTarget(null)}>
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              disabled={!eligibility?.deletable || confirmDelete.isPending}
+              onClick={() => confirmDelete.mutate()}
+            >
+              {confirmDelete.isPending && <Loader2 className="h-4 w-4 animate-spin" />} Delete
+              permanently
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Invite dialog */}
       <Dialog
@@ -438,26 +670,38 @@ export function UsersTab({ canEdit }: { canEdit: boolean }) {
             <DialogDescription>{editingUser?.full_name || editingUser?.email}</DialogDescription>
           </DialogHeader>
           <div className="space-y-3">
-            {APP_ROLES.map((role) => (
-              <label
-                key={role}
-                className="flex items-center gap-3 rounded-md border p-3 cursor-pointer"
-              >
-                <Checkbox
-                  checked={selectedRoles.has(role)}
-                  onCheckedChange={(v) => {
-                    const next = new Set(selectedRoles);
-                    if (v) next.add(role);
-                    else next.delete(role);
-                    setSelectedRoles(next);
-                  }}
-                />
-                <div className="flex-1">
-                  <p className="text-sm font-medium">{ROLE_LABELS[role]}</p>
-                  <p className="text-xs text-muted-foreground">{ROLE_DESCRIPTIONS[role]}</p>
-                </div>
-              </label>
-            ))}
+            {APP_ROLES.map((role) => {
+              const lockedSuperAdmin =
+                role === "super_admin" &&
+                !!editingUser &&
+                selectedRoles.has("super_admin") &&
+                (isSelf(editingUser) || lastActiveSuperAdmin(editingUser));
+              return (
+                <label
+                  key={role}
+                  className="flex items-center gap-3 rounded-md border p-3 cursor-pointer"
+                >
+                  <Checkbox
+                    checked={selectedRoles.has(role)}
+                    disabled={lockedSuperAdmin}
+                    onCheckedChange={(v) => {
+                      const next = new Set(selectedRoles);
+                      if (v) next.add(role);
+                      else next.delete(role);
+                      setSelectedRoles(next);
+                    }}
+                  />
+                  <div className="flex-1">
+                    <p className="text-sm font-medium">{ROLE_LABELS[role]}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {lockedSuperAdmin
+                        ? "You cannot remove your own Super Admin role, and at least one active Super Admin must remain."
+                        : ROLE_DESCRIPTIONS[role]}
+                    </p>
+                  </div>
+                </label>
+              );
+            })}
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setEditingUser(null)}>
