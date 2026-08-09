@@ -1284,7 +1284,7 @@ export type Database = {
           opening_balance: number | null
           promoted_from_record_id: string | null
           roll_number: string | null
-          section_id: string
+          section_id: string | null
           status: Database["public"]["Enums"]["student_academic_status"]
           student_id: string
           updated_at: string
@@ -1300,7 +1300,7 @@ export type Database = {
           opening_balance?: number | null
           promoted_from_record_id?: string | null
           roll_number?: string | null
-          section_id: string
+          section_id?: string | null
           status?: Database["public"]["Enums"]["student_academic_status"]
           student_id: string
           updated_at?: string
@@ -1316,7 +1316,7 @@ export type Database = {
           opening_balance?: number | null
           promoted_from_record_id?: string | null
           roll_number?: string | null
-          section_id?: string
+          section_id?: string | null
           status?: Database["public"]["Enums"]["student_academic_status"]
           student_id?: string
           updated_at?: string

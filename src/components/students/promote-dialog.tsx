@@ -94,8 +94,7 @@ export function PromoteDialog({
 
   const promote = useMutation({
     mutationFn: async () => {
-      if (!sessionId || !classId || !sectionId)
-        throw new Error("Session, class, and section are required");
+      if (!sessionId || !classId) throw new Error("Session and class are required");
       let feeStructureId: string | null = null;
       if (status === "Active") {
         const { data: matches, error: matchErr } = await supabase
@@ -121,7 +120,7 @@ export function PromoteDialog({
         student_id: studentId,
         academic_session_id: sessionId,
         class_id: classId,
-        section_id: sectionId,
+        section_id: sectionId || null,
         house_id: houseId || null,
         roll_number: rollNumber || null,
         joined_on: joinedOn,
@@ -185,12 +184,18 @@ export function PromoteDialog({
             </Select>
           </div>
           <div className="space-y-1.5">
-            <Label>Section *</Label>
-            <Select value={sectionId} onValueChange={setSectionId}>
+            <Label>Section</Label>
+            <Select
+              value={sectionId || "none"}
+              onValueChange={(v) => setSectionId(v === "none" ? "" : v)}
+            >
               <SelectTrigger>
-                <SelectValue placeholder="Select section" />
+                <SelectValue placeholder="Select section (optional)" />
               </SelectTrigger>
               <SelectContent>
+                <SelectItem value="none">
+                  {(sections?.length ?? 0) === 0 ? "— Not Applicable —" : "— No section —"}
+                </SelectItem>
                 {sections?.map((s) => (
                   <SelectItem key={s.id} value={s.id}>
                     {s.name}

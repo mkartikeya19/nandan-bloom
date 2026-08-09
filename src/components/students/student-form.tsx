@@ -38,7 +38,7 @@ interface Props {
     id: string;
     academic_session_id: string;
     class_id: string;
-    section_id: string;
+    section_id: string | null;
     house_id: string | null;
     roll_number: string | null;
     joined_on: string;
@@ -195,7 +195,7 @@ export function StudentForm({ mode, student, currentRecord, onSaved }: Props) {
         setAcad({
           academic_session_id: currentRecord.academic_session_id,
           class_id: currentRecord.class_id,
-          section_id: currentRecord.section_id,
+          section_id: currentRecord.section_id ?? "",
           roll_number: currentRecord.roll_number ?? "",
           house_id: currentRecord.house_id ?? "",
           joined_on: currentRecord.joined_on,
@@ -230,10 +230,8 @@ export function StudentForm({ mode, student, currentRecord, onSaved }: Props) {
     if (!acad.academic_session_id)
       mandatoryErrors.academic_session_id = "Academic session is required";
     if (!acad.class_id) mandatoryErrors.class_id = "Class is required";
-    // Section is only mandatory when sections exist for the selected class.
-    if (acad.class_id && (sections?.length ?? 0) > 0 && !acad.section_id) {
-      mandatoryErrors.section_id = "Section is required";
-    }
+    // Section is optional. When supplied it must belong to the selected class,
+    // which the section dropdown already guarantees.
     // Roll number is assigned automatically post-admission and regenerated on promotion.
   }
   const canSubmit = mode === "edit" || Object.keys(mandatoryErrors).length === 0;
@@ -258,7 +256,7 @@ export function StudentForm({ mode, student, currentRecord, onSaved }: Props) {
           _academic_payload: {
             academic_session_id: acad.academic_session_id,
             class_id: acad.class_id,
-            section_id: acad.section_id,
+            section_id: acad.section_id || null,
             roll_number: acad.roll_number || null,
             house_id: acad.house_id || null,
             joined_on: acad.joined_on,
@@ -278,7 +276,7 @@ export function StudentForm({ mode, student, currentRecord, onSaved }: Props) {
             .update({
               academic_session_id: acad.academic_session_id,
               class_id: acad.class_id,
-              section_id: acad.section_id,
+              section_id: acad.section_id || null,
               roll_number: acad.roll_number || null,
               house_id: acad.house_id || null,
               joined_on: acad.joined_on,
@@ -646,7 +644,9 @@ export function StudentForm({ mode, student, currentRecord, onSaved }: Props) {
                   </SelectContent>
                 </Select>
               </Field>
-              <Field label={`Section${(sections?.length ?? 0) > 0 ? " *" : " (N/A)"}`}>
+              <Field
+                label={`Section${(sections?.length ?? 0) === 0 ? " (Not Applicable)" : " (optional)"}`}
+              >
                 <Select
                   value={acad.section_id || "none"}
                   onValueChange={(v) => setA("section_id", v === "none" ? "" : v)}
@@ -660,9 +660,9 @@ export function StudentForm({ mode, student, currentRecord, onSaved }: Props) {
                     />
                   </SelectTrigger>
                   <SelectContent>
-                    {(sections?.length ?? 0) === 0 && (
-                      <SelectItem value="none">— Not Applicable —</SelectItem>
-                    )}
+                    <SelectItem value="none">
+                      {(sections?.length ?? 0) === 0 ? "— Not Applicable —" : "— No section —"}
+                    </SelectItem>
                     {sections?.map((s) => (
                       <SelectItem key={s.id} value={s.id}>
                         {s.name}

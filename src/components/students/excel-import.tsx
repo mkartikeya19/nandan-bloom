@@ -25,6 +25,7 @@ import {
   type StudentStatus,
   type RawRow,
 } from "@/lib/students-helpers";
+import { normalizeSpreadsheetDate } from "@/lib/spreadsheet-date";
 import {
   createMigrationBatch,
   recordBatchItems,
@@ -37,7 +38,7 @@ type ValidRow = {
   academicRecord: {
     academic_session_id: string;
     class_id: string;
-    section_id: string;
+    section_id: string | null;
     house_id: string | null;
     roll_number: string | null;
     joined_on: string;
@@ -88,7 +89,7 @@ export function ExcelImport({ batchType }: { batchType?: "students" } = {}) {
     setValidating(true);
     setImported(null);
     try {
-      const rows = await parseWorkbook(file);
+      const { rows, date1904 } = await parseWorkbook(file);
       const seenScholars = new Set<string>();
       const v: ValidRow[] = [];
       const inv: InvalidRow[] = [];
@@ -98,20 +99,32 @@ export function ExcelImport({ batchType }: { batchType?: "students" } = {}) {
         const rowNumber = idx + 2;
         const scholar = cleanStr(r["Scholar Number"]);
         const name = cleanStr(r["Full Name"]);
-        const doa = cleanStr(r["Date of Admission (YYYY-MM-DD)"]);
+
+        // Dates are normalised once, here, and the normalised values are what
+        // get imported — validation and import can never disagree.
+        const readDate = (column: string, label: string): string | null => {
+          const res = normalizeSpreadsheetDate(r[column], { date1904 });
+          if (!res.ok) {
+            errors.push(`${label} is not a valid date ("${res.raw}")`);
+            return null;
+          }
+          return res.value;
+        };
+
+        const doa = readDate("Date of Admission (YYYY-MM-DD)", "Date of Admission");
+        const dob = readDate("Date of Birth (YYYY-MM-DD)", "Date of Birth");
+        const joinedOnRaw = readDate("Joined On (YYYY-MM-DD)", "Joined On");
         const sessionName = cleanStr(r["Academic Session"]);
         const className = cleanStr(r["Class"]);
         const sectionName = cleanStr(r["Section"]);
         const houseName = cleanStr(r["House"]);
-        const joinedOn =
-          cleanStr(r["Joined On (YYYY-MM-DD)"]) ?? doa ?? new Date().toISOString().slice(0, 10);
+        const joinedOn = joinedOnRaw ?? doa ?? new Date().toISOString().slice(0, 10);
 
         if (!scholar) errors.push("Missing Scholar Number");
         if (!name) errors.push("Missing Full Name");
         if (!doa) errors.push("Missing Date of Admission");
         if (!sessionName) errors.push("Missing Academic Session");
         if (!className) errors.push("Missing Class");
-        if (!sectionName) errors.push("Missing Section");
 
         if (scholar && refs.existingScholars.has(scholar))
           errors.push(`Scholar Number ${scholar} already exists in system`);
@@ -127,6 +140,7 @@ export function ExcelImport({ batchType }: { batchType?: "students" } = {}) {
           : undefined;
         if (className && !cls) errors.push(`Class "${className}" not found in session`);
 
+        // Section is optional; when supplied it must belong to the class.
         const sec = cls
           ? refs.sections.find((s) => s.name === sectionName && s.class_id === cls.id)
           : undefined;
@@ -138,7 +152,7 @@ export function ExcelImport({ batchType }: { batchType?: "students" } = {}) {
         const rawStatus = cleanStr(r["Status"]) ?? "Active";
         const status = STUDENT_STATUS_VALUES.includes(rawStatus as never) ? rawStatus : "Active";
 
-        if (errors.length > 0 || !session || !cls || !sec || !scholar || !name || !doa) {
+        if (errors.length > 0 || !session || !cls || !scholar || !name || !doa) {
           inv.push({ rowNumber, scholarNumber: scholar ?? "", name: name ?? "", errors });
           return;
         }
@@ -151,7 +165,7 @@ export function ExcelImport({ batchType }: { batchType?: "students" } = {}) {
             full_name: name,
             admission_type: "Existing Student Migration",
             gender: cleanStr(r["Gender"]),
-            date_of_birth: cleanStr(r["Date of Birth (YYYY-MM-DD)"]),
+            date_of_birth: dob,
             date_of_admission: doa,
             aadhaar_number: cleanStr(r["Aadhaar Number"]),
             apaar_id: cleanStr(r["APAAR ID"]),
@@ -183,7 +197,7 @@ export function ExcelImport({ batchType }: { batchType?: "students" } = {}) {
           academicRecord: {
             academic_session_id: session.id,
             class_id: cls.id,
-            section_id: sec.id,
+            section_id: sec?.id ?? null,
             house_id: house?.id ?? null,
             roll_number: cleanStr(r["Roll Number"]),
             joined_on: joinedOn,
