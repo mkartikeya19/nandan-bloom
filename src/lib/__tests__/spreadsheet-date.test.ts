@@ -33,7 +33,16 @@ describe("normalizeSpreadsheetDate", () => {
   });
 
   it("rejects impossible and out-of-range values", () => {
-    for (const bad of ["31/02/2020", "29/02/2019", "32/01/2020", "xyz", "436500", -5, NaN, Infinity])
+    for (const bad of [
+      "31/02/2020",
+      "29/02/2019",
+      "32/01/2020",
+      "xyz",
+      "436500",
+      -5,
+      NaN,
+      Infinity,
+    ])
       expect(ok(bad).ok).toBe(false);
   });
 

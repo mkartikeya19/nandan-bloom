@@ -37,11 +37,7 @@ function fromParts(year: number, month: number, day: number): SpreadsheetDateRes
   }
   // Verify the calendar components round-trip (rejects 31/02, 29/02 non-leap…)
   const d = new Date(Date.UTC(year, month - 1, day));
-  if (
-    d.getUTCFullYear() !== year ||
-    d.getUTCMonth() !== month - 1 ||
-    d.getUTCDate() !== day
-  ) {
+  if (d.getUTCFullYear() !== year || d.getUTCMonth() !== month - 1 || d.getUTCDate() !== day) {
     return { ok: false, raw, reason: "impossible calendar date" };
   }
   return { ok: true, value: `${pad(year, 4)}-${pad(month)}-${pad(day)}` };
