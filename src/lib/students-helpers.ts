@@ -99,18 +99,29 @@ export function downloadImportTemplate() {
   XLSX.writeFile(wb, "student-import-template.xlsx");
 }
 
-export type RawRow = Record<string, string | number | undefined>;
+export type RawRow = Record<string, string | number | Date | undefined>;
 
-export function parseWorkbook(file: File): Promise<RawRow[]> {
+export type ParsedWorkbook = {
+  rows: RawRow[];
+  /** True when the workbook uses the 1904 date system (classic Mac Excel). */
+  date1904: boolean;
+};
+
+export function parseWorkbook(file: File): Promise<ParsedWorkbook> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = (e) => {
       try {
         const data = new Uint8Array(e.target?.result as ArrayBuffer);
-        const wb = XLSX.read(data, { type: "array" });
+        // cellDates keeps true date cells as Date objects; serials still arrive
+        // as numbers and are normalised downstream.
+        const wb = XLSX.read(data, { type: "array", cellDates: true });
         const ws = wb.Sheets[wb.SheetNames[0]];
-        const rows = XLSX.utils.sheet_to_json<RawRow>(ws, { defval: "" });
-        resolve(rows);
+        const rows = XLSX.utils.sheet_to_json<RawRow>(ws, { defval: "", raw: true });
+        const date1904 = Boolean(
+          (wb.Workbook?.WBProps as { date1904?: boolean | number } | undefined)?.date1904,
+        );
+        resolve({ rows, date1904 });
       } catch (err) {
         reject(err);
       }

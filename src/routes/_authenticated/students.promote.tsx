@@ -180,7 +180,7 @@ function PromotionWizardPage() {
         id: string;
         student_id: string;
         class_id: string;
-        section_id: string;
+        section_id: string | null;
         house_id: string | null;
         roll_number: string | null;
         students: { scholar_number: string; full_name: string; status: string };
@@ -202,7 +202,7 @@ function PromotionWizardPage() {
           full_name: r.students.full_name,
           previous_record_id: r.id,
           current_class_id: r.class_id,
-          current_section_id: r.section_id,
+          current_section_id: r.section_id ?? "",
           current_house_id: r.house_id,
           current_roll_number: r.roll_number,
           action: "promote",
@@ -546,8 +546,10 @@ function PromotionWizardPage() {
                       </TableCell>
                       <TableCell>
                         <Select
-                          value={r.new_section_id}
-                          onValueChange={(v) => updateRow(idx, { new_section_id: v })}
+                          value={r.new_section_id || "none"}
+                          onValueChange={(v) =>
+                            updateRow(idx, { new_section_id: v === "none" ? "" : v })
+                          }
                         >
                           <SelectTrigger className="h-8 w-[100px]">
                             <SelectValue placeholder="—" />
@@ -557,19 +559,16 @@ function PromotionWizardPage() {
                               const opts = (newSections ?? []).filter(
                                 (s) => s.class_id === r.new_class_id,
                               );
-                              if (opts.length === 0)
-                                return (
-                                  <div className="p-2 text-xs text-muted-foreground">
-                                    {r.new_class_id
-                                      ? "No sections for this class"
-                                      : "Pick a class first"}
-                                  </div>
-                                );
-                              return opts.map((s) => (
-                                <SelectItem key={s.id} value={s.id}>
-                                  {s.name}
-                                </SelectItem>
-                              ));
+                              return [
+                                <SelectItem key="none" value="none">
+                                  {opts.length === 0 ? "— Not Applicable —" : "— No section —"}
+                                </SelectItem>,
+                                ...opts.map((s) => (
+                                  <SelectItem key={s.id} value={s.id}>
+                                    {s.name}
+                                  </SelectItem>
+                                )),
+                              ];
                             })()}
                           </SelectContent>
                         </Select>
@@ -648,10 +647,7 @@ function PromotionWizardPage() {
                 disabled={
                   rows.length === 0 ||
                   rows.some(
-                    (r) =>
-                      !r.new_class_id ||
-                      !r.new_section_id ||
-                      (r.action === "promote" && !r.fee_structure_id),
+                    (r) => !r.new_class_id || (r.action === "promote" && !r.fee_structure_id),
                   )
                 }
               >
