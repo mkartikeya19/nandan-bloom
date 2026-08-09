@@ -215,18 +215,16 @@ export function StudentForm({ mode, student, currentRecord, onSaved }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mode, student, currentRecord, sessions?.length]);
 
+  // Mandatory-field audit: the UI only enforces what the database and the
+  // admission RPC genuinely require — Scholar Number and Student Name (NOT NULL
+  // on `students`) plus Academic Session and Class (NOT NULL on
+  // `student_academic_records`). Everything else, including Date of Admission,
+  // Date of Birth, Gender, Section and parent details, is optional so that
+  // partial legacy records can be captured and completed later.
   const mandatoryErrors: Record<string, string> = {};
   if (mode === "new") {
     if (!form.full_name.trim()) mandatoryErrors.full_name = "Student name is required";
     if (!form.scholar_number.trim()) mandatoryErrors.scholar_number = "Scholar number missing";
-    if (!form.gender) mandatoryErrors.gender = "Gender is required";
-    if (!form.date_of_birth) mandatoryErrors.date_of_birth = "Date of birth is required";
-    if (!form.date_of_admission)
-      mandatoryErrors.date_of_admission = "Date of admission is required";
-    if (!form.father_name.trim()) mandatoryErrors.father_name = "Father name is required";
-    if (!form.father_mobile.trim()) mandatoryErrors.father_mobile = "Father mobile is required";
-    if (!form.mother_name.trim()) mandatoryErrors.mother_name = "Mother name is required";
-    if (!form.mother_mobile.trim()) mandatoryErrors.mother_mobile = "Mother mobile is required";
     if (!acad.academic_session_id)
       mandatoryErrors.academic_session_id = "Academic session is required";
     if (!acad.class_id) mandatoryErrors.class_id = "Class is required";
@@ -234,6 +232,7 @@ export function StudentForm({ mode, student, currentRecord, onSaved }: Props) {
     // which the section dropdown already guarantees.
     // Roll number is assigned automatically post-admission and regenerated on promotion.
   }
+
   const canSubmit = mode === "edit" || Object.keys(mandatoryErrors).length === 0;
 
   const save = useMutation({
@@ -246,6 +245,7 @@ export function StudentForm({ mode, student, currentRecord, onSaved }: Props) {
         ...form,
         admission_number: form.scholar_number, // keep internal alignment
         date_of_birth: form.date_of_birth || null,
+        date_of_admission: form.date_of_admission || null,
         gender: form.gender || null,
       };
 
@@ -435,7 +435,7 @@ export function StudentForm({ mode, student, currentRecord, onSaved }: Props) {
                   onChange={(e) => set("date_of_birth", e.target.value)}
                 />
               </Field>
-              <Field label="Date of Admission *">
+              <Field label="Date of Admission">
                 <Input
                   type="date"
                   value={form.date_of_admission}

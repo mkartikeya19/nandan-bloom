@@ -122,7 +122,6 @@ export function ExcelImport({ batchType }: { batchType?: "students" } = {}) {
 
         if (!scholar) errors.push("Missing Scholar Number");
         if (!name) errors.push("Missing Full Name");
-        if (!doa) errors.push("Missing Date of Admission");
         if (!sessionName) errors.push("Missing Academic Session");
         if (!className) errors.push("Missing Class");
 
@@ -152,7 +151,7 @@ export function ExcelImport({ batchType }: { batchType?: "students" } = {}) {
         const rawStatus = cleanStr(r["Status"]) ?? "Active";
         const status = STUDENT_STATUS_VALUES.includes(rawStatus as never) ? rawStatus : "Active";
 
-        if (errors.length > 0 || !session || !cls || !scholar || !name || !doa) {
+        if (errors.length > 0 || !session || !cls || !scholar || !name) {
           inv.push({ rowNumber, scholarNumber: scholar ?? "", name: name ?? "", errors });
           return;
         }

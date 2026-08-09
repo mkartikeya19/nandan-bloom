@@ -1119,27 +1119,39 @@ export type Database = {
         Row: {
           avatar_url: string | null
           created_at: string
+          deactivated_at: string | null
+          deactivated_by: string | null
+          deactivation_reason: string | null
           email: string | null
           full_name: string | null
           id: string
+          is_active: boolean
           phone: string | null
           updated_at: string
         }
         Insert: {
           avatar_url?: string | null
           created_at?: string
+          deactivated_at?: string | null
+          deactivated_by?: string | null
+          deactivation_reason?: string | null
           email?: string | null
           full_name?: string | null
           id: string
+          is_active?: boolean
           phone?: string | null
           updated_at?: string
         }
         Update: {
           avatar_url?: string | null
           created_at?: string
+          deactivated_at?: string | null
+          deactivated_by?: string | null
+          deactivation_reason?: string | null
           email?: string | null
           full_name?: string | null
           id?: string
+          is_active?: boolean
           phone?: string | null
           updated_at?: string
         }
@@ -1827,6 +1839,18 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_delete_user: { Args: { _target_user_id: string }; Returns: Json }
+      admin_set_user_active: {
+        Args: { _active: boolean; _reason?: string; _target_user_id: string }
+        Returns: Json
+      }
+      admin_set_user_roles: {
+        Args: {
+          _roles: Database["public"]["Enums"]["app_role"][]
+          _target_user_id: string
+        }
+        Returns: Json
+      }
       admit_student_with_fee_structure: {
         Args: { _academic_payload: Json; _student_payload: Json }
         Returns: Json
@@ -1869,6 +1893,7 @@ export type Database = {
         Args: { _structure_id: string }
         Returns: boolean
       }
+      is_user_active: { Args: { _user_id: string }; Returns: boolean }
       link_academic_record_fee_structure: {
         Args: { _record_id: string }
         Returns: Json
@@ -1885,6 +1910,10 @@ export type Database = {
         Returns: number
       }
       rollback_migration_batch: { Args: { _batch_id: string }; Returns: Json }
+      user_delete_eligibility: {
+        Args: { _target_user_id: string }
+        Returns: Json
+      }
       version_exam_pattern: { Args: { _source_id: string }; Returns: string }
     }
     Enums: {
