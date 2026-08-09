@@ -59,4 +59,3 @@ export async function fetchAllUserRoles(): Promise<UserRoleRow[]> {
   if (error) throw error;
   return (data ?? []) as UserRoleRow[];
 }
-

@@ -111,10 +111,7 @@ export function UsersTab({ canEdit }: { canEdit: boolean }) {
       })),
     [profilesQ.data, rolesByUser],
   );
-  const activeSuperAdmins = useMemo(
-    () => countActiveSuperAdmins(lifecycleUsers),
-    [lifecycleUsers],
-  );
+  const activeSuperAdmins = useMemo(() => countActiveSuperAdmins(lifecycleUsers), [lifecycleUsers]);
   const asLifecycle = (u: ProfileRow): LifecycleUser => ({
     id: u.id,
     isActive: u.is_active,

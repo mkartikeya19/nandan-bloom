@@ -249,7 +249,6 @@ export function StudentForm({ mode, student, currentRecord, onSaved }: Props) {
         gender: form.gender || null,
       };
 
-
       let studentId: string;
       if (mode === "new") {
         const { data, error } = await supabase.rpc("admit_student_with_fee_structure", {
