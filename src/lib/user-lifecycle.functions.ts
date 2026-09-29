@@ -90,10 +90,9 @@ export const checkUserDeletable = createServerFn({ method: "POST" })
  *   2. recompute delete eligibility immediately before starting,
  *   3. inspect Auth state for a new operation or retry,
  *   4. ban the Auth login and re-read the user to confirm the ban,
- *   5. mark the target inactive in the application database,
- *   6. remove application rows while durably preserving actor + email,
- *   7. delete the Auth user,
- *   8. write exactly one final audit event through a service-only RPC.
+ *   5. remove application rows while durably preserving actor + email,
+ *   6. delete the Auth user,
+ *   7. write exactly one final audit event through a service-only RPC.
  *
  * If the ban fails, no application state changes. A later failure leaves the
  * target banned and the durable deletion job makes retries safe even after the
@@ -130,14 +129,6 @@ export const deleteUser = createServerFn({ method: "POST" })
         if (error) {
           throw new Error(`User Deletion Failed — could not disable the login: ${error.message}`);
         }
-      },
-      deactivateApplicationUser: async () => {
-        const { error } = await supabase.rpc("admin_set_user_active", {
-          _target_user_id: data.userId,
-          _active: false,
-          _reason: "Pending permanent deletion",
-        });
-        if (error && !/user not found/i.test(error.message)) throw new Error(error.message);
       },
       cleanupApplicationRecords: async () => {
         const { data: cleanup, error } = await supabase.rpc("admin_delete_user", {
