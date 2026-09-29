@@ -10,3 +10,8 @@
 > the editor, so keep the branch in a working state.
 
 <!-- LOVABLE:END -->
+
+## Project architecture
+
+- Keep user-deletion orchestration in `src/lib/user-deletion.ts`; this makes the cross-system fail-safe sequence independently testable while database functions enforce authorization and persistence.
+- Treat generated integration and route-tree files as lint/format inputs owned by their generators; exclude them rather than manually rewriting generated output.
