@@ -19,6 +19,7 @@ function dependencies(overrides: Partial<UserDeletionDependencies> = {}) {
         return { exists: true, banned: true };
       }),
     banAuthUser: vi.fn(async () => void calls.push("auth:ban")),
+    deactivateApplicationUser: vi.fn(async () => void calls.push("app:deactivate")),
     cleanupApplicationRecords: vi.fn(async () => {
       calls.push("app:cleanup");
       return { email: "target@example.test" };
@@ -42,6 +43,7 @@ describe("user deletion orchestration", () => {
       "auth:initial",
       "auth:ban",
       "auth:banned",
+      "app:deactivate",
       "app:cleanup",
       "auth:delete",
       "audit:final",
@@ -55,6 +57,7 @@ describe("user deletion orchestration", () => {
       }),
     });
     await expect(executeUserDeletion(deps)).rejects.toThrow("ban failed");
+    expect(deps.deactivateApplicationUser).not.toHaveBeenCalled();
     expect(deps.cleanupApplicationRecords).not.toHaveBeenCalled();
     expect(deps.finalizeDeletionAudit).not.toHaveBeenCalled();
   });

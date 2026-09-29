@@ -15,6 +15,7 @@ export interface UserDeletionDependencies {
   checkEligibility: () => Promise<DeletionEligibility>;
   getAuthUserState: () => Promise<AuthUserState>;
   banAuthUser: () => Promise<void>;
+  deactivateApplicationUser: () => Promise<void>;
   cleanupApplicationRecords: () => Promise<ApplicationCleanupResult>;
   deleteAuthUser: () => Promise<void>;
   finalizeDeletionAudit: () => Promise<void>;
@@ -44,6 +45,7 @@ export async function executeUserDeletion(deps: UserDeletionDependencies) {
       );
     }
 
+    await deps.deactivateApplicationUser();
     cleanup = await deps.cleanupApplicationRecords();
     await deps.deleteAuthUser();
   } else {
