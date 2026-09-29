@@ -1,12 +1,6 @@
--- PREPARED, NOT APPLIED.
---
--- The connected backend could not be classified as non-production, so per the
--- environment stop condition this SQL has NOT been executed and has NOT been
--- added to supabase/migrations/. Apply it as a single forward-only migration in
--- an isolated non-production project first; nothing here edits or reverts an
--- already-applied migration.
---
--- Remediation of security defects D1-D4 found in the user-lifecycle audit.
+-- Forward-only remediation of security defects D1-D5 found in the
+-- user-lifecycle audit. Validate in an isolated non-production project before
+-- applying to production.
 -- D1  profiles privilege escalation (self-reactivation)
 -- D2  EXECUTE grants on lifecycle functions
 -- D3  last-active-Super-Admin race condition
@@ -22,7 +16,7 @@
 -- the SECURITY DEFINER functions below, which run as the function owner and are
 -- therefore unaffected by these grants.
 REVOKE UPDATE ON public.profiles FROM authenticated;
-GRANT UPDATE (full_name, phone, avatar_url, updated_at) ON public.profiles TO authenticated;
+GRANT UPDATE (full_name, phone, avatar_url) ON public.profiles TO authenticated;
 GRANT ALL ON public.profiles TO service_role;
 
 DROP POLICY IF EXISTS "Users update own profile" ON public.profiles;
@@ -65,6 +59,24 @@ DROP POLICY IF EXISTS "insert own activity" ON public.activity_log;
 CREATE POLICY "insert own activity" ON public.activity_log
   FOR INSERT TO authenticated
   WITH CHECK (auth.uid() = user_id AND public.is_user_active(auth.uid()));
+
+-- ---------------------------------------------------------------------------
+-- D5. Durable deletion snapshot and idempotent finalisation state
+-- ---------------------------------------------------------------------------
+-- This internal table survives removal of profiles/user_roles. It preserves the
+-- original acting Super Admin and target email across a failed Auth deletion so
+-- a later retry can produce one accurate final audit event.
+CREATE TABLE public.user_deletion_jobs (
+  target_user_id uuid PRIMARY KEY,
+  target_email text,
+  requested_by uuid NOT NULL,
+  application_records_removed_at timestamptz NOT NULL DEFAULT now(),
+  finalized_at timestamptz
+);
+
+GRANT ALL ON public.user_deletion_jobs TO service_role;
+
+ALTER TABLE public.user_deletion_jobs ENABLE ROW LEVEL SECURITY;
 
 -- ---------------------------------------------------------------------------
 -- D3. Serialise every operation that can reduce the active Super Admin count
@@ -274,20 +286,30 @@ DECLARE
   uid uuid := auth.uid();
   eligibility jsonb;
   target_email text;
+  deletion_job public.user_deletion_jobs%ROWTYPE;
 BEGIN
   IF uid IS NULL THEN RAISE EXCEPTION 'Not authenticated'; END IF;
   IF NOT public.has_role(uid, 'super_admin') THEN
     RAISE EXCEPTION 'Only Super Admins can delete accounts';
   END IF;
+  IF _target_user_id = uid THEN
+    RAISE EXCEPTION 'You cannot delete your own account';
+  END IF;
 
-  -- Same lock, same key, same order as deactivation and demotion (D3), so the
-  -- eligibility recheck below cannot race a concurrent Super Admin removal.
   PERFORM public.lock_user_lifecycle();
 
-  -- Retry-safe: if the application rows are already gone, there is nothing to
-  -- delete here and the caller proceeds to the Auth deletion step.
+  SELECT * INTO deletion_job
+  FROM public.user_deletion_jobs
+  WHERE target_user_id = _target_user_id;
+
+  -- Retry-safe after application cleanup: the durable job retains both the
+  -- original email and acting Super Admin attribution.
   IF NOT EXISTS (SELECT 1 FROM public.profiles WHERE id = _target_user_id) THEN
-    RETURN jsonb_build_object('user_id', _target_user_id, 'email', NULL,
+    IF deletion_job.target_user_id IS NULL THEN
+      RAISE EXCEPTION 'Deletion state not found';
+    END IF;
+    RETURN jsonb_build_object('user_id', _target_user_id,
+                              'email', deletion_job.target_email,
                               'deleted', true, 'already_removed', true);
   END IF;
 
@@ -298,42 +320,87 @@ BEGIN
     RAISE EXCEPTION 'This account has operational history and cannot be deleted. Deactivate it instead.';
   END IF;
 
+  INSERT INTO public.user_deletion_jobs (target_user_id, target_email, requested_by)
+  VALUES (_target_user_id, target_email, uid)
+  ON CONFLICT (target_user_id) DO NOTHING;
+
   DELETE FROM public.user_roles WHERE user_id = _target_user_id;
   UPDATE public.user_invitations SET accepted_user_id = NULL WHERE accepted_user_id = _target_user_id;
   DELETE FROM public.profiles WHERE id = _target_user_id;
 
-  INSERT INTO public.activity_log (user_id, module, action, entity_type, entity_id, details)
-  VALUES (uid, 'Users', 'Deleted user', 'user', _target_user_id::text,
-          jsonb_build_object('email', target_email));
-
   RETURN jsonb_build_object('user_id', _target_user_id, 'email', target_email, 'deleted', true);
 END $$;
 
--- ---------------------------------------------------------------------------
--- D2. EXECUTE grants - least privilege for every lifecycle function
--- ---------------------------------------------------------------------------
-REVOKE ALL ON FUNCTION public.is_user_active(uuid) FROM PUBLIC, anon;
-REVOKE ALL ON FUNCTION public.has_role(uuid, app_role) FROM PUBLIC, anon;
-REVOKE ALL ON FUNCTION public.admin_set_user_active(uuid, boolean, text) FROM PUBLIC, anon;
-REVOKE ALL ON FUNCTION public.admin_set_user_roles(uuid, app_role[]) FROM PUBLIC, anon;
-REVOKE ALL ON FUNCTION public.user_delete_eligibility(uuid) FROM PUBLIC, anon;
-REVOKE ALL ON FUNCTION public.admin_delete_user(uuid) FROM PUBLIC, anon;
-REVOKE ALL ON FUNCTION public.lock_user_lifecycle() FROM PUBLIC, anon;
+-- Service-only finalisation. The server calls this only after Auth deletion has
+-- succeeded. Row locking plus finalized_at makes concurrent/repeated retries
+-- idempotent and guarantees exactly one final "Deleted user" event.
+CREATE OR REPLACE FUNCTION public.admin_finalize_user_deletion(_target_user_id uuid)
+RETURNS jsonb
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path TO 'public'
+AS $$
+DECLARE
+  deletion_job public.user_deletion_jobs%ROWTYPE;
+BEGIN
+  SELECT * INTO deletion_job
+  FROM public.user_deletion_jobs
+  WHERE target_user_id = _target_user_id
+  FOR UPDATE;
 
--- Needed by RLS policies evaluated as the calling (authenticated) role.
+  IF deletion_job.target_user_id IS NULL THEN
+    RAISE EXCEPTION 'Deletion state not found';
+  END IF;
+
+  IF deletion_job.finalized_at IS NULL THEN
+    INSERT INTO public.activity_log (user_id, module, action, entity_type, entity_id, details)
+    VALUES (deletion_job.requested_by, 'Users', 'Deleted user', 'user',
+            _target_user_id::text,
+            jsonb_build_object('email', deletion_job.target_email));
+
+    UPDATE public.user_deletion_jobs
+    SET finalized_at = now()
+    WHERE target_user_id = _target_user_id;
+  END IF;
+
+  RETURN jsonb_build_object('user_id', _target_user_id,
+                            'email', deletion_job.target_email,
+                            'finalized', true,
+                            'already_finalized', deletion_job.finalized_at IS NOT NULL);
+END $$;
+
+-- ---------------------------------------------------------------------------
+-- D2. EXECUTE grants - least privilege for all SECURITY DEFINER functions
+-- ---------------------------------------------------------------------------
+DO $$
+DECLARE
+  fn record;
+BEGIN
+  FOR fn IN
+    SELECT p.oid::regprocedure AS signature
+    FROM pg_proc p
+    JOIN pg_namespace n ON n.oid = p.pronamespace
+    WHERE n.nspname = 'public' AND p.prosecdef
+  LOOP
+    EXECUTE format('REVOKE ALL ON FUNCTION %s FROM PUBLIC, anon', fn.signature);
+    EXECUTE format('GRANT EXECUTE ON FUNCTION %s TO service_role', fn.signature);
+  END LOOP;
+END $$;
+
+-- RLS helpers must be callable while policies run as authenticated users.
 GRANT EXECUTE ON FUNCTION public.is_user_active(uuid) TO authenticated;
 GRANT EXECUTE ON FUNCTION public.has_role(uuid, app_role) TO authenticated;
 
--- Administrative RPCs: callable by authenticated users, authorised inside the
--- function body (Super Admin check on auth.uid()). Grants are not the
--- authorisation mechanism.
+-- Administrative RPCs are exposed only to authenticated users and enforce the
+-- Super Admin role internally. The post-Auth finalizer is deliberately omitted.
 GRANT EXECUTE ON FUNCTION public.admin_set_user_active(uuid, boolean, text) TO authenticated;
 GRANT EXECUTE ON FUNCTION public.admin_set_user_roles(uuid, app_role[]) TO authenticated;
 GRANT EXECUTE ON FUNCTION public.user_delete_eligibility(uuid) TO authenticated;
 GRANT EXECUTE ON FUNCTION public.admin_delete_user(uuid) TO authenticated;
 
--- Internal helper: never called directly by a client.
+-- Internal helper and finalizer are server-only.
 GRANT EXECUTE ON FUNCTION public.lock_user_lifecycle() TO service_role;
+GRANT EXECUTE ON FUNCTION public.admin_finalize_user_deletion(uuid) TO service_role;
 
 -- ---------------------------------------------------------------------------
 -- Verification queries (run manually against the non-production database)
@@ -343,7 +410,7 @@ GRANT EXECUTE ON FUNCTION public.lock_user_lifecycle() TO service_role;
 --     FROM information_schema.column_privileges
 --    WHERE table_schema='public' AND table_name='profiles' AND privilege_type='UPDATE'
 --    ORDER BY grantee, column_name;
---   Expected for authenticated: full_name, phone, avatar_url, updated_at only.
+--   Expected for authenticated: full_name, phone, avatar_url only.
 --
 -- 2. Function privileges
 --   SELECT p.proname, pg_get_function_identity_arguments(p.oid) AS args, p.proacl
@@ -351,7 +418,8 @@ GRANT EXECUTE ON FUNCTION public.lock_user_lifecycle() TO service_role;
 --    WHERE n.nspname='public'
 --      AND p.proname IN ('is_user_active','has_role','admin_set_user_active',
 --                        'admin_set_user_roles','user_delete_eligibility',
---                        'admin_delete_user','lock_user_lifecycle');
+--                        'admin_delete_user','admin_finalize_user_deletion',
+--                        'lock_user_lifecycle');
 --   Expected: no "=X/" (PUBLIC) and no anon entry in proacl.
 --
 -- 3. Accidental anon execution anywhere in public
