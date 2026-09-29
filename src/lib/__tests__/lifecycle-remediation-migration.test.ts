@@ -10,9 +10,7 @@ describe("D1-D5 lifecycle remediation migration", () => {
   it("D1 restricts self-service profile fields and active-user policy checks", () => {
     expect(migration).toContain("GRANT UPDATE (full_name, phone, avatar_url)");
     expect(migration).not.toContain("phone, avatar_url, updated_at");
-    expect(migration).toContain(
-      "USING (auth.uid() = id AND public.is_user_active(auth.uid()))",
-    );
+    expect(migration).toContain("USING (auth.uid() = id AND public.is_user_active(auth.uid()))");
     expect(migration).toContain(
       "WITH CHECK (auth.uid() = id AND public.is_user_active(auth.uid()))",
     );
