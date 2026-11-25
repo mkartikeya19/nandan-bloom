@@ -4,6 +4,14 @@ All notable changes to the Nandan Kids School ERP are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/) and the
 project adheres to [Semantic Versioning](https://semver.org/).
 
+## 25 November 2026 — Hosted ERP release summary
+
+The school ERP is operated on separate staging and production environments.
+
+- The production fee workflow supports session-wise fee heads, grouped class fee structures, Excel import of previous-session dues, and collection of the oldest outstanding session first. Receipts identify the academic session paid.
+- Staging verification covered date-only receipts, required transaction IDs for UPI and NEFT, and an audited Super Admin correction workflow for unpaid charges.
+- Staff account setup uses a temporary password shared securely by the administrator. Automated invitation email is a separate capability.
+
 ## [Unreleased] — 2026-08-03 — _Migration Toolkit & Security Hardening_
 
 ### Added — School Migration & Go-Live Toolkit (RC-3.8)
